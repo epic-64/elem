@@ -11,4 +11,4 @@ parameters:
     reportUnmatchedIgnoredErrors: true
 
     paths:
-        - warp.php
+        - src/
