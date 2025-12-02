@@ -3,6 +3,7 @@
 /**
  * @template-covariant T
  * @template-covariant E
+ * @phpstan-sealed Success | Failure
  */
 class Attempt {}
 
@@ -16,15 +17,12 @@ class Success extends Attempt {
 }
 
 /**
- * @template-covariant T
+ * @template-covariant T of Exception
  * @extends Attempt<never, T>
  */
 class Failure extends Attempt {
-    /** @param T $exception */
-    public function __construct(public readonly mixed $exception) {}
+    public function __construct(public readonly Exception $exception) {}
 }
-
-
 
 function greeting(String $name): String {
     return "Hello, " . $name . "!";
@@ -40,28 +38,15 @@ function success(mixed $value): Success {
 }
 
 /**
- * @template T
- * @param T $exception
- * @return Failure<T>
+ * @return Failure<Exception>
  */
-function failure(mixed $exception): Failure {
+function failure(Exception $exception): Failure {
     return new Failure($exception);
 }
 
 function println(mixed $input): void {
     $output = is_string($input) ? $input : var_export($input, true);
     echo $output . PHP_EOL;
-}
-
-/**
- * @template T
- * @template U
- * @param callable(T): U $c
- * @return callable(T|null): (U|null)
- */
-function maybe(callable $c): callable
-{
-    return fn(mixed $arg) => $arg === null ? null : $c($arg);
 }
 
 /**
@@ -79,7 +64,7 @@ function attempt(callable $c): callable
     return function (Attempt $arg) use ($c): Attempt {
         return match (get_class($arg)) {
             Success::class => success($c($arg->value)),
-            Failure::class => failure($arg->exception),
+            Failure::class => $arg,
             default => throw new InvalidArgumentException("Invalid Attempt type"),
         };
     };
@@ -94,5 +79,13 @@ function getUser(): Attempt {
         : failure(new Exception("User not found"));
 }
 
-/** @noinspection PhpExpressionResultUnusedInspection */
-getUser() |> attempt(greeting(...)) |> println(...);
+$greeting = getUser()
+    |> attempt(greeting(...))
+    |> attempt(fn($name) => strtoupper($name))
+    |> attempt(fn($greet) => $greet . " Have a great day!");
+
+match (get_class($greeting)) {
+    Success::class => println($greeting->value),
+    Failure::class => println("Error: " . $greeting->exception->getMessage()),
+    default => throw new InvalidArgumentException("Invalid Attempt type"),
+};
