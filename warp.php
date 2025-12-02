@@ -2,7 +2,7 @@
 
 /**
  * @template-covariant T
- * @template-covariant E
+ * @template-covariant E of Exception
  * @phpstan-sealed Success | Failure
  */
 class Attempt {}
@@ -53,7 +53,7 @@ function println(mixed $input): void {
  * @template T
  * @template U
  * @param callable(T): U $c
- * @return callable(Attempt<T, mixed>): Attempt<U, mixed>
+ * @return callable(Attempt<T, Exception>): Attempt<U, Exception>
  */
 function attempt(callable $c): callable
 {
