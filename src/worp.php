@@ -22,10 +22,38 @@ function bcrypt(string $password): string {
     return password_hash($password, PASSWORD_BCRYPT);
 }
 
-$password = "P@ssw0rd"
-    |> minimum8Characters(...)
-    |> containsNumber(...)
-    |> containsSpecialCharacter(...)
-    |> bcrypt(...);
+/**
+ * @template T
+ * @param callable(): T $callback
+ * @return T | Exception
+ */
+function attempt(callable $callback): mixed {
+    try {
+        return $callback();
+    } catch (Exception $e) {
+        return $e;
+    }
+}
 
-echo "Password is valid: " . $password . PHP_EOL;
+function createUser(string $result): string {
+    $result = attempt(fn() => $result
+            |> minimum8Characters(...)
+            |> containsNumber(...)
+            |> containsSpecialCharacter(...)
+            |> bcrypt(...));
+
+    if ($result instanceof Exception) {
+        return "Password validation failed: " . $result->getMessage();
+    }
+
+    return "User created with hashed password: " . $result;
+}
+
+function println(mixed $input): void {
+    $output = is_string($input) ? $input : var_export($input, true);
+    echo $output . PHP_EOL;
+}
+
+foreach (["short", "longenough", "longenough1", "LongValid1!"] as $pwd) {
+    createUser($pwd) |> println(...);
+}

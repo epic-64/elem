@@ -51,11 +51,24 @@ function println(mixed $input): void {
 
 /**
  * @template T
+ * @param callable(): T $callback
+ * @return Attempt<T, Exception>
+ */
+function attempt(callable $callback): Attempt {
+    try {
+        return success($callback());
+    } catch (Exception $e) {
+        return failure($e);
+    }
+}
+
+/**
+ * @template T
  * @template U
  * @param callable(T): U $c
  * @return callable(Attempt<T, Exception>): Attempt<U, Exception>
  */
-function attempt(callable $c): callable
+function liftAttempt(callable $c): callable
 {
     /**
      * @param Attempt<T, mixed> $arg
@@ -80,9 +93,9 @@ function getUser(): Attempt {
 }
 
 $greeting = getUser()
-    |> attempt(greeting(...))
-    |> attempt(fn($name) => strtoupper($name))
-    |> attempt(fn($greet) => $greet . " Have a great day!");
+    |> liftAttempt(greeting(...))
+    |> liftAttempt(fn($name) => strtoupper($name))
+    |> liftAttempt(fn($greet) => $greet . " Have a great day!");
 
 match (get_class($greeting)) {
     Success::class => println($greeting->value),
