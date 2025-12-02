@@ -1,0 +1,14 @@
+#includes:
+#    - vendor/larastan/larastan/extension.neon
+#    - phpstan-baseline.php
+
+#rules:
+#    - Developer\PhpStanRules\ForbiddenFunctionsRule
+
+parameters:
+    level: 9
+
+    reportUnmatchedIgnoredErrors: true
+
+    paths:
+        - /warp.php
