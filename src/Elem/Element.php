@@ -201,12 +201,18 @@ class Element
                 if (empty($token)) {
                     continue;
                 }
+            } elseif (!preg_match('/^</', $token)) {
+                // Inside preformatted: skip empty text tokens but preserve non-empty ones as-is
+                if (trim($token) === '') {
+                    continue;
+                }
             }
 
             // Check if it's a tag
             if (preg_match('/^<\/(\w+)/', $token, $matches)) {
                 // Closing tag
                 $tagName = strtolower($matches[1]);
+                $wasInsidePreformatted = $insidePreformatted > 0;
 
                 if (in_array($tagName, $preserveWhitespace)) {
                     $insidePreformatted = max(0, $insidePreformatted - 1);
@@ -214,8 +220,12 @@ class Element
 
                 $indent = max(0, $indent - 1);
 
-                if ($insidePreformatted > 0) {
+                if ($wasInsidePreformatted) {
+                    // Don't add indentation for closing tags when exiting preformatted content
                     $result .= $token;
+                    if ($insidePreformatted === 0) {
+                        $result .= "\n";
+                    }
                 } else {
                     $result .= str_repeat($indentStr, $indent) . $token . "\n";
                 }

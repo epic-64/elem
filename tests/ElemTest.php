@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 
+use function Epic64\Elem\el;
 use function Epic64\Elem\html;
 use function Epic64\Elem\head;
 use function Epic64\Elem\body;
@@ -425,3 +426,47 @@ test('special characters in text content are properly escaped', function () {
     $element5 = div()('Tom & Jerry');
     expect($element5->toHtml())->toContain('Tom &amp; Jerry');
 });
+
+test('pre and code elements preserve whitespace in pretty-printed output', function () {
+    $codeSnippet = <<<PHP
+        button(class: 'btn')
+            ->attr('hx-post', '/api')
+            ->attr('hx-swap', 'innerHTML')
+        PHP;
+
+    $html = div(class: 'container')(
+        el('pre', class: 'code-block')(
+            el('code', class: 'language-php', text: <<<PHP
+                button(class: 'btn')
+                    ->attr('hx-post', '/api')
+                    ->attr('hx-swap', 'innerHTML')
+                PHP
+            )
+        )
+    );
+
+    $output = $html->__toString();
+
+    // The code content should preserve its indentation (4 spaces before ->attr)
+    expect($output)->toContain("    -&gt;attr('hx-post', '/api')");
+    expect($output)->toContain("    -&gt;attr('hx-swap', 'innerHTML')");
+
+    // There should be no extra whitespace between </code> and </pre>
+    expect($output)->toContain('</code></pre>');
+
+    // The pre/code tags should not have indentation added inside them
+    expect($output)->not->toMatch('/<code[^>]*>\s+button/');
+
+    // Test against the exact expected output
+    $expected = <<<HTML
+        <div class="container">
+          <pre class="code-block">
+        <code class="language-php">button(class: 'btn')
+            -&gt;attr('hx-post', '/api')
+            -&gt;attr('hx-swap', 'innerHTML')</code></pre>
+        </div>
+        HTML;
+
+    expect($output)->toBe($expected);
+});
+
