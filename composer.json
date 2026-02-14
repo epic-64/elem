@@ -1,8 +1,27 @@
 {
+    "name": "warp/vibe-html",
+    "description": "A fluent, type-safe PHP library for building HTML documents using the DOM",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["html", "dom", "builder", "fluent", "type-safe"],
+    "authors": [
+        {
+            "name": "William"
+        }
+    ],
     "require": {
+        "php": ">=8.4",
         "ext-dom": "*"
     },
     "require-dev": {
         "phpstan/phpstan": "^2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "VibeHtml\\": "src/VibeHtml/"
+        },
+        "files": [
+            "src/VibeHtml/functions.php"
+        ]
     }
 }
