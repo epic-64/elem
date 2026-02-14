@@ -1,28 +1,27 @@
+/* 404 page styles */
+@import url('base.css');
+
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #1a1a2e;
-    color: #e4e4e7;
-    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
 }
+
 .container {
     text-align: center;
+    padding: var(--spacing-lg);
 }
+
 h1 {
-    font-size: 4rem;
-    color: #ef4444;
+    font-size: 6rem;
+    color: var(--color-error);
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: unset;
+    background-clip: unset;
     margin-bottom: 1rem;
 }
+
 p {
-    color: #94a3b8;
     margin-bottom: 2rem;
-}
-a {
-    color: #a5b4fc;
-    text-decoration: none;
-}
-a:hover {
-    text-decoration: underline;
 }
