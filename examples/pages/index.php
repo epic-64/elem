@@ -1,0 +1,175 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Index page - List of all available examples.
+ */
+
+use Epic64\Elem\Element;
+use function Epic64\Elem\{html, head, title, style, body, div, h, p, a, ul, li};
+
+// Define the examples
+$examples = [
+    [
+        'path' => '/template-demo',
+        'title' => 'Template Demo',
+        'description' => 'A comprehensive demo showing components, user lists, navigation, and forms with HTMX & Alpine.js integration.',
+    ],
+];
+
+return html(lang: 'en')(
+    head()(
+        title(text: 'Elem Examples'),
+        style(<<<CSS
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+                background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+                min-height: 100vh;
+                color: #e4e4e7;
+                line-height: 1.6;
+            }
+            
+            .container {
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 60px 24px;
+            }
+            
+            h1 {
+                font-size: 3rem;
+                font-weight: 700;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                margin-bottom: 16px;
+                letter-spacing: -0.02em;
+            }
+            
+            .intro {
+                color: #94a3b8;
+                font-size: 1.125rem;
+                margin-bottom: 40px;
+                max-width: 600px;
+            }
+            
+            .examples-list {
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .example-card {
+                background: rgba(255, 255, 255, 0.03);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 16px;
+                padding: 24px;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            .example-card:hover {
+                border-color: rgba(139, 92, 246, 0.3);
+                box-shadow: 0 8px 40px rgba(139, 92, 246, 0.15);
+                transform: translateY(-2px);
+            }
+            
+            .example-card a {
+                text-decoration: none;
+                color: inherit;
+                display: block;
+            }
+            
+            .example-card h2 {
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: #a5b4fc;
+                margin-bottom: 8px;
+            }
+            
+            .example-card p {
+                color: #64748b;
+                font-size: 0.95rem;
+            }
+            
+            .example-card .arrow {
+                color: #667eea;
+                font-size: 1.25rem;
+                margin-top: 12px;
+                transition: transform 0.2s ease;
+            }
+            
+            .example-card:hover .arrow {
+                transform: translateX(4px);
+            }
+            
+            footer {
+                margin-top: 60px;
+                padding-top: 24px;
+                border-top: 1px solid rgba(255, 255, 255, 0.08);
+                color: #64748b;
+                font-size: 0.875rem;
+            }
+            
+            footer a {
+                color: #a5b4fc;
+                text-decoration: none;
+            }
+            
+            footer a:hover {
+                text-decoration: underline;
+            }
+            
+            code {
+                background: rgba(139, 92, 246, 0.15);
+                padding: 2px 8px;
+                border-radius: 4px;
+                font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+                font-size: 0.875rem;
+                color: #c4b5fd;
+            }
+        CSS)
+    ),
+    body()(
+        div(class: 'container')(
+            h(1, text: 'Elem Examples'),
+            p(class: 'intro', text: 'Explore examples demonstrating the Elem library - a fluent, type-safe PHP library for building HTML documents.'),
+
+            ul(class: 'examples-list')(
+                ...array_map(
+                    fn($example) => li(class: 'example-card')(
+                        a($example['path'])(
+                            h(2, text: $example['title']),
+                            p(text: $example['description']),
+                            div(class: 'arrow', text: '→')
+                        )
+                    ),
+                    $examples
+                )
+            ),
+
+            el('footer')(
+                p(text: 'Start the server with: '),
+                el('code', text: 'php -S localhost:8080 server.php'),
+            )
+        )
+    )
+);
+
+// Helper to create generic elements not in the functions.php
+function el(string $tag, ?string $class = null, ?string $text = null): Element
+{
+    $element = new Element($tag, $text);
+    if ($class !== null) {
+        $element->class($class);
+    }
+    return $element;
+}
