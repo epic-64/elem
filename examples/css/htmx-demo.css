@@ -1,73 +1,14 @@
-/* HTMX Demo Styles */
-
-:root {
-    --primary-color: #3b82f6;
-    --primary-hover: #2563eb;
-    --secondary-color: #6b7280;
-    --success-color: #22c55e;
-    --warning-color: #f59e0b;
-    --error-color: #ef4444;
-    --bg-color: #f8fafc;
-    --card-bg: #ffffff;
-    --text-color: #1e293b;
-    --text-muted: #64748b;
-    --border-color: #e2e8f0;
-    --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    line-height: 1.6;
-}
-
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-
-.back-link {
-    display: inline-block;
-    color: var(--primary-color);
-    text-decoration: none;
-    margin-bottom: 1.5rem;
-    font-weight: 500;
-    transition: color 0.2s;
-}
-
-.back-link:hover {
-    color: var(--primary-hover);
-}
-
-h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: var(--text-color);
-}
-
-.intro-text {
-    color: var(--text-muted);
-    margin-bottom: 2rem;
-    font-size: 1.1rem;
-}
+/* HTMX Demo page styles */
+@import url('base.css');
 
 /* Demo Sections */
 .demo-section {
-    background: var(--card-bg);
-    border-radius: 12px;
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius-xl);
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-card);
     border: 1px solid var(--border-color);
 }
 
@@ -75,7 +16,7 @@ h1 {
     font-size: 1.25rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: var(--text-color);
+    color: var(--color-primary-light);
 }
 
 .demo-section > p {
@@ -86,80 +27,17 @@ h1 {
 
 .demo-content {
     padding: 1rem;
-    background: var(--bg-color);
-    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
 }
 
-/* Buttons */
-.btn {
-    display: inline-block;
-    padding: 0.625rem 1.25rem;
-    font-size: 1rem;
-    font-weight: 500;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-primary {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: var(--primary-hover);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-lg);
-}
-
-.btn-secondary {
-    background-color: var(--secondary-color);
-    color: white;
-}
-
-.btn-secondary:hover {
-    background-color: #4b5563;
-}
-
+/* Counter Button */
 .counter-btn {
     min-width: 180px;
 }
 
-/* Form Controls */
-.form-control {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    background-color: white;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.form-group:last-child {
-    margin-bottom: 0;
-}
-
-.form-group label {
-    display: block;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-    color: var(--text-color);
-}
-
-/* Search Box */
+/* Search */
 .search-box {
     margin-bottom: 1rem;
 }
@@ -173,8 +51,8 @@ h1 {
     align-items: center;
     gap: 1rem;
     padding: 0.75rem;
-    background: white;
-    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: var(--radius-md);
     margin-bottom: 0.5rem;
     border: 1px solid var(--border-color);
 }
@@ -182,6 +60,7 @@ h1 {
 .user-name {
     font-weight: 600;
     min-width: 140px;
+    color: var(--text-primary);
 }
 
 .user-email {
@@ -196,7 +75,7 @@ h1 {
     font-weight: 600;
     text-transform: uppercase;
     border-radius: 9999px;
-    background-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
     color: white;
 }
 
@@ -207,47 +86,21 @@ h1 {
     text-align: center;
 }
 
-.hint {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    font-style: italic;
-}
-
-/* Validation Messages */
-.validation-msg {
-    display: block;
-    margin-top: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-}
-
-.validation-msg.success {
-    color: var(--success-color);
-}
-
-.validation-msg.warning {
-    color: var(--warning-color);
-}
-
-.validation-msg.error {
-    color: var(--error-color);
-}
-
 /* Toggle Content */
 .toggle-content {
-    transition: all 0.3s ease;
+    transition: all var(--transition-smooth);
 }
 
 .toggle-content.expanded {
     padding: 1rem;
-    background: white;
-    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
 }
 
 .toggle-content.expanded p {
     margin-bottom: 0.75rem;
-    color: var(--text-color);
+    color: var(--text-secondary);
 }
 
 .toggle-content.expanded button {
@@ -269,8 +122,8 @@ h1 {
     display: block;
     font-size: 2rem;
     font-weight: 700;
-    font-family: 'SF Mono', Monaco, 'Courier New', monospace;
-    color: var(--primary-color);
+    font-family: var(--font-family-mono);
+    color: var(--color-primary-light);
 }
 
 /* Infinite Scroll */
@@ -287,11 +140,12 @@ h1 {
 
 .list-item {
     padding: 1rem;
-    background: white;
-    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: var(--radius-md);
     margin-bottom: 0.5rem;
     border: 1px solid var(--border-color);
     font-weight: 500;
+    color: var(--text-primary);
 }
 
 .load-trigger {
@@ -304,7 +158,7 @@ h1 {
     font-style: italic;
 }
 
-/* Footer */
+/* Page Footer */
 .page-footer {
     margin-top: 2rem;
     padding-top: 1.5rem;
@@ -317,22 +171,13 @@ h1 {
 }
 
 .external-link {
-    color: var(--primary-color);
+    color: var(--color-primary-light);
     text-decoration: none;
     font-weight: 500;
 }
 
 .external-link:hover {
     text-decoration: underline;
-}
-
-/* HTMX loading indicator */
-.htmx-request {
-    opacity: 0.7;
-}
-
-.htmx-request .loading {
-    display: inline-block;
 }
 
 /* Responsive adjustments */
