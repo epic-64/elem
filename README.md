@@ -23,8 +23,8 @@ A fluent, type-safe PHP library for building HTML documents using the DOM.
   - [Forms](#forms)
   - [Lists](#lists)
   - [Tables](#tables)
-  - [Inline Scripts](#inline-scripts)
   - [Dynamic Content](#dynamic-content)
+  - [HTMX Integration](#htmx-integration)
   - [Linking External Resources](#linking-external-resources)
 - [How It Works](#how-it-works)
 - [API Reference](#api-reference)
@@ -284,21 +284,6 @@ $table = table(class: 'data-table')(
 );
 ```
 
-### Inline Scripts
-
-Elements with an `id` can have inline scripts that automatically receive the element:
-
-```php
-use function Epic64\Elem\form;
-
-$form = form(id: 'my-form', action: '/submit')->script(<<<JS
-    el.addEventListener('submit', (e) => {
-        e.preventDefault();
-        console.log('Form submitted!');
-    });
-JS);
-```
-
 ### Dynamic Content
 
 ```php
@@ -311,6 +296,39 @@ $list = ul()(
     array_map(fn($item) => li(text: $item), $items)
 );
 ```
+
+### HTMX Integration
+
+Elem is perfect for [HTMX](https://htmx.org/) - return HTML fragments directly from your endpoints, no JSON serialization needed.
+
+**Add HTMX attributes with `->attr()`:**
+
+```php
+button(text: 'Load More')
+    ->attr('hx-get', '/api/items')
+    ->attr('hx-target', '#results')
+    ->attr('hx-swap', 'beforeend')
+```
+
+**Return HTML fragments from your API:**
+
+```php
+// GET /api/search?q=alice
+function handleSearch(string $query): void {
+    $users = searchUsers($query);
+    
+    echo ul(class: 'search-results')(
+        list_of($users)->map(fn($user) => 
+            li(class: 'user-card')(
+                span(class: 'name', text: $user->name),
+                span(class: 'email', text: $user->email)
+            )
+        )
+    );
+}
+```
+
+This is the [Hypermedia](https://htmx.org/essays/hypermedia-apis-vs-data-apis/) approach - your server returns HTML, and HTMX swaps it into the DOM. No client-side templating, no JSON parsing, just HTML.
 
 ### Linking External Resources
 
