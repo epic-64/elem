@@ -155,11 +155,44 @@ $list = ul()(
 );
 ```
 
+### Linking External Resources
+
+```php
+use function Epic64\Elem\stylesheet;
+use function Epic64\Elem\icon;
+use function Epic64\Elem\font;
+use function Epic64\Elem\link;
+use function Epic64\Elem\head;
+
+// For stylesheets, use the convenient stylesheet() helper
+$head = head()(
+    stylesheet('/css/style.css'),
+    stylesheet('/css/theme.css')
+);
+
+// For favicons, use the icon() helper
+$head = head()(
+    icon('/favicon.ico'),
+    icon('/icon-192.png', 'image/png')->sizes('192x192')
+);
+
+// For preloading fonts, use the font() helper
+$head = head()(
+    font('/fonts/custom.woff2', 'font/woff2')
+);
+
+// For other link types, use link() directly
+$head = head()(
+    link(href: '/manifest.json', rel: 'manifest'),
+    link(href: '/feed.xml', rel: 'alternate')->type('application/rss+xml')
+);
+```
+
 ## Element Classes
 
 All element classes extend the base `Element` class and provide fluent interfaces:
 
-- **Structure**: `Html`, `Head`, `Body`, `Title`, `Meta`, `Style`, `Script`
+- **Structure**: `Html`, `Head`, `Body`, `Title`, `Meta`, `Link`, `Style`, `Script`
 - **Text**: `Div`, `Span`, `Paragraph`, `Heading`
 - **Links & Media**: `Anchor`, `Image`
 - **Forms**: `Form`, `Input`, `Button`, `Label`, `Textarea`, `Select`, `Option`
