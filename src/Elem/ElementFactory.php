@@ -27,7 +27,11 @@ class ElementFactory
 
     public static function createElement(string $tagName, ?string $text = null): DOMElement
     {
-        return self::getDom()->createElement($tagName, $text ?? '');
+        $element = self::getDom()->createElement($tagName);
+        if ($text !== null && $text !== '') {
+            $element->appendChild(self::createTextNode($text));
+        }
+        return $element;
     }
 
     public static function createTextNode(string $text): DOMText
