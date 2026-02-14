@@ -39,7 +39,7 @@ $element = div(id: 'container', class: 'wrapper')(
     span(class: 'highlight', text: 'Important')
 );
 
-echo $element->toHtml();
+echo $element;
 ```
 
 ### Building a Complete HTML Document
@@ -211,7 +211,7 @@ All elements support:
 - `->style(string $style)` - Set inline styles
 - `->data(string $name, string $value)` - Set data-* attributes
 - `->toHtml(bool $pretty = false)` - Output HTML
-- `->toPrettyHtml()` - Output formatted HTML
+- `->toPrettyHtml()` - Output formatted HTML (called automatically in __toString)
 
 ## Demo Examples
 
