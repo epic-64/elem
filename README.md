@@ -211,6 +211,25 @@ All elements support:
 - `->toHtml(bool $pretty = false)` - Output HTML
 - `->toPrettyHtml()` - Output formatted HTML
 
+## Demo Examples
+
+The `examples/` directory contains interactive demos showcasing the library's features.
+
+### Running the Demo Server
+
+```bash
+# From the project root
+php -S localhost:8080 -t examples examples/server.php
+```
+
+Then open http://localhost:8080 in your browser.
+
+### Available Demos
+
+- **Index** (`/`) - Overview and navigation
+- **Template Demo** (`/template-demo`) - Building complete HTML pages
+- **HTMX Demo** (`/htmx-demo`) - Interactive components with HTMX integration
+
 
 ## License
 
