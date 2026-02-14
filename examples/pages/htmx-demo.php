@@ -121,16 +121,16 @@ return html(lang: 'en')(
 
             // Section 6: Infinite Scroll
             el('section', class: 'demo-section')(
-                h(2, text: '6. Infinite Scroll'),
-                p(text: 'Items load automatically when scrolled into view using hx-trigger="revealed".'),
+                h(2, text: '6. Load More'),
+                p(text: 'Click the button to load more items using hx-get and hx-swap="outerHTML".'),
                 div(class: 'demo-content scroll-container')(
                     ul(id: 'items-list', class: 'items-list')(
-                        li(id: 'load-more', class: 'load-trigger')
-                            ->attr('hx-get', '/api/items?page=1')
-                            ->attr('hx-trigger', 'revealed')
-                            ->attr('hx-swap', 'outerHTML')(
-                                span(class: 'loading', text: 'Loading items...')
-                            )
+                        li(class: 'load-trigger')(
+                            button(class: 'btn btn-secondary load-more-btn', text: 'Load items')
+                                ->attr('hx-get', '/api/items?page=1')
+                                ->attr('hx-target', 'closest li')
+                                ->attr('hx-swap', 'outerHTML')
+                        )
                     )
                 )
             ),

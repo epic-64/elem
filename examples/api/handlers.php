@@ -130,6 +130,7 @@ function handleCounter(int $currentCount): void
  */
 function handleInfiniteScroll(int $page): void
 {
+    $maxPages = 3; // Limit to 3 pages for demo
     $items = [];
     $start = ($page - 1) * 5 + 1;
     $end = $start + 4;
@@ -138,14 +139,18 @@ function handleInfiniteScroll(int $page): void
         $items[] = li(class: 'list-item', text: "Item #{$i} - Loaded from server");
     }
 
-    // Add a "load more" trigger for the next page
-    if ($page < 3) { // Limit to 3 pages for demo
-        $items[] = li(id: 'load-more', class: 'load-trigger')
-            ->attr('hx-get', '/api/items?page=' . ($page + 1))
-            ->attr('hx-trigger', 'revealed')
-            ->attr('hx-swap', 'outerHTML')(
-                span(class: 'loading', text: 'Loading more...')
-            );
+    // Add a "load more" button for the next page, or end message
+    if ($page < $maxPages) {
+        $items[] = li(class: 'load-trigger')(
+            button(class: 'btn btn-secondary load-more-btn', text: 'Load more items')
+                ->attr('hx-get', '/api/items?page=' . ($page + 1))
+                ->attr('hx-target', 'closest li')
+                ->attr('hx-swap', 'outerHTML')
+        );
+    } else {
+        $items[] = li(class: 'list-end')(
+            span(class: 'hint', text: 'You\'ve reached the end!')
+        );
     }
 
     echo implode('', array_map(fn($item) => (string)$item, $items));

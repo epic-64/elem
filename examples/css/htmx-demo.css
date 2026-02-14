@@ -153,6 +153,17 @@
     text-align: center;
 }
 
+.load-more-btn {
+    width: 100%;
+}
+
+.list-end {
+    padding: 1rem;
+    text-align: center;
+    border: none;
+    background: transparent;
+}
+
 .loading {
     color: var(--text-muted);
     font-style: italic;
