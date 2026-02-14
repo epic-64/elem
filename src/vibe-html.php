@@ -1,16 +1,125 @@
 <?php
 
 /**
+ * Represents an isolated DOM scope for building HTML documents.
+ * Each HtmlDocument has its own DOMDocument, allowing multiple
+ * independent HTML structures to be built and compared.
+ */
+class HtmlDocument
+{
+    public readonly DOMDocument $dom;
+
+    public function __construct()
+    {
+        $this->dom = new DOMDocument('1.0', 'UTF-8');
+    }
+
+    public function createElement(string $tagName, ?string $text = null): DOMElement
+    {
+        return $this->dom->createElement($tagName, $text ?? '');
+    }
+
+    public function createTextNode(string $text): DOMText
+    {
+        return $this->dom->createTextNode($text);
+    }
+
+    public function importNode(DOMNode $node, bool $deep = true): DOMNode
+    {
+        return $this->dom->importNode($node, $deep);
+    }
+
+    public function saveHTML(DOMNode $node): string
+    {
+        return $this->dom->saveHTML($node) ?: '';
+    }
+}
+
+/**
+ * Manages DOM document scopes for element creation.
+ * Provides a shared default scope for efficiency, with the ability
+ * to create isolated scopes when needed (e.g., comparing documents).
+ */
+class ElementFactory
+{
+    private static ?HtmlDocument $sharedScope = null;
+    private static ?HtmlDocument $currentScope = null;
+
+    /**
+     * Get the current active scope (either explicit or shared default).
+     */
+    public static function getScope(): HtmlDocument
+    {
+        if (self::$currentScope !== null) {
+            return self::$currentScope;
+        }
+
+        if (self::$sharedScope === null) {
+            self::$sharedScope = new HtmlDocument();
+        }
+        return self::$sharedScope;
+    }
+
+    /**
+     * Create a new isolated scope and set it as active.
+     * Returns the new scope for use in a scoped context.
+     */
+    public static function createScope(): HtmlDocument
+    {
+        $scope = new HtmlDocument();
+        self::$currentScope = $scope;
+        return $scope;
+    }
+
+    /**
+     * Set the active scope (or null to use shared default).
+     */
+    public static function setScope(?HtmlDocument $scope): void
+    {
+        self::$currentScope = $scope;
+    }
+
+    /**
+     * Execute a callback within an isolated scope.
+     * Automatically restores the previous scope afterward.
+     *
+     * @template T
+     * @param callable(): T $callback
+     * @return T
+     */
+    public static function withScope(callable $callback): mixed
+    {
+        $previousScope = self::$currentScope;
+        self::$currentScope = new HtmlDocument();
+        try {
+            return $callback();
+        } finally {
+            self::$currentScope = $previousScope;
+        }
+    }
+
+    public static function createElement(string $tagName, ?string $text = null): DOMElement
+    {
+        return self::getScope()->createElement($tagName, $text);
+    }
+
+    /**
+     * Reset the shared scope (useful for testing).
+     */
+    public static function reset(): void
+    {
+        self::$sharedScope = null;
+        self::$currentScope = null;
+    }
+}
+
+/**
  * Base class for all HTML elements.
- * Provides a safe, type-checked wrapper around DOMDocument/DOMElement.
+ * Provides a safe, type-checked wrapper around DOMElement.
+ * Uses a shared DOMDocument for efficient memory usage.
  */
 class Element
 {
-    protected DOMDocument $dom {
-        get {
-            return $this->dom;
-        }
-    }
     protected DOMElement $element {
         get {
             return $this->element;
@@ -19,9 +128,7 @@ class Element
 
     public function __construct(string $tagName, ?string $text = null)
     {
-        $this->dom = new DOMDocument('1.0', 'UTF-8');
-        $this->element = $this->dom->createElement($tagName, $text ?? '');
-        $this->dom->appendChild($this->element);
+        $this->element = ElementFactory::createElement($tagName, $text);
     }
 
     /**
@@ -31,13 +138,24 @@ class Element
      */
     public function __invoke(DOMNode|Element|string ...$children): static
     {
+        $scope = ElementFactory::getScope();
         foreach ($children as $child) {
-            if ($child instanceof DOMNode) {
-                $this->element->appendChild($this->dom->importNode($child, true));
-            } elseif ($child instanceof Element) {
-                $this->element->appendChild($this->dom->importNode($child->element, true));
+            if ($child instanceof Element) {
+                // Check if from same document, import if needed
+                if ($child->element->ownerDocument !== $scope->dom) {
+                    $imported = $scope->importNode($child->element, true);
+                    $this->element->appendChild($imported);
+                } else {
+                    $this->element->appendChild($child->element);
+                }
+            } elseif ($child instanceof DOMNode) {
+                // External node might need import
+                if ($child->ownerDocument !== $scope->dom) {
+                    $child = $scope->importNode($child, true);
+                }
+                $this->element->appendChild($child);
             } elseif (is_string($child)) {
-                $this->element->appendChild($this->dom->createTextNode($child));
+                $this->element->appendChild($scope->createTextNode($child));
             }
         }
         return $this;
@@ -100,12 +218,13 @@ class Element
 
     public function toHtml(bool $pretty = false): string
     {
+        $scope = ElementFactory::getScope();
         if ($pretty) {
-            $html = $this->dom->saveHTML($this->element) ?: '';
+            $html = $scope->saveHTML($this->element);
             return $this->indentHtml($html);
         }
 
-        return $this->dom->saveHTML($this->element) ?: '';
+        return $scope->saveHTML($this->element);
     }
 
     /**
@@ -163,7 +282,7 @@ class Element
 
     public function __toString(): string
     {
-        return $this->toHtml();
+        return $this->toPrettyHtml();
     }
 
     /**
@@ -703,8 +822,9 @@ function select(?string $id = null, ?string $class = null, ?string $name = null)
 // ============================================================================
 
 // Simple anchor with class
-$anchor = a('https://example.com', class: 'link', text: 'Example')(' - click here');
-echo $anchor->toHtml() . "\n\n";
+a('https://example.com', class: 'link', text: 'Example')(' - click here');
+echo a('https://example.com', class: 'link', text: 'Example')(' - click here');
+exit();
 
 // Nested elements using id/class parameters (pretty printed)
 $card = div(id: 'my-card', class: 'card shadow')(
