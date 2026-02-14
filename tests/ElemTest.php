@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Epic64\Elem\ElementFactory;
 
 use function Epic64\Elem\html;
 use function Epic64\Elem\head;
@@ -32,8 +31,7 @@ use function Epic64\Elem\th;
 use function Epic64\Elem\td;
 
 test('creates a complex HTML document with all major elements', function () {
-    $output = ElementFactory::withScope(function () {
-        return html(lang: 'en')(
+    $output = html(lang: 'en')(
             head()(
                 meta(charset: 'UTF-8'),
                 meta(name: 'viewport', content: 'width=device-width, initial-scale=1.0'),
@@ -177,7 +175,6 @@ test('creates a complex HTML document with all major elements', function () {
                 script(code: 'console.log("Page loaded");')
             )
         )->toHtml();
-    });
 
     // Document structure assertions
     expect($output)->toContain('<!DOCTYPE html>');
@@ -271,20 +268,18 @@ test('creates HTML document using array_map for dynamic content', function () {
         ['name' => 'Charlie', 'role' => 'Moderator'],
     ];
 
-    $output = ElementFactory::withScope(function () use ($users) {
-        return div(id: 'user-list', class: 'users')(
-            h(2, text: 'Team Members'),
-            ul(class: 'user-cards')(
-                array_map(
-                    fn($user) => li(class: 'user-card')(
-                        span(class: 'user-name', text: $user['name']),
-                        span(class: 'user-role', text: $user['role'])
-                    ),
-                    $users
-                )
+    $output = div(id: 'user-list', class: 'users')(
+        h(2, text: 'Team Members'),
+        ul(class: 'user-cards')(
+            array_map(
+                fn($user) => li(class: 'user-card')(
+                    span(class: 'user-name', text: $user['name']),
+                    span(class: 'user-role', text: $user['role'])
+                ),
+                $users
             )
-        )->toHtml();
-    });
+        )
+    )->toHtml();
 
     expect($output)->toContain('<div id="user-list" class="users">');
     expect($output)->toContain('<h2>Team Members</h2>');
@@ -295,14 +290,12 @@ test('creates HTML document using array_map for dynamic content', function () {
 });
 
 test('element with inline script generates correct JavaScript', function () {
-    $output = ElementFactory::withScope(function () {
-        return form(id: 'test-form', action: '/submit')->script(<<<JS
-            el.addEventListener('submit', (e) => {
-                e.preventDefault();
-                console.log('Form submitted!');
-            });
-        JS)->toHtml();
-    });
+    $output = form(id: 'test-form', action: '/submit')->script(<<<JS
+        el.addEventListener('submit', (e) => {
+            e.preventDefault();
+            console.log('Form submitted!');
+        });
+    JS)->toHtml();
 
     expect($output)->toContain('<form action="/submit" method="post" id="test-form">');
     expect($output)->toContain("const el = document.getElementById('test-form');");
@@ -312,14 +305,12 @@ test('element with inline script generates correct JavaScript', function () {
 });
 
 test('data attributes are correctly applied', function () {
-    $output = ElementFactory::withScope(function () {
-        return div(id: 'interactive-element')
-            ->data('action', 'toggle')
-            ->data('target', '#modal')
-            ->data('animation', 'fade')
-            ->class('interactive')
-            ->toHtml();
-    });
+    $output = div(id: 'interactive-element')
+        ->data('action', 'toggle')
+        ->data('target', '#modal')
+        ->data('animation', 'fade')
+        ->class('interactive')
+        ->toHtml();
 
     expect($output)->toContain('id="interactive-element"');
     expect($output)->toContain('data-action="toggle"');
@@ -329,41 +320,35 @@ test('data attributes are correctly applied', function () {
 });
 
 test('inline styles are correctly applied', function () {
-    $output = ElementFactory::withScope(function () {
-        return div(id: 'styled-box')
-            ->style('background-color: #f0f0f0; padding: 20px; border-radius: 8px;')
-            ->toHtml();
-    });
+    $output = div(id: 'styled-box')
+        ->style('background-color: #f0f0f0; padding: 20px; border-radius: 8px;')
+        ->toHtml();
 
     expect($output)->toContain('style="background-color: #f0f0f0; padding: 20px; border-radius: 8px;"');
 });
 
 test('multiple CSS classes can be added', function () {
-    $output = ElementFactory::withScope(function () {
-        return div(class: 'container')
-            ->class('flex', 'justify-center', 'items-center')
-            ->class('bg-white', 'shadow-lg')
-            ->toHtml();
-    });
+    $output = div(class: 'container')
+        ->class('flex', 'justify-center', 'items-center')
+        ->class('bg-white', 'shadow-lg')
+        ->toHtml();
 
     expect($output)->toContain('class="container flex justify-center items-center bg-white shadow-lg"');
 });
 
 test('creates a simple document and matches the entire expected HTML string', function () {
-    $output = ElementFactory::withScope(function () {
-        return html(lang: 'en')(
-            head()(
-                meta(charset: 'UTF-8'),
-                title(text: 'Test Page')
-            ),
-            body()(
-                div(id: 'app', class: 'container')(
-                    h(1, text: 'Hello World'),
-                    p(text: 'Welcome to Elem.')
-                )
+    $output = html(lang: 'en')(
+        head()(
+            meta(charset: 'UTF-8'),
+            title(text: 'Test Page')
+        ),
+        body()(
+            div(id: 'app', class: 'container')(
+                h(1, text: 'Hello World'),
+                p(text: 'Welcome to Elem.')
             )
-        )->__toString();
-    });
+        )
+    )->__toString();
 
     $expected = <<<HTML
         <!DOCTYPE html>
