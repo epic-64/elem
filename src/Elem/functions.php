@@ -202,3 +202,9 @@ function script(?string $code = null, ?string $src = null): Script
 {
     return new Script($code, $src);
 }
+
+function stylesheet(string $href): Element
+{
+    return new Element('link')->attr('rel', 'stylesheet')->attr('href', $href);
+}
+
