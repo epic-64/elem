@@ -2,18 +2,10 @@
 require_once __DIR__ . '/vibe-html.php';
 
 // Define reusable components as simple functions
-function card(string $title, Element|string ...$children): Element
+function card(string $title): Element
 {
     return div(class: 'card')(
         h(2, text: $title),
-        ...$children
-    );
-}
-
-function navItem(string $href, string $text, bool $blank = false): Element
-{
-    return li()(
-        $blank ? a($href, text: $text)->blank() : a($href, text: $text)
     );
 }
 
@@ -45,23 +37,23 @@ function formGroup(string $labelText, string $inputId): Element
 
         p(text: 'This demonstrates embedding the functional API directly in HTML templates.'),
 
-        card('Navigation',
+        card(title: 'Navigation')(
             ul(class: 'nav')(
-                navItem('/', 'Home', blank: true),
-                navItem('/about', 'About'),
-                navItem('/contact', 'Contact')
+                li()(a('/', 'Home'),
+                li()(a('/about', 'About')),
+                li()(a('/contact', 'Contact'))
             )
         ),
 
-        card('Login Form',
+        card('Login Form')(
             form(id: 'login-form', action: '/login')(
                 formGroup(labelText: 'Email:', inputId: 'email')(
                     input(type: 'email', id: 'email', class: 'form-control')
-                        ->attr('required', 'required')
-                        ->attr('placeholder', 'you@example.com')
+                        ->required()
+                        ->placeholder('you@example.org')
                         ->attr('pattern', '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$')
                         ->script(<<<JS
-                            el.addEventListener('input', function() {
+                            el.addEventListener('input', () => {
                                 this.style.borderColor = this.checkValidity() ? '#28a745' : '#dc3545';
                             });
                         JS)
@@ -71,23 +63,14 @@ function formGroup(string $labelText, string $inputId): Element
                         ->attr('required', 'required')
                         ->attr('minlength', '8')
                         ->script(<<<JS
-                            el.addEventListener('input', function() {
+                            el.addEventListener('input', () => {
                                 this.style.borderColor = this.checkValidity() ? '#28a745' : '#dc3545';
                             });
                         JS)
                 ),
                 button(id: 'submit', class: 'btn btn-primary', text: 'Login', type: 'submit')
-            )->script(<<<JS
-                el.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    if (el.checkValidity()) {
-                        alert('Form is valid! Would submit to: ' + el.action);
-                    } else {
-                        el.reportValidity();
-                    }
-                });
-            JS)
+            )
         )
-    ) ?>
+    )) ?>
 </body>
 </html>
