@@ -41,7 +41,8 @@ declare(strict_types=1);
 |
 */
 
-// function something()
-// {
-//     // ..
-// }
+use Epic64\Elem\ElementFactory;
+
+beforeEach(function () {
+    ElementFactory::reset();
+});
