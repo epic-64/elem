@@ -922,6 +922,9 @@ test('element getAttr returns attribute value', function () {
 });
 
 test('raw HTML string passed as child is escaped', function () {
+    // todo: make up mind if we want the security, or the flexibility of allowing raw HTML.
+    //   For now, we will escape it to prevent XSS vulnerabilities.
+
     $rawHtml = '<strong>Bold</strong>';
 
     $element = div()($rawHtml);
