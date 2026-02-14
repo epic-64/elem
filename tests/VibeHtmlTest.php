@@ -348,3 +348,45 @@ test('multiple CSS classes can be added', function () {
 
     expect($output)->toContain('class="container flex justify-center items-center bg-white shadow-lg"');
 });
+
+test('creates a simple document and matches the entire expected HTML string', function () {
+    $output = ElementFactory::withScope(function () {
+        return html(lang: 'en')(
+            head()(
+                meta(charset: 'UTF-8'),
+                title(text: 'Test Page')
+            ),
+            body()(
+                div(id: 'app', class: 'container')(
+                    h(1, text: 'Hello World'),
+                    p(text: 'Welcome to VibeHtml.')
+                )
+            )
+        )->__toString();
+    });
+
+    $expected = <<<HTML
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <title>
+              Test Page
+            </title>
+          </head>
+          <body>
+            <div id="app" class="container">
+              <h1>
+                Hello World
+              </h1>
+              <p>
+                Welcome to VibeHtml.
+              </p>
+            </div>
+          </body>
+        </html>
+        HTML;
+
+    expect($output)->toBe($expected);
+});
+
