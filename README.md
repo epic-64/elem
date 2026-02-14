@@ -103,6 +103,100 @@ echo $page;
 </html>
 ```
 
+## Why Elem?
+
+### Type-safe
+
+Your IDE knows what's happening. Autocomplete, refactoring, and static analysis just work.
+
+```php
+// ❌ Blade/Twig: Typo? You'll find out at runtime.
+<a hfer="{{ $url }}">Click</a>
+
+// ✅ Elem: PHPStan catches this before you even save.
+a(hfer: $url, text: 'Click')  // Error: Unknown parameter "hfer"
+```
+
+### No template syntax to learn
+
+It's just PHP. No `{{ }}`, no `@directives`, no context switching.
+
+```php
+// ❌ Blade
+@foreach($users as $user)
+    @if($user->isAdmin())
+        <span class="badge">{{ $user->name }}</span>
+    @endif
+@endforeach
+
+// ✅ Elem: It's just PHP.
+array_filter($users, fn($u) => $u->isAdmin())
+    |> array_map(fn($u) => span(class: 'badge', text: $u->name), ...)
+```
+
+### Composable
+
+Build reusable components as plain functions. No magic, no framework lock-in.
+
+```php
+// Define a component as a simple function
+function card(string $title): Element {
+    return div(class: 'card')(
+        h(2, text: $title),
+        div(class: 'card-body')
+    );
+}
+
+// Use it anywhere
+card('Welcome')(
+    p(text: 'This is a card component.'),
+    a(href: '/learn-more', text: 'Learn More')
+);
+```
+
+Output:
+```html
+<div class="card">
+    <h2>Welcome</h2>
+    <div class="card-body">
+        <p>This is a card component.</p>
+        <a href="/learn-more">Learn More</a>
+    </div>
+</div>
+```
+
+
+### XSS-safe by default
+
+Text is automatically escaped through the DOM. Sleep better at night.
+
+```php
+$userInput = '<script>alert("hacked")</script>';
+
+// ❌ Raw PHP: XSS vulnerability
+echo "<div>$userInput</div>";
+
+// ✅ Elem: Automatically escaped. Crisis averted.
+echo div(text: $userInput);
+// Output: <div>&lt;script&gt;alert("hacked")&lt;/script&gt;</div>
+```
+
+### Readable diffs
+
+Code changes show exactly what changed. No hunting through template soup.
+
+```diff
+- div(class: 'card')(
++ div(class: 'card', id: 'main-card')(
+      h(2, text: $title),
+-     p(text: $description)
++     p(class: 'lead', text: $description),
++     Button('Learn More')
+  )
+```
+
+
+
 ### Forms
 
 ```php
