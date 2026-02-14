@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/vibe-html.php';
+require_once __DIR__ . '/../lib/vibe-html.php';
 
 // Define reusable components as simple functions
 function card(string $title): Element
