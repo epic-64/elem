@@ -17,7 +17,7 @@ A fluent, type-safe PHP library for building HTML documents using the DOM.
 ## Installation
 
 ```bash
-composer require epic64/elem
+composer require epic-64/elem
 ```
 
 ## Usage
@@ -96,13 +96,6 @@ echo $loginForm;
 use function Epic64\Elem\ul;
 use function Epic64\Elem\li;
 
-// Using item() helper
-$list = ul(class: 'nav')
-    ->item('Home')
-    ->item('About')
-    ->item('Contact');
-
-// Or using children
 $list = ul(class: 'nav')(
     li(text: 'Home'),
     li(text: 'About'),
