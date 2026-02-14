@@ -816,3 +816,108 @@ test('list_of with filter and map chain renders correctly', function () {
         ->and($output)->not->toContain('Diana');
 });
 
+test('ElementsList all() and toArray() methods return underlying array', function () {
+    $items = ['Apple', 'Banana', 'Cherry'];
+    $list = \Epic64\Elem\list_of($items);
+
+    expect($list->all())->toBe($items)
+        ->and($list->toArray())->toBe($items);
+});
+
+test('ElementsList works with iterators', function () {
+    $generator = function () {
+        yield 'First';
+        yield 'Second';
+        yield 'Third';
+    };
+
+    $list = \Epic64\Elem\list_of($generator());
+    $result = $list->map(fn($item) => li(text: $item))->all();
+
+    expect($result)->toHaveCount(3);
+    expect($result[0]->toHtml())->toContain('First');
+    expect($result[1]->toHtml())->toContain('Second');
+    expect($result[2]->toHtml())->toContain('Third');
+});
+
+test('Html element lang() method sets language attribute', function () {
+    $html = html()->lang('de');
+    $output = $html->toHtml();
+    expect($output)->toContain('lang="de"');
+});
+
+test('Label element for() method sets for attribute', function () {
+    $label = label(text: 'Username')->for('username_field');
+    $output = $label->toHtml();
+    expect($output)->toContain('for="username_field"');
+});
+
+test('Meta element fluent methods', function () {
+    $meta1 = meta()->charset('UTF-16');
+    $meta2 = meta()->name('author')->content('John Doe');
+    $meta3 = meta()->content('Test description');
+
+    expect($meta1->toHtml())->toContain('charset="UTF-16"');
+    expect($meta2->toHtml())->toContain('name="author"')
+        ->and($meta2->toHtml())->toContain('content="John Doe"');
+    expect($meta3->toHtml())->toContain('content="Test description"');
+});
+
+test('element handles DOMNode children from external documents', function () {
+    // Create an external DOMDocument
+    $externalDom = new \DOMDocument();
+    $externalNode = $externalDom->createElement('span', 'External content');
+
+    // Add the external node as a child
+    $element = div()(
+        $externalNode
+    );
+
+    $output = $element->toHtml();
+    expect($output)->toContain('<span>External content</span>');
+});
+
+test('element handles DOMNode children from same document', function () {
+    // Create a node from the same factory DOM
+    $dom = \Epic64\Elem\ElementFactory::dom();
+    $sameDocNode = $dom->createElement('span', 'Same doc content');
+
+    $element = div()(
+        $sameDocNode
+    );
+
+    $output = $element->toHtml();
+    expect($output)->toContain('<span>Same doc content</span>');
+});
+
+test('void element script is inserted after element when element has parent', function () {
+    // Create input with parent first, then add script
+    $form = form(id: 'test-form');
+    $input = input('text', id: 'my-text-input');
+
+    // Add input to form first
+    $form($input);
+
+    // Now add script to input (which already has a parent)
+    $input->script('el.value = "test";');
+
+    $output = $form->toHtml();
+    expect($output)->toContain('id="my-text-input"')
+        ->and($output)->toContain("const el = document.getElementById('my-text-input');")
+        ->and($output)->toContain('el.value = "test";');
+});
+
+test('pretty print handles empty HTML gracefully', function () {
+    $element = div();
+    // Create a minimal element and test the pretty print path
+    $output = $element->toPrettyHtml();
+    expect($output)->toBe("<div>\n</div>");
+});
+
+test('element getAttr returns attribute value', function () {
+    $div = div(id: 'test-div', class: 'my-class');
+    expect($div->getAttr('id'))->toBe('test-div')
+        ->and($div->getAttr('class'))->toBe('my-class')
+        ->and($div->getAttr('nonexistent'))->toBe('');
+});
+
