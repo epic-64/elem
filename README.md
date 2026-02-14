@@ -138,6 +138,24 @@ echo div(text: $userInput);
 // Output: <div>&lt;script&gt;alert("hacked")&lt;/script&gt;</div>
 ```
 
+### LLM-friendly
+
+Using AI to generate HTML? Elem's structure catches mistakes that would slip through with templates:
+
+- **Named parameters** - No silent bugs from wrong argument order
+- **Type checking** - PHPStan catches hallucinated attributes
+- **No string interpolation** - Impossible to forget escaping
+- **No closing tags** - Can't mismatch `<div>` with `</span>`
+
+```php
+// LLMs can't mess this up - structure is enforced, not hoped for
+div(class: 'card')(
+    h(2, text: $title),
+    p(text: $description),
+    a(href: $url, text: 'Learn more')
+)
+```
+
 ## Installation
 
 **Requirements:** PHP 8.4+, ext-dom
