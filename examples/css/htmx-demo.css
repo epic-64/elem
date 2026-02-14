@@ -32,6 +32,30 @@
     border: 1px solid var(--border-color);
 }
 
+/* Code Showcase */
+.code-showcase .demo-content {
+    padding: 0;
+    overflow: hidden;
+}
+
+.code-block {
+    margin: 0;
+    padding: 1rem;
+    overflow-x: auto;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.code-block code {
+    font-family: var(--font-family-mono);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background: transparent;
+    padding: 0;
+    white-space: pre;
+    display: block;
+}
+
 /* Counter Button */
 .counter-btn {
     min-width: 180px;
