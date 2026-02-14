@@ -2,34 +2,34 @@
 
 declare(strict_types=1);
 
-use Elem\ElementFactory;
+use Epic64\Elem\ElementFactory;
 
-use function Elem\html;
-use function Elem\head;
-use function Elem\body;
-use function Elem\title;
-use function Elem\meta;
-use function Elem\style;
-use function Elem\script;
-use function Elem\div;
-use function Elem\h;
-use function Elem\p;
-use function Elem\a;
-use function Elem\span;
-use function Elem\img;
-use function Elem\form;
-use function Elem\label;
-use function Elem\input;
-use function Elem\button;
-use function Elem\textarea;
-use function Elem\select;
-use function Elem\ul;
-use function Elem\ol;
-use function Elem\li;
-use function Elem\table;
-use function Elem\tr;
-use function Elem\th;
-use function Elem\td;
+use function Epic64\Elem\html;
+use function Epic64\Elem\head;
+use function Epic64\Elem\body;
+use function Epic64\Elem\title;
+use function Epic64\Elem\meta;
+use function Epic64\Elem\style;
+use function Epic64\Elem\script;
+use function Epic64\Elem\div;
+use function Epic64\Elem\h;
+use function Epic64\Elem\p;
+use function Epic64\Elem\a;
+use function Epic64\Elem\span;
+use function Epic64\Elem\img;
+use function Epic64\Elem\form;
+use function Epic64\Elem\label;
+use function Epic64\Elem\input;
+use function Epic64\Elem\button;
+use function Epic64\Elem\textarea;
+use function Epic64\Elem\select;
+use function Epic64\Elem\ul;
+use function Epic64\Elem\ol;
+use function Epic64\Elem\li;
+use function Epic64\Elem\table;
+use function Epic64\Elem\tr;
+use function Epic64\Elem\th;
+use function Epic64\Elem\td;
 
 test('creates a complex HTML document with all major elements', function () {
     $output = ElementFactory::withScope(function () {
@@ -145,9 +145,9 @@ test('creates a complex HTML document with all major elements', function () {
                         div(class: 'form-group')(
                             label(text: 'Subject', for: 'subject'),
                             select(id: 'subject', name: 'subject', class: 'form-control')(
-                                new \Elem\Elements\Option('general', 'General Inquiry'),
-                                new \Elem\Elements\Option('support', 'Technical Support'),
-                                new \Elem\Elements\Option('feedback', 'Feedback')
+                                new \Epic64\Elem\Elements\Option('general', 'General Inquiry'),
+                                new \Epic64\Elem\Elements\Option('support', 'Technical Support'),
+                                new \Epic64\Elem\Elements\Option('feedback', 'Feedback')
                             )
                         ),
                         div(class: 'form-group')(

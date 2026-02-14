@@ -2,34 +2,34 @@
 
 declare(strict_types=1);
 
-namespace Elem;
+namespace Epic64\Elem;
 
-use Elem\Elements\Anchor;
-use Elem\Elements\Body;
-use Elem\Elements\Button;
-use Elem\Elements\Div;
-use Elem\Elements\Form;
-use Elem\Elements\Head;
-use Elem\Elements\Heading;
-use Elem\Elements\Html;
-use Elem\Elements\Image;
-use Elem\Elements\Input;
-use Elem\Elements\Label;
-use Elem\Elements\ListItem;
-use Elem\Elements\Meta;
-use Elem\Elements\OrderedList;
-use Elem\Elements\Paragraph;
-use Elem\Elements\Script;
-use Elem\Elements\Select;
-use Elem\Elements\Span;
-use Elem\Elements\Style;
-use Elem\Elements\Table;
-use Elem\Elements\TableCell;
-use Elem\Elements\TableHeader;
-use Elem\Elements\TableRow;
-use Elem\Elements\Textarea;
-use Elem\Elements\Title;
-use Elem\Elements\UnorderedList;
+use Epic64\Elem\Elements\Anchor;
+use Epic64\Elem\Elements\Body;
+use Epic64\Elem\Elements\Button;
+use Epic64\Elem\Elements\Div;
+use Epic64\Elem\Elements\Form;
+use Epic64\Elem\Elements\Head;
+use Epic64\Elem\Elements\Heading;
+use Epic64\Elem\Elements\Html;
+use Epic64\Elem\Elements\Image;
+use Epic64\Elem\Elements\Input;
+use Epic64\Elem\Elements\Label;
+use Epic64\Elem\Elements\ListItem;
+use Epic64\Elem\Elements\Meta;
+use Epic64\Elem\Elements\OrderedList;
+use Epic64\Elem\Elements\Paragraph;
+use Epic64\Elem\Elements\Script;
+use Epic64\Elem\Elements\Select;
+use Epic64\Elem\Elements\Span;
+use Epic64\Elem\Elements\Style;
+use Epic64\Elem\Elements\Table;
+use Epic64\Elem\Elements\TableCell;
+use Epic64\Elem\Elements\TableHeader;
+use Epic64\Elem\Elements\TableRow;
+use Epic64\Elem\Elements\Textarea;
+use Epic64\Elem\Elements\Title;
+use Epic64\Elem\Elements\UnorderedList;
 
 /**
  * Apply common attributes (id and class) to an element.

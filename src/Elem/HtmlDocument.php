@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Elem;
+namespace Epic64\Elem;
 
 use DOMDocument;
 use DOMElement;
