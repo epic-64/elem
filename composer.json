@@ -3,12 +3,18 @@
     "description": "A fluent, type-safe PHP library for building HTML documents using the DOM",
     "type": "library",
     "license": "MIT",
-    "keywords": ["html", "dom", "builder", "fluent", "type-safe", "elements"],
+    "keywords": ["html", "dom", "builder", "fluent", "type-safe", "elements", "php", "template"],
+    "homepage": "https://github.com/epic-64/elem",
     "authors": [
         {
-            "name": "epic-64"
+            "name": "epic-64",
+            "homepage": "https://github.com/epic-64"
         }
     ],
+    "support": {
+        "issues": "https://github.com/epic-64/elem/issues",
+        "source": "https://github.com/epic-64/elem"
+    },
     "require": {
         "php": ">=8.4",
         "ext-dom": "*"
