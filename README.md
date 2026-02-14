@@ -16,9 +16,9 @@ A fluent, type-safe PHP library for building HTML documents using the DOM.
 
 ## Table of Contents
 
-- [Why Elem?](#why-elem)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Why Elem?](#why-elem)
 - [Examples](#examples)
   - [Forms](#forms)
   - [Lists](#lists)
@@ -33,128 +33,6 @@ A fluent, type-safe PHP library for building HTML documents using the DOM.
 - [Demo Server](#demo-server)
 - [Development](#development)
 - [License](#license)
-
-## Why Elem?
-
-### Type-safe
-
-Your IDE knows what's happening. Autocomplete, refactoring, and static analysis just work.
-
-```php
-// ❌ Blade/Twig: Typo? You'll find out at runtime.
-<a hfer="{{ $url }}">Click</a>
-
-// ✅ Elem: PHPStan catches this before you even save.
-a(hfer: $url, text: 'Click')  // Error: Unknown parameter "hfer"
-```
-
-### Composable
-
-Build reusable components as plain functions. No magic, no framework lock-in.
-
-```php
-// Define a component as a simple function
-function card(string $title): Element {
-    return div(class: 'card')(
-        h(2, text: $title),
-        div(class: 'card-body')
-    );
-}
-
-// Use it anywhere
-$card = card('Welcome')(
-    p(text: 'This is a card component.'),
-    a(href: '/learn-more', text: 'Learn More')
-);
-
-echo $card;
-```
-
-Output:
-```html
-<div class="card">
-    <h2>Welcome</h2>
-    <div class="card-body">
-        <p>This is a card component.</p>
-        <a href="/learn-more">Learn More</a>
-    </div>
-</div>
-```
-
-### No template syntax to learn
-
-It's just PHP. No `{{ }}`, no `@directives`, no context switching.
-
-❌ Blade:
-```php
-<div class="admins">
-@foreach($users as $user)
-    @if($user->isAdmin())
-        <span class="badge">{{ $user->name }}</span>
-    @endif
-@endforeach
-<div>
-```
-
-✅ Use Elem's `list_of()` helper for a fluent syntax:
-```php
-div(class: "admins")(
-    Epic64\Elem\list_of($users)
-        ->filter(fn($user) => $user->isAdmin())
-        ->map(fn($user) => span(class: 'badge', text: $user->name))
-)
-```
-
-✅ Or use an existing collection library:
-```php
-div(class: "admins")(
-    collect($users)
-        ->filter(fn($user) => $user->isAdmin())
-        ->map(fn($user) => span(class: 'badge', text: $user->name))
-)
-```
-
-✅ Or stick with PHP's pipe operator and raw arrays:
-```php
-div(class: "admins")(
-    $users
-        |> (fn($arr) => array_filter($arr, fn($user) => $user->isAdmin()))
-        |> (fn($arr) => array_map(fn($user) => span(class: 'badge', text: $user->name), $arr))
-)
-```
-
-### XSS-safe by default
-
-Text is automatically escaped through the DOM. Sleep better at night.
-
-```php
-$userInput = '<script>alert("hacked")</script>';
-
-// ❌ Raw PHP: XSS vulnerability
-echo "<div>$userInput</div>";
-
-// ✅ Elem: Automatically escaped. Crisis averted.
-echo div(text: $userInput);
-// Output: <div>&lt;script&gt;alert("hacked")&lt;/script&gt;</div>
-```
-
-### LLM-friendly
-
-Using AI to generate HTML? Elem's structure catches mistakes that would slip through with templates:
-
-- **Named parameters** - No silent bugs from wrong argument order
-- **Type checking** - PHPStan catches hallucinated attributes
-- **No string interpolation** - Impossible to forget escaping
-- **No closing tags** - Can't mismatch `<div>` with `</span>`
-
-```php
-// LLMs can't mess this up - structure is enforced, not hoped for
-div(class: 'card')(
-    h(2, text: $title),
-    p(text: $description),
-    a(href: $url, text: 'Learn more')
-)
-```
 
 ## Installation
 
@@ -240,6 +118,98 @@ echo $page;
         </div>
     </body>
 </html>
+```
+
+## Why Elem?
+
+### Type-safe
+
+Your IDE knows what's happening. Autocomplete, refactoring, and static analysis just work.
+
+```php
+// ❌ Blade/Twig: Typo? You'll find out at runtime.
+<a hfer="{{ $url }}">Click</a>
+
+// ✅ Elem: PHPStan catches this before you even save.
+a(hfer: $url, text: 'Click')  // Error: Unknown parameter "hfer"
+```
+
+### Composable
+
+Build reusable components as plain functions. No magic, no framework lock-in.
+
+```php
+// Define a component as a simple function
+function card(string $title): Element {
+    return div(class: 'card')(
+        h(2, text: $title),
+        div(class: 'card-body')
+    );
+}
+
+// Use it anywhere
+$card = card('Welcome')(
+    p(text: 'This is a card component.'),
+    a(href: '/learn-more', text: 'Learn More')
+);
+
+echo $card;
+```
+
+Output:
+```html
+<div class="card">
+    <h2>Welcome</h2>
+    <div class="card-body">
+        <p>This is a card component.</p>
+        <a href="/learn-more">Learn More</a>
+    </div>
+</div>
+```
+
+### Pure PHP
+
+No context switching. Your views are PHP, so you get the full power of the language - loops, conditionals, functions, type hints, and your IDE's full support.
+
+```php
+div(class: 'admin-list')(
+    list_of($users)
+        ->filter(fn($u) => $u->isAdmin())
+        ->map(fn($u) => span(class: 'badge', text: $u->name))
+)
+```
+
+### XSS-safe by default
+
+Text is automatically escaped through the DOM. Sleep better at night.
+
+```php
+$userInput = '<script>alert("hacked")</script>';
+
+// ❌ Raw PHP: XSS vulnerability
+echo "<div>$userInput</div>";
+
+// ✅ Elem: Automatically escaped. Crisis averted.
+echo div(text: $userInput);
+// Output: <div>&lt;script&gt;alert("hacked")&lt;/script&gt;</div>
+```
+
+### LLM-friendly
+
+Using AI to generate HTML? Elem's structure catches mistakes that would slip through with templates:
+
+- **Named parameters** - No silent bugs from wrong argument order
+- **Type checking** - PHPStan catches hallucinated attributes
+- **No string interpolation** - Impossible to forget escaping
+- **No closing tags** - Can't mismatch `<div>` with `</span>`
+
+```php
+// LLMs can't mess this up - structure is enforced, not hoped for
+div(class: 'card')(
+    h(2, text: $title),
+    p(text: $description),
+    a(href: $url, text: 'Learn more')
+)
 ```
 
 ## Examples
