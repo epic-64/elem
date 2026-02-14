@@ -132,14 +132,19 @@ class Element
     }
 
     /**
-     * Add children to the element. Accepts DOMNode|string|Element.
-     * @param DOMNode|Element|string ...$children
+     * Add children to the element. Accepts DOMNode|string|Element|array.
+     * @param DOMNode|Element|string|array ...$children
      * @return $this
      */
-    public function __invoke(DOMNode|Element|string ...$children): static
+    public function __invoke(DOMNode|Element|string|array ...$children): static
     {
         $scope = ElementFactory::getScope();
         foreach ($children as $child) {
+            // Handle arrays (e.g., from array_map)
+            if (is_array($child)) {
+                $this(...$child);
+                continue;
+            }
             if ($child instanceof Element) {
                 // Check if from same document, import if needed
                 if ($child->element->ownerDocument !== $scope->dom) {
