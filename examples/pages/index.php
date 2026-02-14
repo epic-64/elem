@@ -16,6 +16,11 @@ $examples = [
         'title' => 'Template Demo',
         'description' => 'A comprehensive demo showing components, user lists, navigation, and forms with HTMX & Alpine.js integration.',
     ],
+    [
+        'path' => '/htmx-demo',
+        'title' => 'HTMX Demo',
+        'description' => 'Interactive examples showcasing HTMX features: click counter, live search, validation, toggle content, polling, and infinite scroll.',
+    ],
 ];
 
 function example_card(string $title, string $description, string $path): Element
