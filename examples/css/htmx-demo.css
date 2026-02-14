@@ -54,6 +54,55 @@
     padding: 1rem;
 }
 
+/* Collapsible Code Details */
+.code-details {
+    margin-top: 1rem;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.code-details summary {
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-smooth);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.code-details summary::-webkit-details-marker {
+    display: none;
+}
+
+.code-details summary::before {
+    content: '▶';
+    font-size: 0.7rem;
+    transition: transform var(--transition-smooth);
+}
+
+.code-details[open] summary::before {
+    transform: rotate(90deg);
+}
+
+.code-details summary:hover {
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--text-secondary);
+}
+
+.code-details[open] summary {
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.code-details .code-block {
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
 /* Counter Button */
 .counter-btn {
     min-width: 180px;
