@@ -193,26 +193,21 @@ echo div(text: $userInput);
 Code reviews become easier when structure and logic aren't interleaved with template syntax.
 
 ```diff
-# ❌ Blade: What actually changed here?
+# ❌ Blade: Closing tags add noise.
 - <div class="card">
--     <h2>{{ $title }}</h2>
--     @if($showBody)
--         <div class="card-body">
--             <p>{{ $description }}</p>
--         </div>
--     @endif
-- </div>
 + <div class="card" id="main-card">
-+     <h2>{{ $title }}</h2>
-+     @if($showBody)
-+         <div class="card-body">
+      <h2>{{ $title }}</h2>
+      @if($showBody)
+          <div class="card-body">
+-             <p>{{ $description }}</p>
 +             <p class="lead">{{ $description }}</p>
 +             <a href="/learn-more">Learn More</a>
-+         </div>
-+     @endif
+          </div>
+      @endif
+- </div>
 + </div>
 
-# ✅ Elem: Crystal clear.
+# ✅ Elem: Every changed line is meaningful.
 - div(class: 'card')(
 + div(class: 'card', id: 'main-card')(
       h(2, text: $title),

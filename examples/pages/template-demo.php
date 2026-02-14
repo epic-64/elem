@@ -91,6 +91,16 @@ return html(lang: 'en')(
                     ), $arr))
             ),
 
+
+            div(class: 'card', id: 'main-card')(
+                h(2, text: 'Main Card'),
+                false ? div(class: 'card-body')(
+                            p(text: 'This card is conditionally rendered based on a simple boolean expression.'),
+                            p(class: 'lead', text: 'You can use any PHP logic to control what gets rendered.'),
+                            a(href: '/learn-more', text: 'Learn More')
+                ) : null
+            ),
+
             // Navigation card using component
             card(title: 'Navigation')(
                 ul(class: 'nav')(
