@@ -148,6 +148,11 @@ class Element
                 } else {
                     $this->element->appendChild($child->element);
                 }
+                // Handle pending script for void elements
+                if ($child->pendingScript !== null) {
+                    $this->element->appendChild($child->pendingScript);
+                    $child->pendingScript = null;
+                }
             } elseif ($child instanceof DOMNode) {
                 // External node might need import
                 if ($child->ownerDocument !== $scope->dom) {
@@ -215,6 +220,44 @@ class Element
     {
         return $this->attr("data-$name", $value);
     }
+
+    /**
+     * Add an inline script that receives this element as `el`.
+     * Automatically wraps the code with getElementById lookup.
+     * For void elements (input, img, etc), appends script as next sibling.
+     *
+     * Usage:
+     *   form(id: 'my-form')->script(<<<JS
+     *       el.addEventListener('submit', (e) => { ... });
+     *   JS)
+     */
+    public function script(string $code): static
+    {
+        $id = $this->element->getAttribute('id');
+        if (empty($id)) {
+            throw new InvalidArgumentException('Element must have an id to use script()');
+        }
+
+        $wrappedCode = "{ const el = document.getElementById('$id'); $code }";
+        $script = ElementFactory::getScope()->createElement('script', $wrappedCode);
+
+        // Void elements can't have children, so we store the script to be rendered after
+        $voidElements = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+        if (in_array(strtolower($this->element->tagName), $voidElements)) {
+            // Insert after this element
+            if ($this->element->parentNode) {
+                $this->element->parentNode->insertBefore($script, $this->element->nextSibling);
+            } else {
+                // No parent yet - store for later
+                $this->pendingScript = $script;
+            }
+        } else {
+            $this->element->appendChild($script);
+        }
+        return $this;
+    }
+
+    protected ?DOMElement $pendingScript = null;
 
     public function toHtml(bool $pretty = false): string
     {

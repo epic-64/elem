@@ -17,11 +17,10 @@ function navItem(string $href, string $text, bool $blank = false): Element
     );
 }
 
-function formGroup(string $labelText, string $inputId, Element|string ...$children): Element
+function formGroup(string $labelText, string $inputId): Element
 {
     return div(class: 'form-group')(
         label(text: $labelText, for: $inputId),
-        ...$children
     );
 }
 ?>
@@ -55,20 +54,39 @@ function formGroup(string $labelText, string $inputId, Element|string ...$childr
         ),
 
         card('Login Form',
-            form(action: '/login')(
-                formGroup('Email:', 'email',
+            form(id: 'login-form', action: '/login')(
+                formGroup(labelText: 'Email:', inputId: 'email')(
                     input(type: 'email', id: 'email', class: 'form-control')
-                        ->required()
-                        ->placeholder('you@example.com')
+                        ->attr('required', 'required')
+                        ->attr('placeholder', 'you@example.com')
                         ->attr('pattern', '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$')
+                        ->script(<<<JS
+                            el.addEventListener('input', function() {
+                                this.style.borderColor = this.checkValidity() ? '#28a745' : '#dc3545';
+                            });
+                        JS)
                 ),
-                formGroup('Password:', 'password',
+                formGroup(labelText: 'Password:', inputId: 'password')(
                     input(type: 'password', id: 'password', class: 'form-control')
-                        ->required()
-                        ->attr('minlength', '10')
+                        ->attr('required', 'required')
+                        ->attr('minlength', '8')
+                        ->script(<<<JS
+                            el.addEventListener('input', function() {
+                                this.style.borderColor = this.checkValidity() ? '#28a745' : '#dc3545';
+                            });
+                        JS)
                 ),
-                button(id: 'submit', class: 'btn btn-primary', text: 'Login')
-            )
+                button(id: 'submit', class: 'btn btn-primary', text: 'Login', type: 'submit')
+            )->script(<<<JS
+                el.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    if (el.checkValidity()) {
+                        alert('Form is valid! Would submit to: ' + el.action);
+                    } else {
+                        el.reportValidity();
+                    }
+                });
+            JS)
         )
     ) ?>
 </body>
