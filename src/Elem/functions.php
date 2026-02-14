@@ -243,8 +243,9 @@ function font(string $href, ?string $type = null): Link
 /**
  * Map an array of data to an array of elements using a transformation function.
  *
- * @param array $data The input data to transform.
- * @param callable $transform A function that takes an item of data and returns an Element.
+ * @template T
+ * @param array<T> $data The input data to transform.
+ * @param callable(T): Element $transform A function that takes an item of data and returns an Element.
  * @return Element[] An array of Elements created from the input data.
  */
 function to_el(array $data, callable $transform): array
