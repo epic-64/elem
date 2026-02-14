@@ -26,7 +26,7 @@ class Element
 
     /**
      * Add children to the element. Accepts DOMNode|string|Element|array.
-     * @param DOMNode|Element|string|array<mixed> ...$children
+     * @param DOMNode|Element|string|array<DOMNode|Element|string|array<mixed>> ...$children
      * @return $this
      */
     public function __invoke(DOMNode|Element|string|array ...$children): static
@@ -35,6 +35,7 @@ class Element
         foreach ($children as $child) {
             // Handle arrays (e.g., from array_map)
             if (is_array($child)) {
+                /** @phpstan-ignore argument.type (recursive type is intentional for nested arrays from array_map) */
                 $this(...$child);
                 continue;
             }
