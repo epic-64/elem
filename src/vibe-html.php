@@ -721,6 +721,96 @@ class Option extends Element
 }
 
 // ============================================================================
+// Document Structure Elements
+// ============================================================================
+
+class Html extends Element
+{
+    public function __construct(?string $lang = null)
+    {
+        parent::__construct('html');
+        if ($lang !== null) {
+            $this->element->setAttribute('lang', $lang);
+        }
+    }
+
+    public function lang(string $lang): static
+    {
+        return $this->attr('lang', $lang);
+    }
+
+    public function toHtml(bool $pretty = false): string
+    {
+        $doctype = "<!DOCTYPE html>\n";
+        return $doctype . parent::toHtml($pretty);
+    }
+}
+
+class Head extends Element
+{
+    public function __construct()
+    {
+        parent::__construct('head');
+    }
+}
+
+class Body extends Element
+{
+    public function __construct()
+    {
+        parent::__construct('body');
+    }
+}
+
+class Title extends Element
+{
+    public function __construct(?string $text = null)
+    {
+        parent::__construct('title', $text);
+    }
+}
+
+class Meta extends Element
+{
+    public function __construct(?string $charset = null, ?string $name = null, ?string $content = null)
+    {
+        parent::__construct('meta');
+        if ($charset !== null) {
+            $this->element->setAttribute('charset', $charset);
+        }
+        if ($name !== null) {
+            $this->element->setAttribute('name', $name);
+        }
+        if ($content !== null) {
+            $this->element->setAttribute('content', $content);
+        }
+    }
+
+    public function charset(string $charset): static
+    {
+        return $this->attr('charset', $charset);
+    }
+
+    public function name(string $name): static
+    {
+        return $this->attr('name', $name);
+    }
+
+    public function content(string $content): static
+    {
+        return $this->attr('content', $content);
+    }
+}
+
+class Style extends Element
+{
+    public function __construct(?string $css = null)
+    {
+        parent::__construct('style', $css);
+    }
+}
+
+// ============================================================================
 // Helper Functions for convenient element creation
 // ============================================================================
 
@@ -859,6 +949,37 @@ function select(?string $id = null, ?string $class = null, ?string $name = null)
 {
     /** @var Select */
     return _applyCommon(new Select($name), $id, $class);
+}
+
+function html(?string $lang = null): Html
+{
+    return new Html($lang);
+}
+
+function head(): Head
+{
+    return new Head();
+}
+
+function body(?string $id = null, ?string $class = null): Body
+{
+    /** @var Body */
+    return _applyCommon(new Body(), $id, $class);
+}
+
+function title(?string $text = null): Title
+{
+    return new Title($text);
+}
+
+function meta(?string $charset = null, ?string $name = null, ?string $content = null): Meta
+{
+    return new Meta($charset, $name, $content);
+}
+
+function style(?string $css = null): Style
+{
+    return new Style($css);
 }
 
 // ============================================================================
