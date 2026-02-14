@@ -139,16 +139,20 @@ a(hfer: $url, text: 'Click')  // Error: Unknown parameter "hfer"
 Build reusable components as plain functions. No magic, no framework lock-in.
 
 ```php
+use Epic64\Elem\Element;
+use function Epic64\Elem\div;
+use function Epic64\Elem\h;
+
 // Define a component as a simple function
-function card(string $title): Element {
+function card(string $title, Element ...$content): Element {
     return div(class: 'card')(
         h(2, text: $title),
-        div(class: 'card-body')
+        div(class: 'card-body')(...$content)
     );
 }
 
 // Use it anywhere
-$card = card('Welcome')(
+$card = card('Welcome',
     p(text: 'This is a card component.'),
     a(href: '/learn-more', text: 'Learn More')
 );
