@@ -810,6 +810,34 @@ class Style extends Element
     }
 }
 
+class Script extends Element
+{
+    public function __construct(?string $code = null)
+    {
+        parent::__construct('script', $code);
+    }
+
+    public function src(string $src): static
+    {
+        return $this->attr('src', $src);
+    }
+
+    public function defer(): static
+    {
+        return $this->attr('defer', 'defer');
+    }
+
+    public function async(): static
+    {
+        return $this->attr('async', 'async');
+    }
+
+    public function type(string $type): static
+    {
+        return $this->attr('type', $type);
+    }
+}
+
 // ============================================================================
 // Helper Functions for convenient element creation
 // ============================================================================
@@ -980,6 +1008,11 @@ function meta(?string $charset = null, ?string $name = null, ?string $content = 
 function style(?string $css = null): Style
 {
     return new Style($css);
+}
+
+function script(?string $code = null): Script
+{
+    return new Script($code);
 }
 
 // ============================================================================

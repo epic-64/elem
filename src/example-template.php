@@ -21,6 +21,8 @@ echo html(lang: 'en')(
         meta(charset: 'UTF-8'),
         meta(name: 'viewport', content: 'width=device-width, initial-scale=1.0'),
         title('Vibe HTML Template Example'),
+        script()->attr('src', 'https://unpkg.com/htmx.org@2.0.4'),
+        script()->attr('defer', 'defer')->attr('src', 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js'),
         style(<<<CSS
             .container { max-width: 800px; margin: 0 auto; padding: 20px; }
             .card { border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin: 16px 0; }
@@ -47,27 +49,26 @@ echo html(lang: 'en')(
             ),
 
             card('Login Form')(
-                form(id: 'login-form', action: '/login')(
+                form(id: 'login-form', action: '/login')
+                    ->attr('hx-post', '/login')
+                    ->attr('hx-target', '#login-form')
+                    ->attr('hx-swap', 'outerHTML')(
                     formGroup(labelText: 'Email:', inputId: 'email')(
                         input(type: 'email', id: 'email', class: 'form-control')
                             ->required()
                             ->placeholder('you@example.org')
                             ->attr('pattern', '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$')
-                            ->script(<<<JS
-                                el.addEventListener('input', () => {
-                                    this.style.borderColor = this.checkValidity() ? '#28a745' : '#dc3545';
-                                });
-                            JS)
+                            ->attr('x-data', '{ valid: null }')
+                            ->attr('x-on:input', 'valid = $el.checkValidity()')
+                            ->attr(':style', "valid === null ? '' : (valid ? 'border-color: #28a745' : 'border-color: #dc3545')")
                     ),
                     formGroup(labelText: 'Password:', inputId: 'password')(
                         input(type: 'password', id: 'password', class: 'form-control')
                             ->attr('required', 'required')
                             ->attr('minlength', '8')
-                            ->script(<<<JS
-                                el.addEventListener('input', () => {
-                                    this.style.borderColor = this.checkValidity() ? '#28a745' : '#dc3545';
-                                });
-                            JS)
+                            ->attr('x-data', '{ valid: null }')
+                            ->attr('x-on:input', 'valid = $el.checkValidity()')
+                            ->attr(':style', "valid === null ? '' : (valid ? 'border-color: #28a745' : 'border-color: #dc3545')")
                     ),
                     button(id: 'submit', class: 'btn btn-primary', text: 'Login', type: 'submit')
                 )
