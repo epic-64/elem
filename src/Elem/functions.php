@@ -15,6 +15,7 @@ use Epic64\Elem\Elements\Html;
 use Epic64\Elem\Elements\Image;
 use Epic64\Elem\Elements\Input;
 use Epic64\Elem\Elements\Label;
+use Epic64\Elem\Elements\Link;
 use Epic64\Elem\Elements\ListItem;
 use Epic64\Elem\Elements\Meta;
 use Epic64\Elem\Elements\OrderedList;
@@ -203,8 +204,39 @@ function script(?string $code = null, ?string $src = null): Script
     return new Script($code, $src);
 }
 
-function stylesheet(string $href): Element
+/**
+ * Create a <link> element for external resources.
+ *
+ * Note: For stylesheets, you probably want to use the stylesheet() helper instead:
+ * stylesheet('/css/style.css')
+ */
+function link(?string $href = null, ?string $rel = null): Link
 {
-    return new Element('link')->attr('rel', 'stylesheet')->attr('href', $href);
+    return new Link($href, $rel);
+}
+
+function stylesheet(string $href): Link
+{
+    return new Link($href, 'stylesheet');
+}
+
+function icon(string $href, ?string $type = null): Link
+{
+    $link = new Link($href, 'icon');
+    if ($type !== null) {
+        $link->type($type);
+    }
+    return $link;
+}
+
+function font(string $href, ?string $type = null): Link
+{
+    $link = new Link($href, 'preload');
+    $link->attr('as', 'font');
+    $link->attr('crossorigin', 'anonymous');
+    if ($type !== null) {
+        $link->type($type);
+    }
+    return $link;
 }
 
