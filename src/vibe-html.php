@@ -6,8 +6,16 @@
  */
 class Element
 {
-    protected DOMDocument $dom;
-    protected DOMElement $element;
+    protected DOMDocument $dom {
+        get {
+            return $this->dom;
+        }
+    }
+    protected DOMElement $element {
+        get {
+            return $this->element;
+        }
+    }
 
     public function __construct(string $tagName, ?string $text = null)
     {
@@ -27,7 +35,7 @@ class Element
             if ($child instanceof DOMNode) {
                 $this->element->appendChild($this->dom->importNode($child, true));
             } elseif ($child instanceof Element) {
-                $this->element->appendChild($this->dom->importNode($child->getElement(), true));
+                $this->element->appendChild($this->dom->importNode($child->element, true));
             } elseif (is_string($child)) {
                 $this->element->appendChild($this->dom->createTextNode($child));
             }
@@ -90,24 +98,80 @@ class Element
         return $this->attr("data-$name", $value);
     }
 
-    public function getElement(): DOMElement
+    public function toHtml(bool $pretty = false): string
     {
-        return $this->element;
-    }
+        if ($pretty) {
+            $html = $this->dom->saveHTML($this->element) ?: '';
+            return $this->indentHtml($html);
+        }
 
-    public function getDom(): DOMDocument
-    {
-        return $this->dom;
-    }
-
-    public function toHtml(): string
-    {
         return $this->dom->saveHTML($this->element) ?: '';
+    }
+
+    /**
+     * Indent HTML string with proper formatting.
+     */
+    private function indentHtml(string $html): string
+    {
+        $html = trim($html);
+        if (empty($html)) {
+            return '';
+        }
+
+        // Self-closing tags
+        $selfClosing = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+
+        $result = '';
+        $indent = 0;
+        $indentStr = '  ';
+
+        // Split by tags while keeping tags
+        $tokens = preg_split('/(<[^>]+>)/s', $html, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+
+        if ($tokens === false) {
+            return $html;
+        }
+
+        foreach ($tokens as $token) {
+            $token = trim($token);
+            if (empty($token)) {
+                continue;
+            }
+
+            // Check if it's a tag
+            if (preg_match('/^<\/(\w+)/', $token, $matches)) {
+                // Closing tag
+                $indent = max(0, $indent - 1);
+                $result .= str_repeat($indentStr, $indent) . $token . "\n";
+            } elseif (preg_match('/^<(\w+)/', $token, $matches)) {
+                $tagName = strtolower($matches[1]);
+                $isSelfClosing = in_array($tagName, $selfClosing) || str_ends_with($token, '/>');
+
+                $result .= str_repeat($indentStr, $indent) . $token . "\n";
+
+                if (!$isSelfClosing) {
+                    $indent++;
+                }
+            } else {
+                // Text content
+                $result .= str_repeat($indentStr, $indent) . $token . "\n";
+            }
+        }
+
+        return rtrim($result);
     }
 
     public function __toString(): string
     {
         return $this->toHtml();
+    }
+
+    /**
+     * Output pretty-printed HTML.
+     */
+    public function toPrettyHtml(): string
+    {
+        return $this->toHtml(true);
     }
 }
 
@@ -515,66 +579,66 @@ function _applyCommon(Element $element, ?string $id, ?string $class): Element
     return $element;
 }
 
-function el(string $tag, ?string $text = null, ?string $id = null, ?string $class = null): Element
+function el(string $tag, ?string $id = null, ?string $class = null, ?string $text = null): Element
 {
     return _applyCommon(new Element($tag, $text), $id, $class);
 }
 
-function a(string $href, ?string $text = null, ?string $id = null, ?string $class = null): Anchor
+function a(string $href, ?string $id = null, ?string $class = null, ?string $text = null): Anchor
 {
     /** @var Anchor */
     return _applyCommon(new Anchor($href, $text), $id, $class);
 }
 
-function div(?string $text = null, ?string $id = null, ?string $class = null): Div
+function div(?string $id = null, ?string $class = null, ?string $text = null): Div
 {
     /** @var Div */
     return _applyCommon(new Div($text), $id, $class);
 }
 
-function span(?string $text = null, ?string $id = null, ?string $class = null): Span
+function span(?string $id = null, ?string $class = null, ?string $text = null): Span
 {
     /** @var Span */
     return _applyCommon(new Span($text), $id, $class);
 }
 
-function p(?string $text = null, ?string $id = null, ?string $class = null): Paragraph
+function p(?string $id = null, ?string $class = null, ?string $text = null): Paragraph
 {
     /** @var Paragraph */
     return _applyCommon(new Paragraph($text), $id, $class);
 }
 
-function h(int $level, ?string $text = null, ?string $id = null, ?string $class = null): Heading
+function h(int $level, ?string $id = null, ?string $class = null, ?string $text = null): Heading
 {
     /** @var Heading */
     return _applyCommon(new Heading($level, $text), $id, $class);
 }
 
-function img(string $src, string $alt = '', ?string $id = null, ?string $class = null): Image
+function img(string $src, ?string $id = null, ?string $class = null, string $alt = ''): Image
 {
     /** @var Image */
     return _applyCommon(new Image($src, $alt), $id, $class);
 }
 
-function button(?string $text = null, string $type = 'button', ?string $id = null, ?string $class = null): Button
+function button(?string $id = null, ?string $class = null, ?string $text = null, string $type = 'button'): Button
 {
     /** @var Button */
     return _applyCommon(new Button($text, $type), $id, $class);
 }
 
-function input(string $type = 'text', ?string $name = null, ?string $id = null, ?string $class = null): Input
+function input(string $type, ?string $id = null, ?string $class = null, ?string $name = null): Input
 {
     /** @var Input */
     return _applyCommon(new Input($type, $name), $id, $class);
 }
 
-function form(?string $action = null, string $method = 'post', ?string $id = null, ?string $class = null): Form
+function form(?string $id = null, ?string $class = null, ?string $action = null, string $method = 'post'): Form
 {
     /** @var Form */
     return _applyCommon(new Form($action, $method), $id, $class);
 }
 
-function label(?string $text = null, ?string $for = null, ?string $id = null, ?string $class = null): Label
+function label(?string $id = null, ?string $class = null, ?string $text = null, ?string $for = null): Label
 {
     /** @var Label */
     return _applyCommon(new Label($text, $for), $id, $class);
@@ -592,7 +656,7 @@ function ol(?string $id = null, ?string $class = null): OrderedList
     return _applyCommon(new OrderedList(), $id, $class);
 }
 
-function li(?string $text = null, ?string $id = null, ?string $class = null): ListItem
+function li(?string $id = null, ?string $class = null, ?string $text = null): ListItem
 {
     /** @var ListItem */
     return _applyCommon(new ListItem($text), $id, $class);
@@ -610,25 +674,25 @@ function tr(?string $id = null, ?string $class = null): TableRow
     return _applyCommon(new TableRow(), $id, $class);
 }
 
-function td(?string $text = null, ?string $id = null, ?string $class = null): TableCell
+function td(?string $id = null, ?string $class = null, ?string $text = null): TableCell
 {
     /** @var TableCell */
     return _applyCommon(new TableCell($text), $id, $class);
 }
 
-function th(?string $text = null, ?string $id = null, ?string $class = null): TableHeader
+function th(?string $id = null, ?string $class = null, ?string $text = null): TableHeader
 {
     /** @var TableHeader */
     return _applyCommon(new TableHeader($text), $id, $class);
 }
 
-function textarea(?string $name = null, ?string $content = null, ?string $id = null, ?string $class = null): Textarea
+function textarea(?string $id = null, ?string $class = null, ?string $name = null, ?string $content = null): Textarea
 {
     /** @var Textarea */
     return _applyCommon(new Textarea($name, $content), $id, $class);
 }
 
-function select(?string $name = null, ?string $id = null, ?string $class = null): Select
+function select(?string $id = null, ?string $class = null, ?string $name = null): Select
 {
     /** @var Select */
     return _applyCommon(new Select($name), $id, $class);
@@ -639,54 +703,55 @@ function select(?string $name = null, ?string $id = null, ?string $class = null)
 // ============================================================================
 
 // Simple anchor with class
-$anchor = a('https://example.com', 'Example', class: 'link')(' - click here');
-echo $anchor->toHtml() . "\n";
+$anchor = a('https://example.com', class: 'link', text: 'Example')(' - click here');
+echo $anchor->toHtml() . "\n\n";
 
-// Nested elements using id/class parameters
+// Nested elements using id/class parameters (pretty printed)
 $card = div(id: 'my-card', class: 'card shadow')(
-    h(2, 'Welcome!', class: 'title'),
-    p('This is a paragraph with a ')(
-        a('https://example.com', 'link', class: 'external')->blank()
+    h(2, class: 'title', text: 'Welcome!'),
+    p(text: 'This is a paragraph with a ')(
+        a('https://example.com', class: 'external', text: 'link')->blank()
     )(' inside.'),
     div(class: 'button-group')(
-        button('Click me', class: 'btn btn-primary'),
-        button('Cancel', class: 'btn btn-secondary')
+        button(class: 'btn btn-primary', text: 'Click me'),
+        button(class: 'btn btn-secondary', text: 'Cancel')
     )
 );
 
-echo $card->toHtml() . "\n";
+echo "=== Pretty Printed ===\n";
+echo $card->toPrettyHtml() . "\n";
 
-// Form example using id/class parameters
-$loginForm = form('/login', id: 'login-form', class: 'form')(
+// Form example using id/class parameters (pretty printed)
+$loginForm = form(id: 'login-form', class: 'form', action: '/login')(
     div(class: 'form-group')(
-        label('Email:', 'email'),
-        input('email', 'email', id: 'email', class: 'form-control')->placeholder('Enter email')->required()
+        label(text: 'Email:', for: 'email'),
+        input('email', id: 'email', class: 'form-control', name: 'email')->placeholder('Enter email')->required()
     ),
     div(class: 'form-group')(
-        label('Password:', 'password'),
-        input('password', 'password', id: 'password', class: 'form-control')->placeholder('Enter password')->required()
+        label(text: 'Password:', for: 'password'),
+        input('password', id: 'password', class: 'form-control', name: 'password')->placeholder('Enter password')->required()
     ),
-    button('Login', 'submit', class: 'btn btn-primary')
+    button(class: 'btn btn-primary', text: 'Login', type: 'submit')
 );
 
-echo $loginForm->toHtml() . "\n";
+echo $loginForm->toPrettyHtml() . "\n";
 
 // List example with id/class
 $menu = ul(id: 'main-menu', class: 'menu nav')(
-    li('Home', class: 'nav-item'),
-    li('About', class: 'nav-item'),
-    li('Contact', class: 'nav-item')
+    li(class: 'nav-item', text: 'Home'),
+    li(class: 'nav-item', text: 'About'),
+    li(class: 'nav-item', text: 'Contact')
 );
-echo $menu->toHtml() . "\n";
+echo $menu->toPrettyHtml() . "\n";
 
 // Table example with id/class
 $dataTable = table(id: 'users-table', class: 'data-table striped')(
     tr(class: 'header-row')(
-        th('Name'),
-        th('Age'),
-        th('City')
+        th(text: 'Name'),
+        th(text: 'Age'),
+        th(text: 'City')
     ),
     tr(class: 'data-row')->cell('John')->cell('25')->cell('NYC'),
     tr(class: 'data-row')->cell('Jane')->cell('30')->cell('LA')
 );
-echo $dataTable->toHtml() . "\n";
+echo $dataTable->toPrettyHtml() . "\n";
