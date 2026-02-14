@@ -230,6 +230,26 @@ Then open http://localhost:8080 in your browser.
 - **Template Demo** (`/template-demo`) - Building complete HTML pages
 - **HTMX Demo** (`/htmx-demo`) - Interactive components with HTMX integration
 
+## Development
+
+### Running Tests
+
+```bash
+# Run tests
+vendor/bin/pest
+
+# Run tests with coverage
+vendor/bin/pest --coverage
+
+# Run tests with coverage and enforce minimum threshold
+vendor/bin/pest --coverage --min=80
+```
+
+### Static Analysis
+
+```bash
+vendor/bin/phpstan analyse
+```
 
 ## License
 
