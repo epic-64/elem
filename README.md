@@ -173,7 +173,7 @@ No context switching. Your views are PHP, so you get the full power of the langu
 
 ```php
 div(class: 'admin-list')(
-    list_of($users)
+    Epic64\Elem\list_of($users) # you can also use array_map() or Laravel collections
         ->filter(fn($u) => $u->isAdmin())
         ->map(fn($u) => span(class: 'badge', text: $u->name))
 )
