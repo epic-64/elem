@@ -190,15 +190,37 @@ echo div(text: $userInput);
 
 ### Readable diffs
 
-Code changes show exactly what changed. No hunting through template soup.
+Code reviews become easier when structure and logic aren't interleaved with template syntax.
 
 ```diff
+# ❌ Blade: What actually changed here?
+- <div class="card">
+-     <h2>{{ $title }}</h2>
+-     @if($showBody)
+-         <div class="card-body">
+-             <p>{{ $description }}</p>
+-         </div>
+-     @endif
+- </div>
++ <div class="card" id="main-card">
++     <h2>{{ $title }}</h2>
++     @if($showBody)
++         <div class="card-body">
++             <p class="lead">{{ $description }}</p>
++             <a href="/learn-more">Learn More</a>
++         </div>
++     @endif
++ </div>
+
+# ✅ Elem: Crystal clear.
 - div(class: 'card')(
 + div(class: 'card', id: 'main-card')(
       h(2, text: $title),
--     p(text: $description)
-+     p(class: 'lead', text: $description),
-+     Button('Learn More')
+      $showBody ? div(class: 'card-body')(
+-         p(text: $description)
++         p(class: 'lead', text: $description),
++         a(href: '/learn-more', text: 'Learn More')
+      ) : null
   )
 ```
 
