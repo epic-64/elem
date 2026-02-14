@@ -179,9 +179,13 @@ class Element
         // Self-closing tags
         $selfClosing = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
 
+        // Tags whose content should preserve whitespace (no indentation)
+        $preserveWhitespace = ['pre', 'code', 'textarea', 'script'];
+
         $result = '';
         $indent = 0;
         $indentStr = '  ';
+        $insidePreformatted = 0; // Track nesting level of preformatted tags
 
         // Split by tags while keeping tags
         $tokens = preg_split('/(<[^>]+>)/s', $html, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
@@ -191,28 +195,53 @@ class Element
         }
 
         foreach ($tokens as $token) {
-            $token = trim($token);
-            if (empty($token)) {
-                continue;
+            // Only trim if not inside preformatted content
+            if ($insidePreformatted === 0) {
+                $token = trim($token);
+                if (empty($token)) {
+                    continue;
+                }
             }
 
             // Check if it's a tag
             if (preg_match('/^<\/(\w+)/', $token, $matches)) {
                 // Closing tag
+                $tagName = strtolower($matches[1]);
+
+                if (in_array($tagName, $preserveWhitespace)) {
+                    $insidePreformatted = max(0, $insidePreformatted - 1);
+                }
+
                 $indent = max(0, $indent - 1);
-                $result .= str_repeat($indentStr, $indent) . $token . "\n";
+
+                if ($insidePreformatted > 0) {
+                    $result .= $token;
+                } else {
+                    $result .= str_repeat($indentStr, $indent) . $token . "\n";
+                }
             } elseif (preg_match('/^<(\w+)/', $token, $matches)) {
                 $tagName = strtolower($matches[1]);
                 $isSelfClosing = in_array($tagName, $selfClosing) || str_ends_with($token, '/>');
 
-                $result .= str_repeat($indentStr, $indent) . $token . "\n";
+                if ($insidePreformatted > 0) {
+                    $result .= $token;
+                } else {
+                    $result .= str_repeat($indentStr, $indent) . $token . "\n";
+                }
 
                 if (!$isSelfClosing) {
                     $indent++;
+                    if (in_array($tagName, $preserveWhitespace)) {
+                        $insidePreformatted++;
+                    }
                 }
             } else {
                 // Text content
-                $result .= str_repeat($indentStr, $indent) . $token . "\n";
+                if ($insidePreformatted > 0) {
+                    $result .= $token;
+                } else {
+                    $result .= str_repeat($indentStr, $indent) . $token . "\n";
+                }
             }
         }
 

@@ -21,6 +21,14 @@ use function Epic64\Elem\{
     form, label, input, button
 };
 
+// Example code snippet to display
+$codeSnippet = <<<'PHP'
+button(class: 'btn btn-primary', text: 'Click me')
+    ->attr('hx-post', '/api/endpoint')
+    ->attr('hx-target', '#result')
+    ->attr('hx-swap', 'innerHTML')
+PHP;
+
 return html(lang: 'en')(
     head()(
         title(text: 'HTMX Demo - Elem Examples'),
@@ -37,6 +45,17 @@ return html(lang: 'en')(
             p(class: 'intro-text')(
                 'This page demonstrates various HTMX features integrated with the Elem library. ',
                 'All interactions below make requests to the server and update the DOM without page reloads.'
+            ),
+
+            // Code snippet showcase
+            el('section', class: 'demo-section code-showcase')(
+                h(2, text: 'Elem + HTMX'),
+                p(text: 'Adding HTMX attributes to Elem elements is simple using the ->attr() method:'),
+                div(class: 'demo-content')(
+                    el('pre', class: 'code-block')(
+                        el('code', class: 'language-php', text: $codeSnippet)
+                    )
+                )
             ),
 
             // Section 1: Click Counter
