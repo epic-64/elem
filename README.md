@@ -178,18 +178,6 @@ All elements support:
 - `->toHtml(bool $pretty = false)` - Output HTML
 - `->toPrettyHtml()` - Output formatted HTML
 
-## Scoped DOM Documents
-
-For advanced use cases (like testing or comparing documents), you can use isolated scopes:
-
-```php
-use Epic64\Elem\ElementFactory;
-
-// Execute code in an isolated scope
-$html = ElementFactory::withScope(function() {
-    return div(text: 'Isolated');
-});
-```
 
 ## License
 
