@@ -9,6 +9,9 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Packagist](https://img.shields.io/packagist/v/epic-64/elem.svg)](https://packagist.org/packages/epic-64/elem)
 
+> **Finally, you can be an HTML programmer.**  
+> Put it on your resume. We won't tell anyone.
+
 A fluent, type-safe PHP library for building HTML documents using the DOM.
 
 ## Requirements
