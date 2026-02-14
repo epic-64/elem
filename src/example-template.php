@@ -36,13 +36,13 @@ require_once __DIR__ . '/vibe-html.php';
             form('/login')(
                 div(class: 'form-group')(
                     label('Email:', 'email'),
-                    input('email', 'email', id: 'email', class: 'form-control')
+                    input('email', id: 'email', class: 'form-control')
                 ),
                 div(class: 'form-group')(
-                    label('Password:', 'password'),
-                    input('password', 'password', id: 'password', class: 'form-control')
+                    label(text: 'Password:', for: 'password'),
+                    input(type: 'password', id: 'password', class: 'form-control')
                 ),
-                button('Login', 'submit', class: 'btn btn-primary')
+                button(id: 'submit', class: 'btn btn-primary', text: 'Login')
             )
         )
     ) ?>
