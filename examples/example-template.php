@@ -46,8 +46,8 @@ echo html(lang: 'en')(
         title(text: 'Vibe HTML Template Example'),
         meta(charset: 'UTF-8'),
         meta(name: 'viewport', content: 'width=device-width, initial-scale=1.0'),
-        script()->attr('src', 'https://unpkg.com/htmx.org@2.0.4'),
-        script()->attr('defer', 'defer')->attr('src', 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js'),
+        script(src: 'https://unpkg.com/htmx.org@2.0.4'),
+        script(src: 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js')->defer(),
         style(<<<CSS
             * { margin: 0; padding: 0; box-sizing: border-box; }
             

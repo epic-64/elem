@@ -817,9 +817,12 @@ class Style extends Element
 
 class Script extends Element
 {
-    public function __construct(?string $code = null)
+    public function __construct(?string $code = null, ?string $src = null)
     {
         parent::__construct('script', $code);
+        if ($src !== null) {
+            $this->element->setAttribute('src', $src);
+        }
     }
 
     public function src(string $src): static
@@ -1015,7 +1018,7 @@ function style(?string $css = null): Style
     return new Style($css);
 }
 
-function script(?string $code = null): Script
+function script(?string $code = null, ?string $src = null): Script
 {
-    return new Script($code);
+    return new Script($code, $src);
 }
