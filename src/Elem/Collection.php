@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace Epic64\Elem;
 
+use ArrayIterator;
+use IteratorAggregate;
+use Traversable;
+
 /**
  * A simple collection class for fluent array transformations.
  *
  * @template T
+ * @implements IteratorAggregate<int, T>
  */
-class Collection
+class Collection implements IteratorAggregate
 {
     /**
      * @param array<T> $items
@@ -62,13 +67,10 @@ class Collection
     }
 
     /**
-     * Make collection invokable, returning the underlying array.
-     * This allows collections to be used directly as element children.
-     *
-     * @return array<T>
+     * @return Traversable<int, T>
      */
-    public function __invoke(): array
+    public function getIterator(): Traversable
     {
-        return $this->items;
+        return new ArrayIterator($this->items);
     }
 }

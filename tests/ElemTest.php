@@ -793,3 +793,26 @@ test('null values in arrays are filtered out', function () {
         ->and($output)->toContain('<p>Third</p>');
 });
 
+test('list_of with filter and map chain renders correctly', function () {
+    $users = [
+        ['name' => 'Alice', 'role' => 'admin', 'active' => true],
+        ['name' => 'Bob', 'role' => 'user', 'active' => false],
+        ['name' => 'Charlie', 'role' => 'admin', 'active' => true],
+        ['name' => 'Diana', 'role' => 'user', 'active' => true],
+    ];
+
+    $output = ul(class: 'admin-list')(
+        \Epic64\Elem\list_of($users)
+            ->filter(fn($user) => $user['role'] === 'admin')
+            ->filter(fn($user) => $user['active'])
+            ->map(fn($user) => li(class: 'admin-item', text: $user['name']))
+    )->toHtml();
+
+    expect($output)
+        ->toContain('<ul class="admin-list">')
+        ->and($output)->toContain('<li class="admin-item">Alice</li>')
+        ->and($output)->toContain('<li class="admin-item">Charlie</li>')
+        ->and($output)->not->toContain('Bob')
+        ->and($output)->not->toContain('Diana');
+});
+
