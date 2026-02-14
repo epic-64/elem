@@ -404,3 +404,24 @@ test('multiple documents can be created independently', function () {
     expect($output1Again)->toBe($output1);
 });
 
+test('special characters in text content are properly escaped', function () {
+    // Test ampersand
+    $element = p(text: 'HTMX & Alpine.js integration');
+    expect($element->toHtml())->toContain('HTMX &amp; Alpine.js integration');
+
+    // Test less than and greater than
+    $element2 = p(text: 'Use <div> for containers');
+    expect($element2->toHtml())->toContain('Use &lt;div&gt; for containers');
+
+    // Test quotes
+    $element3 = p(text: 'He said "Hello"');
+    expect($element3->toHtml())->toContain('He said "Hello"');
+
+    // Test multiple special characters together
+    $element4 = div(text: 'A < B & C > D');
+    expect($element4->toHtml())->toContain('A &lt; B &amp; C &gt; D');
+
+    // Test special characters passed as children
+    $element5 = div()('Tom & Jerry');
+    expect($element5->toHtml())->toContain('Tom &amp; Jerry');
+});
