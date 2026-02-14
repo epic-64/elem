@@ -177,88 +177,88 @@ test('creates a complex HTML document with all major elements', function () {
         )->toHtml();
 
     // Document structure assertions
-    expect($output)->toContain('<!DOCTYPE html>')
-        ->and($output)->toContain('<html lang="en">')
-        ->and($output)->toContain('</html>')
-        ->and($output)->toContain('<meta charset="UTF-8">')
-        ->and($output)->toContain('<meta name="viewport" content="width=device-width, initial-scale=1.0">')
-        ->and($output)->toContain('<meta name="description" content="A test page for Elem">')
-        ->and($output)->toContain('<title>Elem Test Page</title>')
-        ->and($output)->toContain('<style>body { font-family: sans-serif; margin: 0; padding: 20px; }</style>')
-        ->and($output)->toContain('<script src="https://example.com/app.js"></script>')
-        ->and($output)->toContain('<body id="main-body" class="container">')
-        ->and($output)->toContain('<div id="header" class="header-section">')
-        ->and($output)->toContain('<h1 id="main-title" class="title">Welcome to Elem</h1>')
-        ->and($output)->toContain('<p class="subtitle">A fluent, type-safe PHP library for building HTML documents</p>')
-        ->and($output)->toContain('<div id="nav" class="navigation">')
-        ->and($output)->toContain('<ul class="nav-list">')
-        ->and($output)->toContain('<a href="/">Home</a>')
-        ->and($output)->toContain('<a href="/about">About</a>')
-        ->and($output)->toContain('<a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>')
-        ->and($output)->toContain('<div id="content" class="main-content">')
-        ->and($output)->toContain('<h2>Getting Started</h2>')
-        ->and($output)->toContain('<a href="https://example.com/docs" class="link">our documentation</a>')
-        ->and($output)->toContain('<div id="gallery" class="image-gallery">')
-        ->and($output)->toContain('<img src="/images/photo1.jpg" alt="Photo 1" class="gallery-item">')
-        ->and($output)->toContain('<img src="/images/photo2.jpg" alt="Photo 2" class="gallery-item">')
-        ->and($output)->toContain('<img src="/images/photo3.jpg" alt="Photo 3" class="gallery-item">')
-        ->and($output)->toContain('<table id="users-table" class="data-table">')
-        ->and($output)->toContain('<tr class="header-row">')
-        ->and($output)->toContain('<th>ID</th>')
-        ->and($output)->toContain('<th>Name</th>')
-        ->and($output)->toContain('<th>Email</th>')
-        ->and($output)->toContain('<th>Role</th>')
-        ->and($output)->toContain('<td>Alice Johnson</td>')
-        ->and($output)->toContain('<td>alice@example.com</td>')
-        ->and($output)->toContain('<td>Admin</td>')
-        ->and($output)->toContain('<td>Bob Smith</td>')
-        ->and($output)->toContain('<td>Charlie Brown</td>')
-        ->and($output)->toContain('<ol class="features-list">')
-        ->and($output)->toContain('<li>Fluent API for building HTML</li>')
-        ->and($output)->toContain('<li>Type-safe element creation</li>')
-        ->and($output)->toContain('<li>DOM-based rendering</li>')
-        ->and($output)->toContain('<li>Support for inline scripts</li>')
-        ->and($output)->toContain('<form action="/submit-contact" method="post" id="contact-form" class="contact-form">')
-        ->and($output)->toContain('<label for="name">Full Name</label>')
-        ->and($output)->toContain('<input type="text" name="name" id="name" required')
-        ->and($output)->toContain('placeholder="Enter your full name"')
-        ->and($output)->toContain('<label for="email">Email Address</label>')
-        ->and($output)->toContain('<input type="email" name="email" id="email" required')
-        ->and($output)->toContain('placeholder="your@email.com"')
-        ->and($output)->toContain('<select name="subject" id="subject" class="form-control">')
-        ->and($output)->toContain('<option value="general">General Inquiry</option>')
-        ->and($output)->toContain('<option value="support">Technical Support</option>')
-        ->and($output)->toContain('<option value="feedback">Feedback</option>')
-        ->and($output)->toContain('<textarea name="message" id="message" class="form-control" rows="5" placeholder="Your message here..."></textarea>')
-        ->and($output)->toContain('<button type="submit" class="btn btn-primary">Send Message</button>')
-        ->and($output)->toContain('<button type="reset" class="btn btn-secondary">Clear Form</button>')
-        ->and($output)->toContain('<div id="footer" class="footer">')
-        ->and($output)->toContain('© 2026 Elem. All rights reserved.')
-        ->and($output)->toContain('<a href="/privacy">Privacy Policy</a>')
-        ->and($output)->toContain('<a href="/terms">Terms of Service</a>')
-        ->and($output)->toContain('<script>console.log("Page loaded");</script>');
+    expect($output)->toContain('<!DOCTYPE html>');
+    expect($output)->toContain('<html lang="en">');
+    expect($output)->toContain('</html>');
 
     // Head section assertions
+    expect($output)->toContain('<meta charset="UTF-8">');
+    expect($output)->toContain('<meta name="viewport" content="width=device-width, initial-scale=1.0">');
+    expect($output)->toContain('<meta name="description" content="A test page for Elem">');
+    expect($output)->toContain('<title>Elem Test Page</title>');
+    expect($output)->toContain('<style>body { font-family: sans-serif; margin: 0; padding: 20px; }</style>');
+    expect($output)->toContain('<script src="https://example.com/app.js"></script>');
 
     // Body and container assertions
+    expect($output)->toContain('<body id="main-body" class="container">');
 
     // Header assertions
+    expect($output)->toContain('<div id="header" class="header-section">');
+    expect($output)->toContain('<h1 id="main-title" class="title">Welcome to Elem</h1>');
+    expect($output)->toContain('<p class="subtitle">A fluent, type-safe PHP library for building HTML documents</p>');
 
     // Navigation assertions
+    expect($output)->toContain('<div id="nav" class="navigation">');
+    expect($output)->toContain('<ul class="nav-list">');
+    expect($output)->toContain('<a href="/">Home</a>');
+    expect($output)->toContain('<a href="/about">About</a>');
+    expect($output)->toContain('<a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>');
 
     // Content section assertions
+    expect($output)->toContain('<div id="content" class="main-content">');
+    expect($output)->toContain('<h2>Getting Started</h2>');
+    expect($output)->toContain('<a href="https://example.com/docs" class="link">our documentation</a>');
 
     // Gallery assertions
+    expect($output)->toContain('<div id="gallery" class="image-gallery">');
+    expect($output)->toContain('<img src="/images/photo1.jpg" alt="Photo 1" class="gallery-item">');
+    expect($output)->toContain('<img src="/images/photo2.jpg" alt="Photo 2" class="gallery-item">');
+    expect($output)->toContain('<img src="/images/photo3.jpg" alt="Photo 3" class="gallery-item">');
 
     // Table assertions
+    expect($output)->toContain('<table id="users-table" class="data-table">');
+    expect($output)->toContain('<tr class="header-row">');
+    expect($output)->toContain('<th>ID</th>');
+    expect($output)->toContain('<th>Name</th>');
+    expect($output)->toContain('<th>Email</th>');
+    expect($output)->toContain('<th>Role</th>');
+    expect($output)->toContain('<td>Alice Johnson</td>');
+    expect($output)->toContain('<td>alice@example.com</td>');
+    expect($output)->toContain('<td>Admin</td>');
+    expect($output)->toContain('<td>Bob Smith</td>');
+    expect($output)->toContain('<td>Charlie Brown</td>');
 
     // Ordered list assertions
+    expect($output)->toContain('<ol class="features-list">');
+    expect($output)->toContain('<li>Fluent API for building HTML</li>');
+    expect($output)->toContain('<li>Type-safe element creation</li>');
+    expect($output)->toContain('<li>DOM-based rendering</li>');
+    expect($output)->toContain('<li>Support for inline scripts</li>');
 
     // Form assertions
+    expect($output)->toContain('<form action="/submit-contact" method="post" id="contact-form" class="contact-form">');
+    expect($output)->toContain('<label for="name">Full Name</label>');
+    expect($output)->toContain('<input type="text" name="name" id="name" required');
+    expect($output)->toContain('placeholder="Enter your full name"');
+    expect($output)->toContain('<label for="email">Email Address</label>');
+    expect($output)->toContain('<input type="email" name="email" id="email" required');
+    expect($output)->toContain('placeholder="your@email.com"');
+    expect($output)->toContain('<select name="subject" id="subject" class="form-control">');
+    expect($output)->toContain('<option value="general">General Inquiry</option>');
+    expect($output)->toContain('<option value="support">Technical Support</option>');
+    expect($output)->toContain('<option value="feedback">Feedback</option>');
+    expect($output)->toContain('<textarea name="message" id="message" class="form-control" rows="5" placeholder="Your message here..."></textarea>');
+    expect($output)->toContain('<button type="submit" class="btn btn-primary">Send Message</button>');
+    expect($output)->toContain('<button type="reset" class="btn btn-secondary">Clear Form</button>');
 
     // Footer assertions
+    expect($output)->toContain('<div id="footer" class="footer">');
+    expect($output)->toContain('© 2026 Elem. All rights reserved.');
+    expect($output)->toContain('<a href="/privacy">Privacy Policy</a>');
+    expect($output)->toContain('<a href="/terms">Terms of Service</a>');
 
     // Inline script assertion
+    expect($output)->toContain('<script>console.log("Page loaded");</script>');
 });
 
 test('creates HTML document using array_map for dynamic content', function () {
