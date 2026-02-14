@@ -25,7 +25,7 @@ require_once __DIR__ . '/vibe-html.php';
         div(class: 'card')(
             h(2, 'Navigation'),
             ul(class: 'nav')(
-                li()(a('/', 'Home')),
+                li()(a('/', 'Home')->blank()),
                 li()(a('/about', 'About')),
                 li()(a('/contact', 'Contact'))
             )
@@ -40,7 +40,7 @@ require_once __DIR__ . '/vibe-html.php';
                 ),
                 div(class: 'form-group')(
                     label(text: 'Password:', for: 'password'),
-                    input(type: 'password', id: 'password', class: 'form-control')
+                    input(type: 'password', id: 'password', class: 'form-control')->required()
                 ),
                 button(id: 'submit', class: 'btn btn-primary', text: 'Login')
             )
