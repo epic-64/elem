@@ -921,3 +921,13 @@ test('element getAttr returns attribute value', function () {
         ->and($div->getAttr('nonexistent'))->toBe('');
 });
 
+test('raw HTML string passed as child is escaped', function () {
+    $rawHtml = '<strong>Bold</strong>';
+
+    $element = div()($rawHtml);
+    $output = $element->toHtml();
+
+    // The raw HTML should be escaped, not rendered as actual HTML
+    expect($output)->toContain('&lt;strong&gt;Bold&lt;/strong&gt;')
+        ->and($output)->not->toContain('<strong>Bold</strong>');
+});
