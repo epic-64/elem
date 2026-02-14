@@ -698,6 +698,7 @@ function _applyCommon(Element $element, ?string $id, ?string $class): Element
     return $element;
 }
 
+
 function el(string $tag, ?string $id = null, ?string $class = null, ?string $text = null): Element
 {
     return _applyCommon(new Element($tag, $text), $id, $class);
@@ -818,60 +819,61 @@ function select(?string $id = null, ?string $class = null, ?string $name = null)
 }
 
 // ============================================================================
-// Example Usage
+// Example Usage (only runs when file is executed directly)
 // ============================================================================
 
-// Simple anchor with class
-a('https://example.com', class: 'link', text: 'Example')(' - click here');
-echo a('https://example.com', class: 'link', text: 'Example')(' - click here');
-exit();
+if (basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'] ?? '')) {
+    // Simple anchor with class
+    echo a('https://example.com', class: 'link', text: 'Example')(' - click here');
 
-// Nested elements using id/class parameters (pretty printed)
-$card = div(id: 'my-card', class: 'card shadow')(
-    h(2, class: 'title', text: 'Welcome!'),
-    p(text: 'This is a paragraph with a ')(
-        a('https://example.com', class: 'external', text: 'link')->blank()
-    )(' inside.'),
-    div(class: 'button-group')(
-        button(class: 'btn btn-primary', text: 'Click me'),
-        button(class: 'btn btn-secondary', text: 'Cancel')
-    )
-);
+    echo "\n\n=== Pretty Printed ===\n";
 
-echo "=== Pretty Printed ===\n";
-echo $card->toPrettyHtml() . "\n";
+    // Nested elements using id/class parameters (pretty printed)
+    $card = div(id: 'my-card', class: 'card shadow')(
+        h(2, class: 'title', text: 'Welcome!'),
+        p(text: 'This is a paragraph with a ')(
+            a('https://example.com', class: 'external', text: 'link')->blank()
+        )(' inside.'),
+        div(class: 'button-group')(
+            button(class: 'btn btn-primary', text: 'Click me'),
+            button(class: 'btn btn-secondary', text: 'Cancel')
+        )
+    );
+
+    echo $card->toPrettyHtml() . "\n";
 
 // Form example using id/class parameters (pretty printed)
-$loginForm = form(id: 'login-form', class: 'form', action: '/login')(
-    div(class: 'form-group')(
-        label(text: 'Email:', for: 'email'),
-        input('email', id: 'email', class: 'form-control', name: 'email')->placeholder('Enter email')->required()
-    ),
-    div(class: 'form-group')(
-        label(text: 'Password:', for: 'password'),
-        input('password', id: 'password', class: 'form-control', name: 'password')->placeholder('Enter password')->required()
-    ),
-    button(class: 'btn btn-primary', text: 'Login', type: 'submit')
-);
+    $loginForm = form(id: 'login-form', class: 'form', action: '/login')(
+        div(class: 'form-group')(
+            label(text: 'Email:', for: 'email'),
+            input('email', id: 'email', class: 'form-control', name: 'email')->placeholder('Enter email')->required()
+        ),
+        div(class: 'form-group')(
+            label(text: 'Password:', for: 'password'),
+            input('password', id: 'password', class: 'form-control', name: 'password')->placeholder('Enter password')->required()
+        ),
+        button(class: 'btn btn-primary', text: 'Login', type: 'submit')
+    );
 
-echo $loginForm->toPrettyHtml() . "\n";
+    echo $loginForm->toPrettyHtml() . "\n";
 
-// List example with id/class
-$menu = ul(id: 'main-menu', class: 'menu nav')(
-    li(class: 'nav-item', text: 'Home'),
-    li(class: 'nav-item', text: 'About'),
-    li(class: 'nav-item', text: 'Contact')
-);
-echo $menu->toPrettyHtml() . "\n";
+    // List example with id/class
+    $menu = ul(id: 'main-menu', class: 'menu nav')(
+        li(class: 'nav-item', text: 'Home'),
+        li(class: 'nav-item', text: 'About'),
+        li(class: 'nav-item', text: 'Contact')
+    );
+    echo $menu->toPrettyHtml() . "\n";
 
-// Table example with id/class
-$dataTable = table(id: 'users-table', class: 'data-table striped')(
-    tr(class: 'header-row')(
-        th(text: 'Name'),
-        th(text: 'Age'),
-        th(text: 'City')
-    ),
-    tr(class: 'data-row')->cell('John')->cell('25')->cell('NYC'),
-    tr(class: 'data-row')->cell('Jane')->cell('30')->cell('LA')
-);
-echo $dataTable->toPrettyHtml() . "\n";
+    // Table example with id/class
+    $dataTable = table(id: 'users-table', class: 'data-table striped')(
+        tr(class: 'header-row')(
+            th(text: 'Name'),
+            th(text: 'Age'),
+            th(text: 'City')
+        ),
+        tr(class: 'data-row')->cell('John')->cell('25')->cell('NYC'),
+        tr(class: 'data-row')->cell('Jane')->cell('30')->cell('LA')
+    );
+    echo $dataTable->toPrettyHtml() . "\n";
+}

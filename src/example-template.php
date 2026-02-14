@@ -1,5 +1,29 @@
 <?php
 require_once __DIR__ . '/vibe-html.php';
+
+// Define reusable components as simple functions
+function card(string $title, Element|string ...$children): Element
+{
+    return div(class: 'card')(
+        h(2, text: $title),
+        ...$children
+    );
+}
+
+function navItem(string $href, string $text, bool $blank = false): Element
+{
+    return li()(
+        $blank ? a($href, text: $text)->blank() : a($href, text: $text)
+    );
+}
+
+function formGroup(string $labelText, string $inputId, Element|string ...$children): Element
+{
+    return div(class: 'form-group')(
+        label(text: $labelText, for: $inputId),
+        ...$children
+    );
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,28 +42,24 @@ require_once __DIR__ . '/vibe-html.php';
 </head>
 <body>
     <?= div(class: 'container')(
-        h(1, 'Welcome to Vibe HTML'),
+        h(1, text: 'Welcome to Vibe HTML'),
 
-        p('This demonstrates embedding the functional API directly in HTML templates.'),
+        p(text: 'This demonstrates embedding the functional API directly in HTML templates.'),
 
-        div(class: 'card')(
-            h(2, 'Navigation'),
+        card('Navigation',
             ul(class: 'nav')(
-                li()(a('/', 'Home')->blank()),
-                li()(a('/about', 'About')),
-                li()(a('/contact', 'Contact'))
+                navItem('/', 'Home', blank: true),
+                navItem('/about', 'About'),
+                navItem('/contact', 'Contact')
             )
         ),
 
-        div(class: 'card')(
-            h(2, 'Login Form'),
-            form('/login')(
-                div(class: 'form-group')(
-                    label('Email:', 'email'),
-                    input('email', id: 'email', class: 'form-control')
+        card('Login Form',
+            form(action: '/login')(
+                formGroup('Email:', 'email',
+                    input(type: 'email', id: 'email', class: 'form-control')
                 ),
-                div(class: 'form-group')(
-                    label(text: 'Password:', for: 'password'),
+                formGroup('Password:', 'password',
                     input(type: 'password', id: 'password', class: 'form-control')->required()
                 ),
                 button(id: 'submit', class: 'btn btn-primary', text: 'Login')
