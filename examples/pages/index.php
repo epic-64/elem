@@ -6,7 +6,8 @@ declare(strict_types=1);
  * Index page - List of all available examples.
  */
 
-use function Epic64\Elem\{html, head, title, stylesheet, body, div, h, p, a, ul, li, el};
+use Epic64\Elem\Element;
+use function Epic64\Elem\{html, head, title, stylesheet, body, div, h, p, a, to_el, ul, li, el};
 
 // Define the examples
 $examples = [
@@ -17,6 +18,16 @@ $examples = [
     ],
 ];
 
+function example_card(string $title, string $description, string $path): Element
+{
+    return li(class: 'example-card')(
+        a(href: $path)(
+            h(2, text: $title),
+            p(text: $description),
+        )
+    );
+}
+
 return html(lang: 'en')(
     head()(
         title(text: 'Elem Examples'),
@@ -24,24 +35,18 @@ return html(lang: 'en')(
     ),
     body()(
         div(class: 'container')(
-            h(1, text: 'Elem Examples'),
-            p(class: 'intro', text: 'Explore examples demonstrating the Elem library - a fluent, type-safe PHP library for building HTML documents.'),
-
-            ul(class: 'examples-list')(
-                ...array_map(
-                    fn($example) => li(class: 'example-card')(
-                        a($example['path'])(
-                            h(2, text: $example['title']),
-                            p(text: $example['description']),
-                            div(class: 'arrow', text: '→')
-                        )
-                    ),
-                    $examples
-                )
+            h(1)('Elem Examples'),
+            p(class: 'intro')(
+                'Explore examples demonstrating the Elem library - a fluent, ',
+                'type-safe PHP library for building HTML documents.'
             ),
-
+            ul(class: 'examples-list')(
+                ...to_el($examples, fn($example) =>
+                    example_card($example['title'], $example['description'], $example['path'])
+                ),
+            ),
             el('footer')(
-                p(text: 'Start the server with: '),
+                p()('Start the server with: '),
                 el('code', text: 'php -S localhost:8080 server.php'),
             )
         )
