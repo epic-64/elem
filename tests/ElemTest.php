@@ -470,3 +470,297 @@ test('pre and code elements preserve whitespace in pretty-printed output', funct
     expect($output)->toBe($expected);
 });
 
+// Additional tests for coverage
+
+test('link element methods', function () {
+    $link = \Epic64\Elem\link('/styles.css', 'stylesheet')
+        ->href('/new-styles.css')
+        ->rel('preload')
+        ->type('text/css')
+        ->media('screen')
+        ->sizes('16x16');
+
+    $output = $link->toHtml();
+    expect($output)->toContain('href="/new-styles.css"')
+        ->and($output)->toContain('rel="preload"')
+        ->and($output)->toContain('type="text/css"')
+        ->and($output)->toContain('media="screen"')
+        ->and($output)->toContain('sizes="16x16"');
+});
+
+test('stylesheet helper function', function () {
+    $stylesheet = \Epic64\Elem\stylesheet('/css/main.css');
+    $output = $stylesheet->toHtml();
+    expect($output)->toContain('href="/css/main.css"')
+        ->and($output)->toContain('rel="stylesheet"');
+});
+
+test('icon helper function', function () {
+    $icon = \Epic64\Elem\icon('/favicon.ico', 'image/x-icon');
+    $output = $icon->toHtml();
+    expect($output)->toContain('href="/favicon.ico"')
+        ->and($output)->toContain('rel="icon"')
+        ->and($output)->toContain('type="image/x-icon"');
+
+    // Test without type
+    $icon2 = \Epic64\Elem\icon('/favicon.png');
+    $output2 = $icon2->toHtml();
+    expect($output2)->toContain('href="/favicon.png"')
+        ->and($output2)->toContain('rel="icon"');
+});
+
+test('font helper function', function () {
+    $font = \Epic64\Elem\font('/fonts/roboto.woff2', 'font/woff2');
+    $output = $font->toHtml();
+    expect($output)->toContain('href="/fonts/roboto.woff2"')
+        ->and($output)->toContain('rel="preload"')
+        ->and($output)->toContain('as="font"')
+        ->and($output)->toContain('crossorigin="anonymous"')
+        ->and($output)->toContain('type="font/woff2"');
+
+    // Test without type
+    $font2 = \Epic64\Elem\font('/fonts/opensans.woff2');
+    $output2 = $font2->toHtml();
+    expect($output2)->toContain('rel="preload"')
+        ->and($output2)->toContain('as="font"');
+});
+
+test('to_el helper function maps data to elements', function () {
+    $items = ['Apple', 'Banana', 'Cherry'];
+    $elements = \Epic64\Elem\to_el($items, fn($item) => li(text: $item));
+
+    expect($elements)->toHaveCount(3);
+    expect($elements[0]->toHtml())->toContain('Apple');
+    expect($elements[1]->toHtml())->toContain('Banana');
+    expect($elements[2]->toHtml())->toContain('Cherry');
+});
+
+test('anchor element methods', function () {
+    $anchor = a('/home')
+        ->href('/new-link')
+        ->target('_self');
+
+    $output = $anchor->toHtml();
+    expect($output)->toContain('href="/new-link"')
+        ->and($output)->toContain('target="_self"');
+
+    expect($anchor->getHref())->toBe('/new-link');
+});
+
+test('button element methods', function () {
+    $button = button(text: 'Click me')
+        ->type('submit')
+        ->disabled();
+
+    $output = $button->toHtml();
+    expect($output)->toContain('type="submit"')
+        ->and($output)->toContain('disabled');
+});
+
+test('form element methods', function () {
+    $form = form()
+        ->action('/submit')
+        ->method('get');
+
+    $output = $form->toHtml();
+    expect($output)->toContain('action="/submit"')
+        ->and($output)->toContain('method="get"');
+});
+
+test('image element methods', function () {
+    $img = img('/photo.jpg')
+        ->src('/new-photo.jpg')
+        ->alt('New Photo')
+        ->width(800)
+        ->height(600);
+
+    $output = $img->toHtml();
+    expect($output)->toContain('src="/new-photo.jpg"')
+        ->and($output)->toContain('alt="New Photo"')
+        ->and($output)->toContain('width="800"')
+        ->and($output)->toContain('height="600"');
+});
+
+test('input element methods', function () {
+    $input = input('text')
+        ->type('email')
+        ->name('user_email')
+        ->value('test@example.com')
+        ->placeholder('Enter email')
+        ->required()
+        ->disabled();
+
+    $output = $input->toHtml();
+    expect($output)->toContain('type="email"')
+        ->and($output)->toContain('name="user_email"')
+        ->and($output)->toContain('value="test@example.com"')
+        ->and($output)->toContain('placeholder="Enter email"')
+        ->and($output)->toContain('required')
+        ->and($output)->toContain('disabled');
+});
+
+test('script element methods', function () {
+    $script = script()
+        ->src('/app.js')
+        ->defer()
+        ->async()
+        ->type('module');
+
+    $output = $script->toHtml();
+    expect($output)->toContain('src="/app.js"')
+        ->and($output)->toContain('defer')
+        ->and($output)->toContain('async')
+        ->and($output)->toContain('type="module"');
+});
+
+test('select element methods', function () {
+    $select = select()
+        ->name('country')
+        ->option('us', 'United States')
+        ->option('uk', 'United Kingdom', true)
+        ->required();
+
+    $output = $select->toHtml();
+    expect($output)->toContain('name="country"')
+        ->and($output)->toContain('required')
+        ->and($output)->toContain('<option value="us">United States</option>')
+        ->and($output)->toContain('<option value="uk" selected>United Kingdom</option>');
+});
+
+test('textarea element methods', function () {
+    $textarea = textarea()
+        ->name('description')
+        ->rows(10)
+        ->cols(50)
+        ->placeholder('Enter description')
+        ->required();
+
+    $output = $textarea->toHtml();
+    expect($output)->toContain('name="description"')
+        ->and($output)->toContain('rows="10"')
+        ->and($output)->toContain('cols="50"')
+        ->and($output)->toContain('placeholder="Enter description"')
+        ->and($output)->toContain('required="required"');
+});
+
+test('table cell colspan and rowspan', function () {
+    $td = td()->attr('colspan', '2')->attr('rowspan', '3');
+    $th = th()->attr('colspan', '4');
+
+    $tdCell = new \Epic64\Elem\Elements\TableCell();
+    $tdCell->colspan(2)->rowspan(3);
+
+    $thCell = new \Epic64\Elem\Elements\TableHeader();
+    $thCell->colspan(4)->rowspan(2);
+
+    expect($tdCell->toHtml())->toContain('colspan="2"')
+        ->and($tdCell->toHtml())->toContain('rowspan="3"');
+
+    expect($thCell->toHtml())->toContain('colspan="4"')
+        ->and($thCell->toHtml())->toContain('rowspan="2"');
+});
+
+test('table row helper methods', function () {
+    $row = tr()
+        ->cell('Cell 1')
+        ->cell('Cell 2')
+        ->header('Header 1');
+
+    $output = $row->toHtml();
+    expect($output)->toContain('<td>Cell 1</td>')
+        ->and($output)->toContain('<td>Cell 2</td>')
+        ->and($output)->toContain('<th>Header 1</th>');
+});
+
+test('unordered list item method', function () {
+    $ul = ul()
+        ->item('Item 1')
+        ->item('Item 2')
+        ->item(span(text: 'Complex Item'));
+
+    $output = $ul->toHtml();
+    expect($output)->toContain('<li>Item 1</li>')
+        ->and($output)->toContain('<li>Item 2</li>')
+        ->and($output)->toContain('<li><span>Complex Item</span></li>');
+});
+
+test('ordered list item method', function () {
+    $ol = ol()
+        ->item('First')
+        ->item('Second')
+        ->item(a('/link', text: 'Third'));
+
+    $output = $ol->toHtml();
+    expect($output)->toContain('<li>First</li>')
+        ->and($output)->toContain('<li>Second</li>')
+        ->and($output)->toContain('<li><a href="/link">Third</a></li>');
+});
+
+test('html element without lang', function () {
+    $html = html()(body());
+    $output = $html->toHtml();
+    expect($output)->toContain('<html>')
+        ->and($output)->not->toContain('lang=');
+});
+
+test('meta element variations', function () {
+    $meta1 = meta(charset: 'UTF-8');
+    $meta2 = meta(name: 'description', content: 'Test description');
+    $meta3 = meta(name: 'keywords');
+
+    expect($meta1->toHtml())->toContain('charset="UTF-8"');
+    expect($meta2->toHtml())->toContain('name="description"')
+        ->and($meta2->toHtml())->toContain('content="Test description"');
+    expect($meta3->toHtml())->toContain('name="keywords"');
+});
+
+test('element script method on void element', function () {
+    $input = input('text', id: 'my-input')
+        ->script('el.focus();');
+
+    // When input is added to a parent, the script should follow
+    $form = form()(
+        $input
+    );
+
+    $output = $form->toHtml();
+    expect($output)->toContain('id="my-input"')
+        ->and($output)->toContain("const el = document.getElementById('my-input');")
+        ->and($output)->toContain('el.focus();');
+});
+
+test('element script method requires id', function () {
+    $div = div();
+
+    expect(fn() => $div->script('console.log("test");'))
+        ->toThrow(\InvalidArgumentException::class, 'Element must have an id to use script()');
+});
+
+test('element toHtml with pretty print', function () {
+    $div = div(id: 'test')(
+        p(text: 'Hello'),
+        p(text: 'World')
+    );
+
+    $minified = $div->toHtml(pretty: false);
+    $pretty = $div->toHtml(pretty: true);
+
+    expect($minified)->not->toContain("\n");
+    expect($pretty)->toContain("\n");
+});
+
+test('label element with for attribute', function () {
+    $label = label(for: 'username', text: 'Username');
+    $output = $label->toHtml();
+    expect($output)->toContain('for="username"')
+        ->and($output)->toContain('>Username</label>');
+});
+
+test('option element with selected state', function () {
+    $option1 = new \Epic64\Elem\Elements\Option('val1', 'Option 1', false);
+    $option2 = new \Epic64\Elem\Elements\Option('val2', 'Option 2', true);
+
+    expect($option1->toHtml())->not->toContain('selected');
+    expect($option2->toHtml())->toContain('selected');
+});
+
