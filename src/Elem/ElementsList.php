@@ -10,6 +10,7 @@ use Traversable;
 
 /**
  * A simple collection class for fluent array transformations.
+ * If you already have a collection library, please use that one instead.
  *
  * @template T
  * @implements IteratorAggregate<int, T>
