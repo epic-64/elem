@@ -31,7 +31,7 @@ class Element
      */
     public function __invoke(DOMNode|Element|string|array ...$children): static
     {
-        $scope = ElementFactory::getScope();
+        $dom = ElementFactory::dom();
         foreach ($children as $child) {
             // Handle arrays (e.g., from array_map)
             if (is_array($child)) {
@@ -41,8 +41,8 @@ class Element
             }
             if ($child instanceof Element) {
                 // Check if from same document, import if needed
-                if ($child->element->ownerDocument !== $scope->dom) {
-                    $imported = $scope->importNode($child->element, true);
+                if ($child->element->ownerDocument !== $dom) {
+                    $imported = ElementFactory::importNode($child->element, true);
                     $this->element->appendChild($imported);
                 } else {
                     $this->element->appendChild($child->element);
@@ -54,12 +54,12 @@ class Element
                 }
             } elseif ($child instanceof DOMNode) {
                 // External node might need import
-                if ($child->ownerDocument !== $scope->dom) {
-                    $child = $scope->importNode($child, true);
+                if ($child->ownerDocument !== $dom) {
+                    $child = ElementFactory::importNode($child, true);
                 }
                 $this->element->appendChild($child);
             } elseif (is_string($child)) {
-                $this->element->appendChild($scope->createTextNode($child));
+                $this->element->appendChild(ElementFactory::createTextNode($child));
             }
         }
         return $this;
@@ -138,7 +138,7 @@ class Element
         }
 
         $wrappedCode = "{ const el = document.getElementById('$id'); $code }";
-        $script = ElementFactory::getScope()->createElement('script', $wrappedCode);
+        $script = ElementFactory::createElement('script', $wrappedCode);
 
         // Void elements can't have children, so we store the script to be rendered after
         $voidElements = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
@@ -158,13 +158,12 @@ class Element
 
     public function toHtml(bool $pretty = false): string
     {
-        $scope = ElementFactory::getScope();
         if ($pretty) {
-            $html = $scope->saveHTML($this->element);
+            $html = ElementFactory::saveHTML($this->element);
             return $this->indentHtml($html);
         }
 
-        return $scope->saveHTML($this->element);
+        return ElementFactory::saveHTML($this->element);
     }
 
     /**
