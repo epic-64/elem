@@ -134,8 +134,8 @@ It's just PHP. No `{{ }}`, no `@directives`, no context switching.
 // ✅ Elem: It's just PHP. Ready for the PHP 8.5 pipe operator.
 div()(
     $users
-        |> (fn($arr) => array_filter($arr, fn($u) => $u->isAdmin()))
-        |> (fn($arr) => array_map(fn($u) => span(class: 'badge', text: $u->name), $arr))
+        |> (fn($arr) => array_filter($arr, fn($user) => $user->isAdmin()))
+        |> (fn($arr) => array_map(fn($user) => span(class: 'badge', text: $user->name), $arr))
 )
 ```
 
@@ -153,10 +153,12 @@ function card(string $title): Element {
 }
 
 // Use it anywhere
-card('Welcome')(
+$card = card('Welcome')(
     p(text: 'This is a card component.'),
     a(href: '/learn-more', text: 'Learn More')
 );
+
+echo $card;
 ```
 
 Output:
@@ -199,8 +201,6 @@ Code changes show exactly what changed. No hunting through template soup.
 +     Button('Learn More')
   )
 ```
-
-
 
 ### Forms
 
