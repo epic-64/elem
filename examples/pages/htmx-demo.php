@@ -56,7 +56,23 @@ return html(lang: 'en')(
                 p(text: 'Adding HTMX attributes to Elem elements is simple using the ->attr() method:'),
                 div(class: 'demo-content')(
                     el('pre', class: 'code-block')(
-                        el('code', class: 'language-php', text: $codeSnippet)
+                        el('code', class: 'language-php', text: <<<PHP
+                            // Section 1: Click Counter
+                            el('section', class: 'demo-section')(
+                                h(2, text: '1. Click Counter'),
+                                p()(
+                                    'A simple counter that increments on each click, ',
+                                    'demonstrating hx-post and hx-swap.'
+                                ),
+                                div(class: 'demo-content')(
+                                    button(class: 'btn btn-primary counter-btn', text: 'Clicked 0 times')
+                                        ->attr('hx-post', '/api/counter')
+                                        ->attr('hx-swap', 'outerHTML')
+                                        ->attr('hx-vals', '{"count": 0}')
+                                )
+                            ),
+                            PHP
+                        )
                     )
                 )
             ),
@@ -64,7 +80,10 @@ return html(lang: 'en')(
             // Section 1: Click Counter
             el('section', class: 'demo-section')(
                 h(2, text: '1. Click Counter'),
-                p(text: 'A simple counter that increments on each click, demonstrating hx-post and hx-swap.'),
+                p()(
+                    'A simple counter that increments on each click, ',
+                    'demonstrating hx-post and hx-swap.'
+                ),
                 div(class: 'demo-content')(
                     button(class: 'btn btn-primary counter-btn', text: 'Clicked 0 times')
                         ->attr('hx-post', '/api/counter')
