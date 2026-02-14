@@ -46,9 +46,9 @@ function formGroup(string $labelText, string $inputId): Element
 
 // Sample user data
 $users = [
-    ['name' => 'Alice', 'email' => 'alice@example.org'],
-    ['name' => 'Bob', 'email' => 'bob@example.org'],
-    ['name' => 'Charlie', 'email' => 'charlie@example.org'],
+    ['name' => 'Alice', 'email' => 'alice@example.org', 'role' => 'admin'],
+    ['name' => 'Bob', 'email' => 'bob@example.org', 'role' => 'user'],
+    ['name' => 'Charlie', 'email' => 'charlie@example.org', 'role' => 'user'],
 ];
 
 
@@ -79,6 +79,16 @@ return html(lang: 'en')(
                     ),
                     $users
                 ),
+            ),
+
+            div(class: 'admin-grid')(
+                $users
+                    |> (fn($arr) => array_filter($arr, fn($user) => $user['role'] === 'admin'))
+                    |> (fn($arr) => array_map(fn($user) =>
+                        div(class: 'user-card')(
+                            h(3, text: $user['name']),
+                            p(text: $user['email'])
+                    ), $arr))
             ),
 
             // Navigation card using component

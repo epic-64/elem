@@ -123,15 +123,20 @@ It's just PHP. No `{{ }}`, no `@directives`, no context switching.
 
 ```php
 // ❌ Blade
+<div class="users-container">
 @foreach($users as $user)
     @if($user->isAdmin())
         <span class="badge">{{ $user->name }}</span>
     @endif
 @endforeach
+<div>
 
-// ✅ Elem: It's just PHP.
-array_filter($users, fn($u) => $u->isAdmin())
-    |> array_map(fn($u) => span(class: 'badge', text: $u->name), ...)
+// ✅ Elem: It's just PHP. Ready for the PHP 8.5 pipe operator.
+div()(
+    $users
+        |> (fn($arr) => array_filter($arr, fn($u) => $u->isAdmin()))
+        |> (fn($arr) => array_map(fn($u) => span(class: 'badge', text: $u->name), $arr))
+)
 ```
 
 ### Composable
