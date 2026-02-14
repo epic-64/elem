@@ -49,10 +49,8 @@ jobs:
         run: |
           LOC_PHP_SRC=$(find src -name "*.php" | xargs wc -l | tail -1 | awk '{print $1}')
           LOC_PHP_TEST=$(find tests -name "*.php" | xargs wc -l | tail -1 | awk '{print $1}')
-          LOC_TOTAL=$((LOC_PHP_SRC + LOC_PHP_TEST))
           echo "LOC_PHP_SRC=$LOC_PHP_SRC" >> $GITHUB_ENV
           echo "LOC_PHP_TEST=$LOC_PHP_TEST" >> $GITHUB_ENV
-          echo "LOC_TOTAL=$LOC_TOTAL" >> $GITHUB_ENV
 
       - name: Generate badges and deploy to GitHub Pages
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -88,7 +86,8 @@ jobs:
 
           # Download badges
           curl -o badges/coverage.svg "https://img.shields.io/badge/coverage-${COVERAGE}%25-${COLOR}.svg"
-          curl -o badges/loc.svg "https://img.shields.io/badge/lines%20of%20code-${LOC_TOTAL}-blue.svg"
+          curl -o badges/loc-src.svg "https://img.shields.io/badge/lib-${LOC_PHP_SRC}%20lines-blue.svg"
+          curl -o badges/loc-test.svg "https://img.shields.io/badge/tests-${LOC_PHP_TEST}%20lines-blue.svg"
           curl -o badges/tests.svg "https://img.shields.io/badge/tests-passing-brightgreen.svg"
 
           # Commit and push
