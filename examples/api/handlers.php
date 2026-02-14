@@ -1,0 +1,183 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Hypermedia API handlers for HTMX demo endpoints.
+ *
+ * This is a Hypermedia API (not JSON) - all endpoints return HTML fragments
+ * that HTMX swaps into the DOM. This follows the HATEOAS principle where
+ * the server returns hypermedia (HTML) that drives application state.
+ *
+ * @see https://htmx.org/essays/hypermedia-apis-vs-data-apis/
+ */
+
+use function Epic64\Elem\{div, p, span, button, li, el};
+
+/**
+ * Handle API requests.
+ *
+ * @return bool True if the request was handled, false otherwise.
+ */
+function handleApiRequest(string $uri, string $method): bool
+{
+    // API: Get current time
+    if ($uri === '/api/time' && $method === 'GET') {
+        echo div(class: 'time-display')(
+            p(text: 'Current server time:'),
+            el('time', class: 'time-value', text: date('H:i:s'))
+        );
+        return true;
+    }
+
+    // API: Search users (simulated)
+    if ($uri === '/api/search' && $method === 'GET') {
+        handleSearchUsers();
+        return true;
+    }
+
+    // API: Click counter
+    if ($uri === '/api/counter' && $method === 'POST') {
+        handleCounter();
+        return true;
+    }
+
+    // API: Load more items (infinite scroll simulation)
+    if ($uri === '/api/items' && $method === 'GET') {
+        handleInfiniteScroll();
+        return true;
+    }
+
+    // API: Form validation demo
+    if ($uri === '/api/validate-email' && $method === 'POST') {
+        handleEmailValidation();
+        return true;
+    }
+
+    // API: Toggle content
+    if ($uri === '/api/toggle' && $method === 'GET') {
+        handleToggle();
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Search users by name or email.
+ */
+function handleSearchUsers(): void
+{
+    $query = strtolower($_GET['q'] ?? '');
+    $users = [
+        ['name' => 'Alice Johnson', 'email' => 'alice@example.org', 'role' => 'Admin'],
+        ['name' => 'Bob Smith', 'email' => 'bob@example.org', 'role' => 'User'],
+        ['name' => 'Charlie Brown', 'email' => 'charlie@example.org', 'role' => 'User'],
+        ['name' => 'Diana Prince', 'email' => 'diana@example.org', 'role' => 'Moderator'],
+        ['name' => 'Eve Wilson', 'email' => 'eve@example.org', 'role' => 'User'],
+    ];
+
+    $filtered = array_filter($users, fn($u) =>
+        empty($query) || str_contains(strtolower($u['name']), $query) || str_contains(strtolower($u['email']), $query)
+    );
+
+    if (empty($filtered)) {
+        echo p(class: 'no-results', text: 'No users found matching "' . htmlspecialchars($query) . '"');
+        return;
+    }
+
+    echo div(class: 'search-results')(
+        ...array_map(
+            fn($user) => div(class: 'result-item')(
+                span(class: 'user-name', text: $user['name']),
+                span(class: 'user-email', text: $user['email']),
+                span(class: 'user-role badge', text: $user['role'])
+            ),
+            $filtered
+        )
+    );
+}
+
+/**
+ * Handle click counter.
+ */
+function handleCounter(): void
+{
+    $count = (int)($_POST['count'] ?? 0) + 1;
+    echo button(class: 'btn btn-primary counter-btn', text: "Clicked {$count} times")
+        ->attr('hx-post', '/api/counter')
+        ->attr('hx-swap', 'outerHTML')
+        ->attr('hx-vals', json_encode(['count' => $count]));
+}
+
+/**
+ * Handle infinite scroll items loading.
+ */
+function handleInfiniteScroll(): void
+{
+    $page = (int)($_GET['page'] ?? 1);
+    $items = [];
+    $start = ($page - 1) * 5 + 1;
+    $end = $start + 4;
+
+    for ($i = $start; $i <= $end; $i++) {
+        $items[] = li(class: 'list-item', text: "Item #{$i} - Loaded from server");
+    }
+
+    // Add a "load more" trigger for the next page
+    if ($page < 3) { // Limit to 3 pages for demo
+        $items[] = li(id: 'load-more', class: 'load-trigger')
+            ->attr('hx-get', '/api/items?page=' . ($page + 1))
+            ->attr('hx-trigger', 'revealed')
+            ->attr('hx-swap', 'outerHTML')(
+                span(class: 'loading', text: 'Loading more...')
+            );
+    }
+
+    echo implode('', array_map(fn($item) => (string)$item, $items));
+}
+
+/**
+ * Handle email validation.
+ */
+function handleEmailValidation(): void
+{
+    $email = $_POST['email'] ?? '';
+    $takenEmails = ['admin@example.org', 'test@example.org', 'user@example.org'];
+
+    if (empty($email)) {
+        echo span(class: 'validation-msg warning', text: 'Please enter an email');
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo span(class: 'validation-msg error', text: 'Invalid email format');
+    } elseif (in_array($email, $takenEmails)) {
+        echo span(class: 'validation-msg error', text: 'This email is already taken');
+    } else {
+        echo span(class: 'validation-msg success', text: '✓ Email is available');
+    }
+}
+
+/**
+ * Handle toggle content.
+ */
+function handleToggle(): void
+{
+    $state = $_GET['state'] ?? 'collapsed';
+
+    if ($state === 'collapsed') {
+        echo div(class: 'toggle-content expanded')(
+            p(text: 'This is the expanded content! It was loaded dynamically via HTMX.'),
+            p(text: 'HTMX makes it easy to add interactivity without writing JavaScript.'),
+            button(class: 'btn btn-secondary', text: 'Collapse')
+                ->attr('hx-get', '/api/toggle?state=expanded')
+                ->attr('hx-target', '#toggle-container')
+                ->attr('hx-swap', 'innerHTML')
+        );
+    } else {
+        echo div(class: 'toggle-content collapsed')(
+            button(class: 'btn btn-primary', text: 'Click to expand')
+                ->attr('hx-get', '/api/toggle?state=collapsed')
+                ->attr('hx-target', '#toggle-container')
+                ->attr('hx-swap', 'innerHTML')
+        );
+    }
+}
