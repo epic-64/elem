@@ -764,3 +764,32 @@ test('option element with selected state', function () {
     expect($option2->toHtml())->toContain('selected');
 });
 
+test('null children are filtered out for ternary expressions', function () {
+    $showOptional = false;
+
+    $element = div(class: 'card')(
+        h(1, text: 'Title'),
+        $showOptional ? p(text: 'Optional content') : null,
+        p(text: 'Always shown')
+    );
+
+    $output = $element->toHtml();
+    expect($output)->toContain('<h1>Title</h1>')
+        ->and($output)->toContain('<p>Always shown</p>')
+        ->and($output)->not->toContain('Optional content');
+});
+
+test('null values in arrays are filtered out', function () {
+    $items = [
+        p(text: 'First'),
+        null,
+        p(text: 'Third'),
+    ];
+
+    $element = div()(...$items);
+    $output = $element->toHtml();
+
+    expect($output)->toContain('<p>First</p>')
+        ->and($output)->toContain('<p>Third</p>');
+});
+

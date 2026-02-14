@@ -25,14 +25,19 @@ class Element
     }
 
     /**
-     * Add children to the element. Accepts DOMNode|string|Element|array.
-     * @param DOMNode|Element|string|array<DOMNode|Element|string|array<mixed>> ...$children
+     * Add children to the element. Accepts DOMNode|string|Element|array|null.
+     * Null values are filtered out, enabling ternary expressions like: $condition ? element() : null
+     * @param DOMNode|Element|string|array<DOMNode|Element|string|array<mixed>|null>|null ...$children
      * @return $this
      */
-    public function __invoke(DOMNode|Element|string|array ...$children): static
+    public function __invoke(DOMNode|Element|string|array|null ...$children): static
     {
         $dom = ElementFactory::dom();
         foreach ($children as $child) {
+            // Skip null values (allows ternary expressions like: $condition ? element() : null)
+            if ($child === null) {
+                continue;
+            }
             // Handle arrays (e.g., from array_map)
             if (is_array($child)) {
                 /** @phpstan-ignore argument.type (recursive type is intentional for nested arrays from array_map) */
