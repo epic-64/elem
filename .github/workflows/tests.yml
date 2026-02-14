@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: write
+
 jobs:
   tests:
     runs-on: ubuntu-latest
@@ -13,12 +16,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: dom
+          extensions: dom, mbstring
           coverage: pcov
 
       - name: Install dependencies
@@ -28,4 +33,55 @@ jobs:
         run: vendor/bin/phpstan analyse
 
       - name: Run tests with coverage
-        run: vendor/bin/pest --coverage --min=80
+        run: vendor/bin/pest --coverage --coverage-clover=coverage.xml --min=80
+
+      - name: Parse coverage percentage
+        id: coverage
+        run: |
+          # Extract coverage from clover.xml
+          COVERED=$(grep -oP 'coveredstatements="\K[0-9]+' coverage.xml | head -1)
+          TOTAL=$(grep -oP 'statements="\K[0-9]+' coverage.xml | head -1)
+          COVERAGE=$(echo "scale=1; $COVERED * 100 / $TOTAL" | bc)
+          echo "Coverage: $COVERAGE%"
+          echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
+
+      - name: Count lines of code
+        run: |
+          LOC_PHP_SRC=$(find src -name "*.php" | xargs wc -l | tail -1 | awk '{print $1}')
+          LOC_PHP_TEST=$(find tests -name "*.php" | xargs wc -l | tail -1 | awk '{print $1}')
+          LOC_TOTAL=$((LOC_PHP_SRC + LOC_PHP_TEST))
+          echo "LOC_PHP_SRC=$LOC_PHP_SRC" >> $GITHUB_ENV
+          echo "LOC_PHP_TEST=$LOC_PHP_TEST" >> $GITHUB_ENV
+          echo "LOC_TOTAL=$LOC_TOTAL" >> $GITHUB_ENV
+
+      - name: Generate badges and deploy to GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+          # Create a fresh gh-pages branch
+          git checkout --orphan gh-pages
+          git reset --hard
+
+          # Create badges directory
+          mkdir -p badges
+
+          # Generate coverage badge color based on percentage
+          if (( $(echo "$COVERAGE >= 80" | bc -l) )); then
+            COLOR="brightgreen"
+          elif (( $(echo "$COVERAGE >= 60" | bc -l) )); then
+            COLOR="yellow"
+          else
+            COLOR="red"
+          fi
+
+          # Download badges
+          curl -o badges/coverage.svg "https://img.shields.io/badge/coverage-${COVERAGE}%25-${COLOR}.svg"
+          curl -o badges/loc.svg "https://img.shields.io/badge/lines%20of%20code-${LOC_TOTAL}-blue.svg"
+          curl -o badges/tests.svg "https://img.shields.io/badge/tests-passing-brightgreen.svg"
+
+          # Commit and push
+          git add badges/
+          git commit -m "Update badges"
+          git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages
