@@ -235,6 +235,93 @@ $loginForm = form(id: 'login', action: '/login')(
 echo $loginForm;
 ```
 
+#### Form Group Helper
+
+Create reusable form components by defining simple helper functions. Following Elem's pattern,
+the helper returns a callable element that accepts its content via `__invoke`:
+
+```php
+use Epic64\Elem\Element;
+use function Epic64\Elem\div;
+use function Epic64\Elem\label;
+
+function formGroup(string $labelText, string $for): Element {
+    return div(class: 'form-group')(
+        label(text: $labelText, for: $for)
+    );
+}
+```
+
+This works because `div(...)()` returns a `Div` element, which you can invoke again to add more children.
+Your custom helpers inherit the same fluent pattern.
+
+Since helpers return regular elements, you can still chain methods like `->attr()` or `->class()` to customize them further:
+
+```php
+formGroup('Username', 'username')
+    ->class('required')
+    ->attr('data-validate', 'true')(
+        input(type: 'text', id: 'username', name: 'username')
+    )
+```
+
+**Full example:**
+
+```php
+use function Epic64\Elem\form;
+use function Epic64\Elem\input;
+use function Epic64\Elem\button;
+
+echo form(id: 'register', action: '/register')(
+    formGroup('Username', 'username')(
+        input(type: 'text', id: 'username', name: 'username')
+            ->required()
+            ->placeholder('Choose a username')
+            ->attr('pattern', '^[a-zA-Z0-9_]{3,20}$')
+            ->attr('title', '3-20 characters, letters, numbers, and underscores only')
+    ),
+    formGroup('Email Address', 'email')(
+        input(type: 'email', id: 'email', name: 'email')
+            ->required()
+            ->placeholder('you@example.com')
+    ),
+    formGroup('Phone Number', 'phone')(
+        input(type: 'tel', id: 'phone', name: 'phone')
+            ->placeholder('+1234567890')
+            ->attr('pattern', '^\+?[0-9]{10,15}$')
+            ->attr('title', '10-15 digits, optionally starting with +')
+    ),
+    button(text: 'Register', type: 'submit')->class('btn', 'btn-primary')
+);
+```
+
+**Output:**
+
+```html
+<form action="/register" method="post" id="register">
+    <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" name="username" id="username" required 
+               placeholder="Choose a username"
+               pattern="^[a-zA-Z0-9_]{3,20}$" 
+               title="3-20 characters, letters, numbers, and underscores only">
+    </div>
+    <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" name="email" id="email" required 
+               placeholder="you@example.com">
+    </div>
+    <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" name="phone" id="phone" 
+               placeholder="+1234567890"
+               pattern="^\+?[0-9]{10,15}$" 
+               title="10-15 digits, optionally starting with +">
+    </div>
+    <button type="submit" class="btn btn-primary">Register</button>
+</form>
+```
+
 ### Lists
 
 ```php
