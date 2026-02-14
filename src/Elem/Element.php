@@ -25,12 +25,12 @@ class Element
     }
 
     /**
-     * Add children to the element. Accepts DOMNode|string|Element|array|null.
+     * Add children to the element. Accepts DOMNode|string|Element|array|iterable|null.
      * Null values are filtered out, enabling ternary expressions like: $condition ? element() : null
-     * @param DOMNode|Element|string|array<DOMNode|Element|string|array<mixed>|null>|null ...$children
+     * @param DOMNode|Element|string|iterable<DOMNode|Element|string|iterable<mixed>|null>|null ...$children
      * @return $this
      */
-    public function __invoke(DOMNode|Element|string|array|null ...$children): static
+    public function __invoke(DOMNode|Element|string|iterable|null ...$children): static
     {
         $dom = ElementFactory::dom();
         foreach ($children as $child) {
@@ -38,12 +38,7 @@ class Element
             if ($child === null) {
                 continue;
             }
-            // Handle arrays (e.g., from array_map)
-            if (is_array($child)) {
-                /** @phpstan-ignore argument.type (recursive type is intentional for nested arrays from array_map) */
-                $this(...$child);
-                continue;
-            }
+            // Handle Element instances first
             if ($child instanceof Element) {
                 // Check if from same document, import if needed
                 if ($child->element->ownerDocument !== $dom) {
@@ -63,6 +58,10 @@ class Element
                     $child = ElementFactory::importNode($child, true);
                 }
                 $this->element->appendChild($child);
+            } elseif (is_iterable($child)) {
+                // Handle iterables (arrays, Collections, Laravel collections, generators, etc.)
+                /** @phpstan-ignore argument.type (recursive type is intentional for nested iterables) */
+                $this(...$child);
             } elseif (is_string($child)) {
                 $this->element->appendChild(ElementFactory::createTextNode($child));
             }

@@ -91,6 +91,15 @@ return html(lang: 'en')(
                     ), $arr))
             ),
 
+            div(class: 'admin-grid')(
+                \Epic64\Elem\list_of($users)
+                    ->filter(fn($user) => $user['role'] === 'admin')
+                    ->map(fn($user) => div(class: 'user-card')(
+                        h(3, text: $user['name']),
+                        p(text: $user['email'])
+                    ))
+            ),
+
 
             div(class: 'card', id: 'main-card')(
                 h(2, text: 'Main Card'),
