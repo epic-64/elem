@@ -33,7 +33,7 @@ jobs:
         run: vendor/bin/phpstan analyse
 
       - name: Run tests with coverage
-        run: vendor/bin/pest --coverage --coverage-clover=coverage.xml --min=80
+        run: vendor/bin/pest --coverage --coverage-clover=coverage.xml --coverage-html=coverage-html --min=80
 
       - name: Parse coverage percentage
         id: coverage
@@ -60,12 +60,19 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
 
+          # Save coverage report before switching branches
+          cp -r coverage-html /tmp/coverage-html
+
           # Create a fresh gh-pages branch
           git checkout --orphan gh-pages
           git reset --hard
 
-          # Create badges directory
+          # Create directories
           mkdir -p badges
+          mkdir -p coverage
+
+          # Copy coverage report
+          cp -r /tmp/coverage-html/* coverage/
 
           # Generate coverage badge color based on percentage
           if (( $(echo "$COVERAGE >= 80" | bc -l) )); then
@@ -82,6 +89,6 @@ jobs:
           curl -o badges/tests.svg "https://img.shields.io/badge/tests-passing-brightgreen.svg"
 
           # Commit and push
-          git add badges/
-          git commit -m "Update badges"
+          git add badges/ coverage/
+          git commit -m "Update badges and coverage report"
           git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages
