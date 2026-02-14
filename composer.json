@@ -1,4 +1,7 @@
 {
+    "require": {
+        "ext-dom": "*"
+    },
     "require-dev": {
         "phpstan/phpstan": "^2.1"
     }
