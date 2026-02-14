@@ -15,11 +15,26 @@ declare(strict_types=1);
 use function Epic64\Elem\{div, p, span, button, li, el};
 
 /**
+ * Simple request data object.
+ */
+readonly class ApiRequest
+{
+    /**
+     * @param array<string, string> $query GET parameters
+     * @param array<string, string> $body POST parameters
+     */
+    public function __construct(
+        public array $query = [],
+        public array $body = [],
+    ) {}
+}
+
+/**
  * Handle API requests.
  *
  * @return bool True if the request was handled, false otherwise.
  */
-function handleApiRequest(string $uri, string $method): bool
+function handleApiRequest(string $uri, string $method, ApiRequest $request): bool
 {
     // API: Get current time
     if ($uri === '/api/time' && $method === 'GET') {
@@ -32,31 +47,31 @@ function handleApiRequest(string $uri, string $method): bool
 
     // API: Search users (simulated)
     if ($uri === '/api/search' && $method === 'GET') {
-        handleSearchUsers();
+        handleSearchUsers($request->query['q'] ?? '');
         return true;
     }
 
     // API: Click counter
     if ($uri === '/api/counter' && $method === 'POST') {
-        handleCounter();
+        handleCounter((int)($request->body['count'] ?? 0));
         return true;
     }
 
     // API: Load more items (infinite scroll simulation)
     if ($uri === '/api/items' && $method === 'GET') {
-        handleInfiniteScroll();
+        handleInfiniteScroll((int)($request->query['page'] ?? 1));
         return true;
     }
 
     // API: Form validation demo
     if ($uri === '/api/validate-email' && $method === 'POST') {
-        handleEmailValidation();
+        handleEmailValidation($request->body['email'] ?? '');
         return true;
     }
 
     // API: Toggle content
     if ($uri === '/api/toggle' && $method === 'GET') {
-        handleToggle();
+        handleToggle($request->query['state'] ?? 'collapsed');
         return true;
     }
 
@@ -66,9 +81,9 @@ function handleApiRequest(string $uri, string $method): bool
 /**
  * Search users by name or email.
  */
-function handleSearchUsers(): void
+function handleSearchUsers(string $query): void
 {
-    $query = strtolower($_GET['q'] ?? '');
+    $query = strtolower($query);
     $users = [
         ['name' => 'Alice Johnson', 'email' => 'alice@example.org', 'role' => 'Admin'],
         ['name' => 'Bob Smith', 'email' => 'bob@example.org', 'role' => 'User'],
@@ -101,9 +116,9 @@ function handleSearchUsers(): void
 /**
  * Handle click counter.
  */
-function handleCounter(): void
+function handleCounter(int $currentCount): void
 {
-    $count = (int)($_POST['count'] ?? 0) + 1;
+    $count = $currentCount + 1;
     echo button(class: 'btn btn-primary counter-btn', text: "Clicked {$count} times")
         ->attr('hx-post', '/api/counter')
         ->attr('hx-swap', 'outerHTML')
@@ -113,9 +128,8 @@ function handleCounter(): void
 /**
  * Handle infinite scroll items loading.
  */
-function handleInfiniteScroll(): void
+function handleInfiniteScroll(int $page): void
 {
-    $page = (int)($_GET['page'] ?? 1);
     $items = [];
     $start = ($page - 1) * 5 + 1;
     $end = $start + 4;
@@ -140,9 +154,8 @@ function handleInfiniteScroll(): void
 /**
  * Handle email validation.
  */
-function handleEmailValidation(): void
+function handleEmailValidation(string $email): void
 {
-    $email = $_POST['email'] ?? '';
     $takenEmails = ['admin@example.org', 'test@example.org', 'user@example.org'];
 
     if (empty($email)) {
@@ -159,9 +172,8 @@ function handleEmailValidation(): void
 /**
  * Handle toggle content.
  */
-function handleToggle(): void
+function handleToggle(string $state): void
 {
-    $state = $_GET['state'] ?? 'collapsed';
 
     if ($state === 'collapsed') {
         echo div(class: 'toggle-content expanded')(
