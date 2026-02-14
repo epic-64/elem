@@ -14,18 +14,149 @@
 
 A fluent, type-safe PHP library for building HTML documents using the DOM.
 
-## Requirements
+## Table of Contents
 
-- PHP 8.4+
-- ext-dom
+- [Why Elem?](#why-elem)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Examples](#examples)
+  - [Forms](#forms)
+  - [Lists](#lists)
+  - [Tables](#tables)
+  - [Inline Scripts](#inline-scripts)
+  - [Dynamic Content](#dynamic-content)
+  - [Linking External Resources](#linking-external-resources)
+- [API Reference](#api-reference)
+  - [Element Classes](#element-classes)
+  - [Common Methods](#common-methods)
+- [Demo Server](#demo-server)
+- [Development](#development)
+- [License](#license)
+
+## Why Elem?
+
+### Type-safe
+
+Your IDE knows what's happening. Autocomplete, refactoring, and static analysis just work.
+
+```php
+// ❌ Blade/Twig: Typo? You'll find out at runtime.
+<a hfer="{{ $url }}">Click</a>
+
+// ✅ Elem: PHPStan catches this before you even save.
+a(hfer: $url, text: 'Click')  // Error: Unknown parameter "hfer"
+```
+
+### No template syntax to learn
+
+It's just PHP. No `{{ }}`, no `@directives`, no context switching.
+
+```php
+// ❌ Blade
+<div class="users-container">
+@foreach($users as $user)
+    @if($user->isAdmin())
+        <span class="badge">{{ $user->name }}</span>
+    @endif
+@endforeach
+<div>
+
+// ✅ Elem: It's just PHP. Ready for the PHP 8.5 pipe operator.
+div()(
+    $users
+        |> (fn($arr) => array_filter($arr, fn($user) => $user->isAdmin()))
+        |> (fn($arr) => array_map(fn($user) => span(class: 'badge', text: $user->name), $arr))
+)
+```
+
+### Composable
+
+Build reusable components as plain functions. No magic, no framework lock-in.
+
+```php
+// Define a component as a simple function
+function card(string $title): Element {
+    return div(class: 'card')(
+        h(2, text: $title),
+        div(class: 'card-body')
+    );
+}
+
+// Use it anywhere
+$card = card('Welcome')(
+    p(text: 'This is a card component.'),
+    a(href: '/learn-more', text: 'Learn More')
+);
+
+echo $card;
+```
+
+Output:
+```html
+<div class="card">
+    <h2>Welcome</h2>
+    <div class="card-body">
+        <p>This is a card component.</p>
+        <a href="/learn-more">Learn More</a>
+    </div>
+</div>
+```
+
+### XSS-safe by default
+
+Text is automatically escaped through the DOM. Sleep better at night.
+
+```php
+$userInput = '<script>alert("hacked")</script>';
+
+// ❌ Raw PHP: XSS vulnerability
+echo "<div>$userInput</div>";
+
+// ✅ Elem: Automatically escaped. Crisis averted.
+echo div(text: $userInput);
+// Output: <div>&lt;script&gt;alert("hacked")&lt;/script&gt;</div>
+```
+
+### Readable diffs
+
+Code reviews become easier when structure and logic aren't interleaved with template syntax.
+
+```diff
+# ❌ Blade: Closing tags add noise.
+- <div class="card">
++ <div class="card" id="main-card">
+      <h2>{{ $title }}</h2>
+      @if($showBody)
+          <div class="card-body">
+-             <p>{{ $description }}</p>
++             <p class="lead">{{ $description }}</p>
++             <a href="/learn-more">Learn More</a>
+          </div>
+      @endif
+- </div>
++ </div>
+
+# ✅ Elem: Every changed line is meaningful.
+- div(class: 'card')(
++ div(class: 'card', id: 'main-card')(
+      h(2, text: $title),
+      $showBody ? div(class: 'card-body')(
+-         p(text: $description)
++         p(class: 'lead', text: $description),
++         a(href: '/learn-more', text: 'Learn More')
+      ) : null
+  )
+```
 
 ## Installation
+
+**Requirements:** PHP 8.4+, ext-dom
 
 ```bash
 composer require epic-64/elem
 ```
 
-## Usage
+## Quick Start
 
 ### Basic Elements
 
@@ -103,121 +234,7 @@ echo $page;
 </html>
 ```
 
-## Why Elem?
-
-### Type-safe
-
-Your IDE knows what's happening. Autocomplete, refactoring, and static analysis just work.
-
-```php
-// ❌ Blade/Twig: Typo? You'll find out at runtime.
-<a hfer="{{ $url }}">Click</a>
-
-// ✅ Elem: PHPStan catches this before you even save.
-a(hfer: $url, text: 'Click')  // Error: Unknown parameter "hfer"
-```
-
-### No template syntax to learn
-
-It's just PHP. No `{{ }}`, no `@directives`, no context switching.
-
-```php
-// ❌ Blade
-<div class="users-container">
-@foreach($users as $user)
-    @if($user->isAdmin())
-        <span class="badge">{{ $user->name }}</span>
-    @endif
-@endforeach
-<div>
-
-// ✅ Elem: It's just PHP. Ready for the PHP 8.5 pipe operator.
-div()(
-    $users
-        |> (fn($arr) => array_filter($arr, fn($user) => $user->isAdmin()))
-        |> (fn($arr) => array_map(fn($user) => span(class: 'badge', text: $user->name), $arr))
-)
-```
-
-### Composable
-
-Build reusable components as plain functions. No magic, no framework lock-in.
-
-```php
-// Define a component as a simple function
-function card(string $title): Element {
-    return div(class: 'card')(
-        h(2, text: $title),
-        div(class: 'card-body')
-    );
-}
-
-// Use it anywhere
-$card = card('Welcome')(
-    p(text: 'This is a card component.'),
-    a(href: '/learn-more', text: 'Learn More')
-);
-
-echo $card;
-```
-
-Output:
-```html
-<div class="card">
-    <h2>Welcome</h2>
-    <div class="card-body">
-        <p>This is a card component.</p>
-        <a href="/learn-more">Learn More</a>
-    </div>
-</div>
-```
-
-
-### XSS-safe by default
-
-Text is automatically escaped through the DOM. Sleep better at night.
-
-```php
-$userInput = '<script>alert("hacked")</script>';
-
-// ❌ Raw PHP: XSS vulnerability
-echo "<div>$userInput</div>";
-
-// ✅ Elem: Automatically escaped. Crisis averted.
-echo div(text: $userInput);
-// Output: <div>&lt;script&gt;alert("hacked")&lt;/script&gt;</div>
-```
-
-### Readable diffs
-
-Code reviews become easier when structure and logic aren't interleaved with template syntax.
-
-```diff
-# ❌ Blade: Closing tags add noise.
-- <div class="card">
-+ <div class="card" id="main-card">
-      <h2>{{ $title }}</h2>
-      @if($showBody)
-          <div class="card-body">
--             <p>{{ $description }}</p>
-+             <p class="lead">{{ $description }}</p>
-+             <a href="/learn-more">Learn More</a>
-          </div>
-      @endif
-- </div>
-+ </div>
-
-# ✅ Elem: Every changed line is meaningful.
-- div(class: 'card')(
-+ div(class: 'card', id: 'main-card')(
-      h(2, text: $title),
-      $showBody ? div(class: 'card-body')(
--         p(text: $description)
-+         p(class: 'lead', text: $description),
-+         a(href: '/learn-more', text: 'Learn More')
-      ) : null
-  )
-```
+## Examples
 
 ### Forms
 
@@ -292,7 +309,7 @@ $form = form(id: 'my-form', action: '/submit')->script(<<<JS
 JS);
 ```
 
-### Using Array Results (e.g., from array_map)
+### Dynamic Content
 
 ```php
 use function Epic64\Elem\ul;
@@ -338,7 +355,9 @@ $head = head()(
 );
 ```
 
-## Element Classes
+## API Reference
+
+### Element Classes
 
 All element classes extend the base `Element` class and provide fluent interfaces:
 
@@ -349,7 +368,7 @@ All element classes extend the base `Element` class and provide fluent interface
 - **Lists**: `UnorderedList`, `OrderedList`, `ListItem`
 - **Tables**: `Table`, `TableRow`, `TableCell`, `TableHeader`
 
-## Common Methods
+### Common Methods
 
 All elements support:
 
@@ -361,7 +380,7 @@ All elements support:
 - `->toHtml(bool $pretty = false)` - Output HTML
 - `->toPrettyHtml()` - Output formatted HTML (called automatically in __toString)
 
-## Demo Examples
+## Demo Server
 
 The `examples/` directory contains interactive demos showcasing the library's features.
 
@@ -398,7 +417,7 @@ vendor/bin/pest --coverage --min=80
 ### Static Analysis
 
 ```bash
-vendor/bin/phpstan analyse
+vendor/bin/phpstan analyze
 ```
 
 ## License
