@@ -16,11 +16,36 @@ function formGroup(string $labelText, string $inputId): Element
     );
 }
 
+// create a collection on which we can call Map
+readonly class Mapping {
+    /** @param array $items */
+    public function __construct(public array $items) {}
+
+    /**
+     * @param callable(mixed): Element $callback
+     * @return array<Element>
+     */
+    public function map_element(callable $callback): array {
+        return array_map($callback, $this->items);
+    }
+}
+
+// helper function for creating a mapping collection
+function data(array $items): Mapping {
+    return new Mapping($items);
+}
+
+$users = [
+    ['name' => 'Alice', 'email' => 'alice@example.org'],
+    ['name' => 'Bob', 'email' => 'bob@example.org'],
+    ['name' => 'Charlie', 'email' => 'charlie@example.org'],
+];
+
 echo html(lang: 'en')(
     head()(
+        title(text: 'Vibe HTML Template Example'),
         meta(charset: 'UTF-8'),
         meta(name: 'viewport', content: 'width=device-width, initial-scale=1.0'),
-        title('Vibe HTML Template Example'),
         script()->attr('src', 'https://unpkg.com/htmx.org@2.0.4'),
         script()->attr('defer', 'defer')->attr('src', 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js'),
         style(<<<CSS
@@ -31,14 +56,18 @@ echo html(lang: 'en')(
             .nav { list-style: none; display: flex; gap: 16px; padding: 0; }
             .form-group { margin-bottom: 12px; }
             .form-control { width: 100%; padding: 8px; box-sizing: border-box; }
-            CSS
-        )
+        CSS)
     ),
     body()(
         div(class: 'container')(
             h(1, text: 'Welcome to Vibe HTML'),
 
             p(text: 'This demonstrates embedding the functional API directly in HTML templates.'),
+
+            data($users)->map_element(fn($user) => div(class: 'card')(
+                h(3, text: $user['name']),
+                p(text: $user['email'])
+            )),
 
             card(title: 'Navigation')(
                 ul(class: 'nav')(
@@ -72,7 +101,7 @@ echo html(lang: 'en')(
                     ),
                     button(id: 'submit', class: 'btn btn-primary', text: 'Login', type: 'submit')
                 )
-            )
+            ),
         )
     )
 );
