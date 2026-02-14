@@ -74,6 +74,9 @@ jobs:
           # Copy coverage report
           cp -r /tmp/coverage-html/* coverage/
 
+          # Add .nojekyll to allow underscore-prefixed files (like _css, _icons)
+          touch .nojekyll
+
           # Generate coverage badge color based on percentage
           if (( $(echo "$COVERAGE >= 80" | bc -l) )); then
             COLOR="brightgreen"
@@ -89,6 +92,6 @@ jobs:
           curl -o badges/tests.svg "https://img.shields.io/badge/tests-passing-brightgreen.svg"
 
           # Commit and push
-          git add badges/ coverage/
+          git add .nojekyll badges/ coverage/
           git commit -m "Update badges and coverage report"
           git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages
