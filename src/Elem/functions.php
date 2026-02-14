@@ -252,3 +252,21 @@ function to_el(array $data, callable $transform): array
 {
     return array_map($transform, $data);
 }
+
+/**
+ * Create a Collection from an iterable for fluent transformations.
+ *
+ * Example:
+ *   list_of($users)
+ *       ->filter(fn($u) => $u->isAdmin())
+ *       ->map(fn($u) => div(class: 'user', text: $u->name))
+ *
+ * @template T
+ * @param iterable<T> $items
+ * @return Collection<T>
+ */
+function list_of(iterable $items): Collection
+{
+    return new Collection(is_array($items) ? $items : iterator_to_array($items));
+}
+
