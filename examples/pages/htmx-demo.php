@@ -21,14 +21,6 @@ use function Epic64\Elem\{
     form, label, input, button
 };
 
-// Example code snippet to display
-$codeSnippet = <<<'PHP'
-button(class: 'btn btn-primary', text: 'Click me')
-    ->attr('hx-post', '/api/endpoint')
-    ->attr('hx-target', '#result')
-    ->attr('hx-swap', 'innerHTML')
-PHP;
-
 return html(lang: 'en')(
     head()(
         title(text: 'HTMX Demo - Elem Examples'),
@@ -50,33 +42,6 @@ return html(lang: 'en')(
                 'All interactions below make requests to the server and update the DOM without page reloads.'
             ),
 
-            // Code snippet showcase
-            el('section', class: 'demo-section code-showcase')(
-                h(2, text: 'Elem + HTMX'),
-                p(text: 'Adding HTMX attributes to Elem elements is simple using the ->attr() method:'),
-                div(class: 'demo-content')(
-                    el('pre', class: 'code-block')(
-                        el('code', class: 'language-php', text: <<<PHP
-                            // Section 1: Click Counter
-                            el('section', class: 'demo-section')(
-                                h(2, text: '1. Click Counter'),
-                                p()(
-                                    'A simple counter that increments on each click, ',
-                                    'demonstrating hx-post and hx-swap.'
-                                ),
-                                div(class: 'demo-content')(
-                                    button(class: 'btn btn-primary counter-btn', text: 'Clicked 0 times')
-                                        ->attr('hx-post', '/api/counter')
-                                        ->attr('hx-swap', 'outerHTML')
-                                        ->attr('hx-vals', '{"count": 0}')
-                                )
-                            ),
-                            PHP
-                        )
-                    )
-                )
-            ),
-
             // Section 1: Click Counter
             el('section', class: 'demo-section')(
                 h(2, text: '1. Click Counter'),
@@ -89,6 +54,18 @@ return html(lang: 'en')(
                         ->attr('hx-post', '/api/counter')
                         ->attr('hx-swap', 'outerHTML')
                         ->attr('hx-vals', '{"count": 0}')
+                ),
+                el('details', class: 'code-details')(
+                    el('summary', text: 'View Code'),
+                    el('pre', class: 'code-block')(
+                        el('code', class: 'language-php', text: <<<'PHP'
+                            button(class: 'btn btn-primary counter-btn', text: 'Clicked 0 times')
+                                ->attr('hx-post', '/api/counter')
+                                ->attr('hx-swap', 'outerHTML')
+                                ->attr('hx-vals', '{"count": 0}')
+                            PHP
+                        )
+                    )
                 )
             ),
 
@@ -106,6 +83,19 @@ return html(lang: 'en')(
                     ),
                     div(id: 'search-results', class: 'search-results')(
                         p(class: 'hint', text: 'Start typing to search (try "alice", "bob", "admin")')
+                    )
+                ),
+                el('details', class: 'code-details')(
+                    el('summary', text: 'View Code'),
+                    el('pre', class: 'code-block')(
+                        el('code', class: 'language-php', text: <<<'PHP'
+                            input(type: 'search', id: 'search', class: 'form-control', name: 'q')
+                                ->attr('placeholder', 'Search users...')
+                                ->attr('hx-get', '/api/search')
+                                ->attr('hx-trigger', 'keyup changed delay:300ms, search')
+                                ->attr('hx-target', '#search-results')
+                            PHP
+                        )
                     )
                 )
             ),
@@ -127,6 +117,19 @@ return html(lang: 'en')(
                         ),
                         p(class: 'hint', text: 'Try: admin@example.org (taken), test@example.org (taken), or any new email')
                     )
+                ),
+                el('details', class: 'code-details')(
+                    el('summary', text: 'View Code'),
+                    el('pre', class: 'code-block')(
+                        el('code', class: 'language-php', text: <<<'PHP'
+                            input(type: 'email', id: 'email', class: 'form-control', name: 'email')
+                                ->attr('placeholder', 'Enter email address')
+                                ->attr('hx-post', '/api/validate-email')
+                                ->attr('hx-trigger', 'change, keyup delay:500ms changed')
+                                ->attr('hx-target', '#email-validation')
+                            PHP
+                        )
+                    )
                 )
             ),
 
@@ -143,6 +146,18 @@ return html(lang: 'en')(
                                 ->attr('hx-swap', 'innerHTML')
                         )
                     )
+                ),
+                el('details', class: 'code-details')(
+                    el('summary', text: 'View Code'),
+                    el('pre', class: 'code-block')(
+                        el('code', class: 'language-php', text: <<<'PHP'
+                            button(class: 'btn btn-primary', text: 'Click to expand')
+                                ->attr('hx-get', '/api/toggle?state=collapsed')
+                                ->attr('hx-target', '#toggle-container')
+                                ->attr('hx-swap', 'innerHTML')
+                            PHP
+                        )
+                    )
                 )
             ),
 
@@ -157,6 +172,20 @@ return html(lang: 'en')(
                         ->attr('hx-swap', 'innerHTML')(
                             p(text: 'Loading...')
                         )
+                ),
+                el('details', class: 'code-details')(
+                    el('summary', text: 'View Code'),
+                    el('pre', class: 'code-block')(
+                        el('code', class: 'language-php', text: <<<'PHP'
+                            div(id: 'time-display', class: 'time-display')
+                                ->attr('hx-get', '/api/time')
+                                ->attr('hx-trigger', 'load, every 2s')
+                                ->attr('hx-swap', 'innerHTML')(
+                                    p(text: 'Loading...')
+                                )
+                            PHP
+                        )
+                    )
                 )
             ),
 
@@ -171,6 +200,18 @@ return html(lang: 'en')(
                                 ->attr('hx-get', '/api/items?page=1')
                                 ->attr('hx-target', 'closest li')
                                 ->attr('hx-swap', 'outerHTML')
+                        )
+                    )
+                ),
+                el('details', class: 'code-details')(
+                    el('summary', text: 'View Code'),
+                    el('pre', class: 'code-block')(
+                        el('code', class: 'language-php', text: <<<'PHP'
+                            button(class: 'btn btn-secondary load-more-btn', text: 'Load items')
+                                ->attr('hx-get', '/api/items?page=1')
+                                ->attr('hx-target', 'closest li')
+                                ->attr('hx-swap', 'outerHTML')
+                            PHP
                         )
                     )
                 )
