@@ -117,37 +117,6 @@ echo div(text: $userInput);
 // Output: <div>&lt;script&gt;alert("hacked")&lt;/script&gt;</div>
 ```
 
-### Readable diffs
-
-Code reviews become easier when structure and logic aren't interleaved with template syntax.
-
-```diff
-# ❌ Blade: Closing tags add noise.
-- <div class="card">
-+ <div class="card" id="main-card">
-      <h2>{{ $title }}</h2>
-      @if($showBody)
-          <div class="card-body">
--             <p>{{ $description }}</p>
-+             <p class="lead">{{ $description }}</p>
-+             <a href="/learn-more">Learn More</a>
-          </div>
-      @endif
-- </div>
-+ </div>
-
-# ✅ Elem: Every changed line is meaningful.
-- div(class: 'card')(
-+ div(class: 'card', id: 'main-card')(
-      h(2, text: $title),
-      $showBody ? div(class: 'card-body')(
--         p(text: $description)
-+         p(class: 'lead', text: $description),
-+         a(href: '/learn-more', text: 'Learn More')
-      ) : null
-  )
-```
-
 ## Installation
 
 **Requirements:** PHP 8.4+, ext-dom
