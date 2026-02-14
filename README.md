@@ -1,4 +1,4 @@
-# VibeHtml
+# Elem
 
 A fluent, type-safe PHP library for building HTML documents using the DOM.
 
@@ -10,7 +10,7 @@ A fluent, type-safe PHP library for building HTML documents using the DOM.
 ## Installation
 
 ```bash
-composer require warp/vibe-html
+composer require warp/elem
 ```
 
 ## Usage
@@ -18,10 +18,10 @@ composer require warp/vibe-html
 ### Basic Elements
 
 ```php
-use function VibeHtml\div;
-use function VibeHtml\p;
-use function VibeHtml\a;
-use function VibeHtml\span;
+use function Elem\div;
+use function Elem\p;
+use function Elem\a;
+use function Elem\span;
 
 // Create a simple div with text
 $element = div(id: 'container', class: 'wrapper')(
@@ -36,14 +36,14 @@ echo $element->toHtml();
 ### Building a Complete HTML Document
 
 ```php
-use function VibeHtml\html;
-use function VibeHtml\head;
-use function VibeHtml\body;
-use function VibeHtml\title;
-use function VibeHtml\meta;
-use function VibeHtml\div;
-use function VibeHtml\h;
-use function VibeHtml\p;
+use function Elem\html;
+use function Elem\head;
+use function Elem\body;
+use function Elem\title;
+use function Elem\meta;
+use function Elem\div;
+use function Elem\h;
+use function Elem\p;
 
 $page = html(lang: 'en')(
     head()(
@@ -65,10 +65,10 @@ echo $page;
 ### Forms
 
 ```php
-use function VibeHtml\form;
-use function VibeHtml\label;
-use function VibeHtml\input;
-use function VibeHtml\button;
+use function Elem\form;
+use function Elem\label;
+use function Elem\input;
+use function Elem\button;
 
 $loginForm = form(id: 'login', action: '/login')(
     label(text: 'Email', for: 'email'),
@@ -86,8 +86,8 @@ echo $loginForm;
 ### Lists
 
 ```php
-use function VibeHtml\ul;
-use function VibeHtml\li;
+use function Elem\ul;
+use function Elem\li;
 
 // Using item() helper
 $list = ul(class: 'nav')
@@ -106,10 +106,10 @@ $list = ul(class: 'nav')(
 ### Tables
 
 ```php
-use function VibeHtml\table;
-use function VibeHtml\tr;
-use function VibeHtml\th;
-use function VibeHtml\td;
+use function Elem\table;
+use function Elem\tr;
+use function Elem\th;
+use function Elem\td;
 
 $table = table(class: 'data-table')(
     tr()(
@@ -132,7 +132,7 @@ $table = table(class: 'data-table')(
 Elements with an `id` can have inline scripts that automatically receive the element:
 
 ```php
-use function VibeHtml\form;
+use function Elem\form;
 
 $form = form(id: 'my-form', action: '/submit')->script(<<<JS
     el.addEventListener('submit', (e) => {
@@ -145,8 +145,8 @@ JS);
 ### Using Array Results (e.g., from array_map)
 
 ```php
-use function VibeHtml\ul;
-use function VibeHtml\li;
+use function Elem\ul;
+use function Elem\li;
 
 $items = ['Apple', 'Banana', 'Cherry'];
 
@@ -183,7 +183,7 @@ All elements support:
 For advanced use cases (like testing or comparing documents), you can use isolated scopes:
 
 ```php
-use VibeHtml\ElementFactory;
+use Elem\ElementFactory;
 
 // Execute code in an isolated scope
 $html = ElementFactory::withScope(function() {

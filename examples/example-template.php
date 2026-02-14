@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../lib/vibe-html.php';
+require_once __DIR__ . '/../lib/elem.php';
 
 // Define reusable components as simple functions
 function card(string $title): Element
@@ -43,7 +43,7 @@ $users = [
 
 echo html(lang: 'en')(
     head()(
-        title(text: 'Vibe HTML Template Example'),
+        title(text: 'Elem Template Example'),
         meta(charset: 'UTF-8'),
         meta(name: 'viewport', content: 'width=device-width, initial-scale=1.0'),
         script(src: 'https://unpkg.com/htmx.org@2.0.4'),
@@ -234,7 +234,7 @@ echo html(lang: 'en')(
     ),
     body()(
         div(class: 'container')(
-            h(1, text: 'Welcome to Vibe HTML'),
+            h(1, text: 'Welcome to Elem'),
 
             p(class: 'intro-text', text: 'This demonstrates embedding the functional API directly in HTML templates.'),
 

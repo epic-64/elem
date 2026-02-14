@@ -1,9 +1,9 @@
 {
-    "name": "warp/vibe-html",
+    "name": "warp/elem",
     "description": "A fluent, type-safe PHP library for building HTML documents using the DOM",
     "type": "library",
     "license": "MIT",
-    "keywords": ["html", "dom", "builder", "fluent", "type-safe"],
+    "keywords": ["html", "dom", "builder", "fluent", "type-safe", "elements"],
     "authors": [
         {
             "name": "William"
@@ -19,10 +19,10 @@
     },
     "autoload": {
         "psr-4": {
-            "VibeHtml\\": "src/VibeHtml/"
+            "Elem\\": "src/Elem/"
         },
         "files": [
-            "src/VibeHtml/functions.php"
+            "src/Elem/functions.php"
         ]
     },
     "autoload-dev": {
