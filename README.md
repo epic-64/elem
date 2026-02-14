@@ -45,6 +45,16 @@ $element = div(id: 'container', class: 'wrapper')(
 echo $element;
 ```
 
+**Output:**
+
+```html
+<div id="container" class="wrapper">
+    <p>Hello, World!</p>
+    <a href="https://example.com" target="_blank" rel="noopener noreferrer">Click me</a>
+    <span class="highlight">Important</span>
+</div>
+```
+
 ### Building a Complete HTML Document
 
 ```php
@@ -72,6 +82,25 @@ $page = html(lang: 'en')(
 );
 
 echo $page;
+```
+
+**Output:**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>My Page</title>
+    </head>
+    <body>
+        <div id="app" class="container">
+            <h1>Welcome</h1>
+            <p>This is my page.</p>
+        </div>
+    </body>
+</html>
 ```
 
 ### Forms
