@@ -10,7 +10,7 @@ A fluent, type-safe PHP library for building HTML documents using the DOM.
 ## Installation
 
 ```bash
-composer require warp/elem
+composer require epic64/elem
 ```
 
 ## Usage
@@ -18,10 +18,10 @@ composer require warp/elem
 ### Basic Elements
 
 ```php
-use function Elem\div;
-use function Elem\p;
-use function Elem\a;
-use function Elem\span;
+use function Epic64\Elem\div;
+use function Epic64\Elem\p;
+use function Epic64\Elem\a;
+use function Epic64\Elem\span;
 
 // Create a simple div with text
 $element = div(id: 'container', class: 'wrapper')(
@@ -36,14 +36,14 @@ echo $element->toHtml();
 ### Building a Complete HTML Document
 
 ```php
-use function Elem\html;
-use function Elem\head;
-use function Elem\body;
-use function Elem\title;
-use function Elem\meta;
-use function Elem\div;
-use function Elem\h;
-use function Elem\p;
+use function Epic64\Elem\html;
+use function Epic64\Elem\head;
+use function Epic64\Elem\body;
+use function Epic64\Elem\title;
+use function Epic64\Elem\meta;
+use function Epic64\Elem\div;
+use function Epic64\Elem\h;
+use function Epic64\Elem\p;
 
 $page = html(lang: 'en')(
     head()(
@@ -65,10 +65,10 @@ echo $page;
 ### Forms
 
 ```php
-use function Elem\form;
-use function Elem\label;
-use function Elem\input;
-use function Elem\button;
+use function Epic64\Elem\form;
+use function Epic64\Elem\label;
+use function Epic64\Elem\input;
+use function Epic64\Elem\button;
 
 $loginForm = form(id: 'login', action: '/login')(
     label(text: 'Email', for: 'email'),
@@ -86,8 +86,8 @@ echo $loginForm;
 ### Lists
 
 ```php
-use function Elem\ul;
-use function Elem\li;
+use function Epic64\Elem\ul;
+use function Epic64\Elem\li;
 
 // Using item() helper
 $list = ul(class: 'nav')
@@ -106,10 +106,10 @@ $list = ul(class: 'nav')(
 ### Tables
 
 ```php
-use function Elem\table;
-use function Elem\tr;
-use function Elem\th;
-use function Elem\td;
+use function Epic64\Elem\table;
+use function Epic64\Elem\tr;
+use function Epic64\Elem\th;
+use function Epic64\Elem\td;
 
 $table = table(class: 'data-table')(
     tr()(
@@ -132,7 +132,7 @@ $table = table(class: 'data-table')(
 Elements with an `id` can have inline scripts that automatically receive the element:
 
 ```php
-use function Elem\form;
+use function Epic64\Elem\form;
 
 $form = form(id: 'my-form', action: '/submit')->script(<<<JS
     el.addEventListener('submit', (e) => {
@@ -145,8 +145,8 @@ JS);
 ### Using Array Results (e.g., from array_map)
 
 ```php
-use function Elem\ul;
-use function Elem\li;
+use function Epic64\Elem\ul;
+use function Epic64\Elem\li;
 
 $items = ['Apple', 'Banana', 'Cherry'];
 
@@ -183,7 +183,7 @@ All elements support:
 For advanced use cases (like testing or comparing documents), you can use isolated scopes:
 
 ```php
-use Elem\ElementFactory;
+use Epic64\Elem\ElementFactory;
 
 // Execute code in an isolated scope
 $html = ElementFactory::withScope(function() {

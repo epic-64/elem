@@ -1,12 +1,12 @@
 {
-    "name": "warp/elem",
+    "name": "epic-64/elem",
     "description": "A fluent, type-safe PHP library for building HTML documents using the DOM",
     "type": "library",
     "license": "MIT",
     "keywords": ["html", "dom", "builder", "fluent", "type-safe", "elements"],
     "authors": [
         {
-            "name": "William"
+            "name": "epic-64"
         }
     ],
     "require": {
@@ -19,7 +19,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Elem\\": "src/Elem/"
+            "Epic64\\Elem\\": "src/Elem/"
         },
         "files": [
             "src/Elem/functions.php"

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Elem\Elements;
+namespace Epic64\Elem\Elements;
 
-use Elem\Element;
+use Epic64\Elem\Element;
 
 class Option extends Element
 {
