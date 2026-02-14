@@ -5,9 +5,9 @@
  * Each HtmlDocument has its own DOMDocument, allowing multiple
  * independent HTML structures to be built and compared.
  */
-class HtmlDocument
+readonly class HtmlDocument
 {
-    public readonly DOMDocument $dom;
+    public DOMDocument $dom;
 
     public function __construct()
     {
