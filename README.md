@@ -255,16 +255,6 @@ function formGroup(string $labelText, string $for): Element {
 This works because `div(...)()` returns a `Div` element, which you can invoke again to add more children.
 Your custom helpers inherit the same fluent pattern.
 
-Since helpers return regular elements, you can still chain methods like `->attr()` or `->class()` to customize them further:
-
-```php
-formGroup('Username', 'username')
-    ->class('required')
-    ->attr('data-validate', 'true')(
-        input(type: 'text', id: 'username', name: 'username')
-    )
-```
-
 **Full example:**
 
 ```php
