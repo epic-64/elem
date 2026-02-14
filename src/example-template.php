@@ -58,9 +58,14 @@ function formGroup(string $labelText, string $inputId, Element|string ...$childr
             form(action: '/login')(
                 formGroup('Email:', 'email',
                     input(type: 'email', id: 'email', class: 'form-control')
+                        ->required()
+                        ->placeholder('you@example.com')
+                        ->attr('pattern', '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$')
                 ),
                 formGroup('Password:', 'password',
-                    input(type: 'password', id: 'password', class: 'form-control')->required()
+                    input(type: 'password', id: 'password', class: 'form-control')
+                        ->required()
+                        ->attr('minlength', '10')
                 ),
                 button(id: 'submit', class: 'btn btn-primary', text: 'Login')
             )
