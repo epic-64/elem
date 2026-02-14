@@ -152,12 +152,10 @@ function card(string $title, Element ...$content): Element {
 }
 
 // Use it anywhere
-$card = card('Welcome',
+echo card('Welcome',
     p(text: 'This is a card component.'),
     a(href: '/learn-more', text: 'Learn More')
 );
-
-echo $card;
 ```
 
 Output:
