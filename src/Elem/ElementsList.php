@@ -14,7 +14,7 @@ use Traversable;
  * @template T
  * @implements IteratorAggregate<int, T>
  */
-class Collection implements IteratorAggregate
+class ElementsList implements IteratorAggregate
 {
     /**
      * @param array<T> $items

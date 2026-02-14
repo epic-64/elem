@@ -47,28 +47,6 @@ Your IDE knows what's happening. Autocomplete, refactoring, and static analysis 
 a(hfer: $url, text: 'Click')  // Error: Unknown parameter "hfer"
 ```
 
-### No template syntax to learn
-
-It's just PHP. No `{{ }}`, no `@directives`, no context switching.
-
-```php
-// ❌ Blade
-<div class="admins">
-@foreach($users as $user)
-    @if($user->isAdmin())
-        <span class="badge">{{ $user->name }}</span>
-    @endif
-@endforeach
-<div>
-
-// ✅ Elem: It's just PHP. Ready for the PHP 8.5 pipe operator.
-div(class: "admins")(
-    $users
-        |> (fn($arr) => array_filter($arr, fn($user) => $user->isAdmin()))
-        |> (fn($arr) => array_map(fn($user) => span(class: 'badge', text: $user->name), $arr))
-)
-```
-
 ### Composable
 
 Build reusable components as plain functions. No magic, no framework lock-in.
@@ -100,6 +78,48 @@ Output:
         <a href="/learn-more">Learn More</a>
     </div>
 </div>
+```
+
+### No template syntax to learn
+
+It's just PHP. No `{{ }}`, no `@directives`, no context switching.
+
+❌ Blade:
+```php
+<div class="admins">
+@foreach($users as $user)
+    @if($user->isAdmin())
+        <span class="badge">{{ $user->name }}</span>
+    @endif
+@endforeach
+<div>
+```
+
+✅ Use Elem's `list_of()` helper for a fluent syntax:
+```php
+div(class: "admins")(
+    Epic64\Elem\list_of($users)
+        ->filter(fn($user) => $user->isAdmin())
+        ->map(fn($user) => span(class: 'badge', text: $user->name))
+)
+```
+
+✅ Or use an existing collection library:
+```php
+div(class: "admins")(
+    collect($users)
+        ->filter(fn($user) => $user->isAdmin())
+        ->map(fn($user) => span(class: 'badge', text: $user->name))
+)
+```
+
+✅ Or stick with PHP's pipe operator and raw arrays:
+```php
+div(class: "admins")(
+    $users
+        |> (fn($arr) => array_filter($arr, fn($user) => $user->isAdmin()))
+        |> (fn($arr) => array_map(fn($user) => span(class: 'badge', text: $user->name), $arr))
+)
 ```
 
 ### XSS-safe by default

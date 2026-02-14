@@ -263,10 +263,10 @@ function to_el(array $data, callable $transform): array
  *
  * @template T
  * @param iterable<T> $items
- * @return Collection<T>
+ * @return ElementsList<T>
  */
-function list_of(iterable $items): Collection
+function list_of(iterable $items): ElementsList
 {
-    return new Collection(is_array($items) ? $items : iterator_to_array($items));
+    return new ElementsList(is_array($items) ? $items : iterator_to_array($items));
 }
 
