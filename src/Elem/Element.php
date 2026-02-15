@@ -12,6 +12,8 @@ use InvalidArgumentException;
  * Base class for all HTML elements.
  * Provides a safe, type-checked wrapper around DOMElement.
  * Uses a shared DOMDocument for efficient memory usage.
+ *
+ * @phpstan-type Child DOMNode|Element|RawHtml|string|null
  */
 class Element
 {
@@ -25,12 +27,14 @@ class Element
     }
 
     /**
-     * Add children to the element. Accepts DOMNode|string|Element|RawHtml|array|iterable|null.
+     * Add children to the element.
+     *
      * Null values are filtered out, enabling ternary expressions like: $condition ? element() : null
-     * @param DOMNode|Element|RawHtml|string|iterable<DOMNode|Element|RawHtml|string|iterable<mixed>|null>|null ...$children
+     *
+     * @param Child|iterable<Child> ...$children
      * @return $this
      */
-    public function __invoke(DOMNode|Element|RawHtml|string|iterable|null ...$children): static
+    public function __invoke(mixed ...$children): static
     {
         $dom = ElementFactory::dom();
         foreach ($children as $child) {
@@ -66,7 +70,6 @@ class Element
                 $this->element->appendChild($child);
             } elseif (is_iterable($child)) {
                 // Handle iterables (arrays, Collections, Laravel collections, generators, etc.)
-                /** @phpstan-ignore argument.type (recursive type is intentional for nested iterables) */
                 $this(...$child);
             } elseif (is_string($child)) {
                 $this->element->appendChild(ElementFactory::createTextNode($child));
