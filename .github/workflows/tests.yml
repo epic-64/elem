@@ -33,15 +33,11 @@ jobs:
         run: vendor/bin/phpstan analyse
 
       - name: Run tests with coverage
-        run: vendor/bin/pest --coverage --coverage-clover=coverage.xml --coverage-html=coverage-html --min=80
-
-      - name: Parse coverage percentage
-        id: coverage
         run: |
-          # Extract coverage from clover.xml
-          COVERED=$(grep -oP 'coveredstatements="\K[0-9]+' coverage.xml | head -1)
-          TOTAL=$(grep -oP 'statements="\K[0-9]+' coverage.xml | head -1)
-          COVERAGE=$(echo "scale=1; $COVERED * 100 / $TOTAL" | bc)
+          # Run tests and capture output to parse coverage percentage
+          vendor/bin/pest --coverage --coverage-clover=coverage.xml --coverage-html=coverage-html --min=80 | tee coverage-output.txt
+          # Extract "Total: XX.X %" from the output
+          COVERAGE=$(grep -oP 'Total:\s+\K[0-9]+(\.[0-9]+)?' coverage-output.txt)
           echo "Coverage: $COVERAGE%"
           echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
 
