@@ -982,3 +982,26 @@ test('RawHtml __toString returns the HTML content', function () {
     expect((string) $raw)->toBe('<strong>Test</strong>');
 });
 
+test('constructor params, fluent methods, and attr() are all equivalent', function () {
+    // ex1: Named parameters in constructor
+    $ex1 = div(id: 'my-div', class: 'my-content')(
+        'child elements go here'
+    );
+
+    // ex2: Fluent method chaining with dedicated methods
+    $ex2 = div()->id('my-div')->class('my-content')(
+        'child elements go here'
+    );
+
+    // ex3: Fluent method chaining with generic attr() method
+    $ex3 = div()->attr('id', 'my-div')->attr('class', 'my-content')(
+        'child elements go here'
+    );
+
+    $expected = '<div id="my-div" class="my-content">child elements go here</div>';
+
+    expect($ex1->toHtml())->toBe($expected)
+        ->and($ex2->toHtml())->toBe($expected)
+        ->and($ex3->toHtml())->toBe($expected);
+});
+
