@@ -196,6 +196,26 @@ echo div(text: $userInput);
 // Output: <div>&lt;script&gt;alert("hacked")&lt;/script&gt;</div>
 ```
 
+### Raw HTML when you need it
+
+Sometimes you have trusted HTML from a Markdown parser, CMS, or other source. Use `raw()` to inject it unescaped:
+
+```php
+use function Epic64\Elem\raw;
+use function Epic64\Elem\div;
+
+// Output from a Markdown parser
+$htmlFromMarkdown = '<p>Hello <strong>world</strong>!</p>';
+
+// Inject it directly into your Elem tree
+echo div(class: 'content')(
+    raw($htmlFromMarkdown)
+);
+// Output: <div class="content"><p>Hello <strong>world</strong>!</p></div>
+```
+
+> ⚠️ **Warning:** Only use `raw()` with trusted content. Never pass user input directly to `raw()` - that defeats the XSS protection!
+
 ### LLM-friendly
 
 Using AI to generate HTML? Elem's structure catches mistakes that would slip through with templates:
@@ -470,7 +490,7 @@ $card->__invoke(
 The `__invoke` method accepts variadic arguments, so you can pass any number of children. It also handles arrays and any `iterable`, which is why `array_map()`, `list_of()`, and Laravel collections all work seamlessly:
 
 ```php
-public function __invoke(DOMNode|Element|string|iterable|null ...$children): static
+public function __invoke(DOMNode|Element|RawHtml|string|iterable|null ...$children): static
 ```
 
 ## API Reference
@@ -485,6 +505,7 @@ All element classes extend the base `Element` class and provide fluent interface
 - **Forms**: `Form`, `Input`, `Button`, `Label`, `Textarea`, `Select`, `Option`
 - **Lists**: `UnorderedList`, `OrderedList`, `ListItem`
 - **Tables**: `Table`, `TableRow`, `TableCell`, `TableHeader`
+- **Special**: `RawHtml` - Holds unescaped HTML content (use via `raw()` function)
 
 ### Common Methods
 
@@ -497,6 +518,12 @@ All elements support:
 - `->data(string $name, string $value)` - Set data-* attributes
 - `->toHtml(bool $pretty = false)` - Output HTML
 - `->toPrettyHtml()` - Output formatted HTML (called automatically in __toString)
+
+### Helper Functions
+
+- `el(string $tag)` - Create a generic element with any tag name
+- `raw(string $html)` - Create a `RawHtml` instance for injecting unescaped HTML
+- `list_of(iterable $items)` - Create a fluent collection for mapping/filtering
 
 ## Demo Server
 
