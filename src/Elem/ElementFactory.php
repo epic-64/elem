@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Epic64\Elem;
 
 use DOMDocument;
+use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use DOMText;
@@ -52,5 +53,19 @@ class ElementFactory
     public static function dom(): DOMDocument
     {
         return self::getDom();
+    }
+
+    /**
+     * Create a document fragment from raw HTML string.
+     * The HTML is parsed and inserted without escaping.
+     */
+    public static function createRawFragment(string $html): DOMDocumentFragment
+    {
+        $fragment = self::getDom()->createDocumentFragment();
+        if ($html !== '') {
+            // Suppress warnings for potentially malformed HTML
+            @$fragment->appendXML($html);
+        }
+        return $fragment;
     }
 }
