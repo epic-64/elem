@@ -25,12 +25,12 @@ class Element
     }
 
     /**
-     * Add children to the element. Accepts DOMNode|string|Element|array|iterable|null.
+     * Add children to the element. Accepts DOMNode|string|Element|RawHtml|array|iterable|null.
      * Null values are filtered out, enabling ternary expressions like: $condition ? element() : null
-     * @param DOMNode|Element|string|iterable<DOMNode|Element|string|iterable<mixed>|null>|null ...$children
+     * @param DOMNode|Element|RawHtml|string|iterable<DOMNode|Element|RawHtml|string|iterable<mixed>|null>|null ...$children
      * @return $this
      */
-    public function __invoke(DOMNode|Element|string|iterable|null ...$children): static
+    public function __invoke(DOMNode|Element|RawHtml|string|iterable|null ...$children): static
     {
         $dom = ElementFactory::dom();
         foreach ($children as $child) {
@@ -51,6 +51,12 @@ class Element
                 if ($child->pendingScript !== null) {
                     $this->element->appendChild($child->pendingScript);
                     $child->pendingScript = null;
+                }
+            } elseif ($child instanceof RawHtml) {
+                // Raw HTML is inserted without escaping
+                if ($child->html !== '') {
+                    $fragment = ElementFactory::createRawFragment($child->html);
+                    $this->element->appendChild($fragment);
                 }
             } elseif ($child instanceof DOMNode) {
                 // External node might need import

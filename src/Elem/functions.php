@@ -31,6 +31,7 @@ use Epic64\Elem\Elements\TableRow;
 use Epic64\Elem\Elements\Textarea;
 use Epic64\Elem\Elements\Title;
 use Epic64\Elem\Elements\UnorderedList;
+use Epic64\Elem\RawHtml;
 
 /**
  * Apply common attributes (id and class) to an element.
@@ -268,5 +269,24 @@ function to_el(array $data, callable $transform): array
 function list_of(iterable $items): ElementsList
 {
     return new ElementsList(is_array($items) ? $items : iterator_to_array($items));
+}
+
+/**
+ * Create a raw HTML fragment that will not be escaped.
+ *
+ * WARNING: Only use this with trusted content. Using raw HTML with
+ * user-provided input can lead to XSS vulnerabilities.
+ *
+ * @example
+ * ```php
+ * div()(
+ *     raw('<strong>Bold text</strong>'),
+ *     raw($trustedHtmlFromMarkdownParser)
+ * )
+ * ```
+ */
+function raw(string $html): RawHtml
+{
+    return new RawHtml($html);
 }
 

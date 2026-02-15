@@ -934,3 +934,51 @@ test('raw HTML string passed as child is escaped', function () {
     expect($output)->toContain('&lt;strong&gt;Bold&lt;/strong&gt;')
         ->and($output)->not->toContain('<strong>Bold</strong>');
 });
+
+test('raw() function allows unescaped HTML injection', function () {
+    $rawHtml = '<strong>Bold</strong>';
+
+    $element = div()(\Epic64\Elem\raw($rawHtml));
+    $output = $element->toHtml();
+
+    // The raw HTML should NOT be escaped
+    expect($output)->toContain('<strong>Bold</strong>')
+        ->and($output)->not->toContain('&lt;strong&gt;');
+});
+
+test('raw() function works with complex HTML', function () {
+    $complexHtml = '<div class="inner"><span id="test">Hello</span><br/></div>';
+
+    $element = div(class: 'outer')(\Epic64\Elem\raw($complexHtml));
+    $output = $element->toHtml();
+
+    expect($output)->toContain('<div class="inner">')
+        ->and($output)->toContain('<span id="test">Hello</span>')
+        ->and($output)->toContain('<br>');
+});
+
+test('raw() function can be mixed with regular elements', function () {
+    $element = div()(
+        p(text: 'Regular paragraph'),
+        \Epic64\Elem\raw('<strong>Raw bold</strong>'),
+        span(text: 'Regular span')
+    );
+    $output = $element->toHtml();
+
+    expect($output)->toContain('<p>Regular paragraph</p>')
+        ->and($output)->toContain('<strong>Raw bold</strong>')
+        ->and($output)->toContain('<span>Regular span</span>');
+});
+
+test('raw() function with empty string produces no output', function () {
+    $element = div()(\Epic64\Elem\raw(''));
+    $output = $element->toHtml();
+
+    expect($output)->toBe('<div></div>');
+});
+
+test('RawHtml __toString returns the HTML content', function () {
+    $raw = new \Epic64\Elem\RawHtml('<strong>Test</strong>');
+    expect((string) $raw)->toBe('<strong>Test</strong>');
+});
+
