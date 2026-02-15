@@ -17,7 +17,8 @@
     },
     "require": {
         "php": ">=8.4",
-        "ext-dom": "*"
+        "ext-dom": "*",
+        "ext-libxml": "*"
     },
     "require-dev": {
         "phpstan/phpstan": "^2.0",

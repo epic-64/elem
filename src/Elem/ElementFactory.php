@@ -62,10 +62,28 @@ class ElementFactory
     public static function createRawFragment(string $html): DOMDocumentFragment
     {
         $fragment = self::getDom()->createDocumentFragment();
-        if ($html !== '') {
-            // Suppress warnings for potentially malformed HTML
-            @$fragment->appendXML($html);
+        if ($html === '') {
+            return $fragment;
         }
+
+        // Parse HTML using a temporary DOMDocument (handles real HTML, not just XML)
+        $tempDoc = new DOMDocument('1.0', 'UTF-8');
+        // Wrap in a container to handle multiple root elements and text nodes
+        // Use LIBXML options to suppress warnings for HTML5 elements
+        @$tempDoc->loadHTML(
+            '<?xml encoding="UTF-8"><div id="__raw_container__">' . $html . '</div>',
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+        );
+
+        // Find our container and import its children
+        $container = $tempDoc->getElementById('__raw_container__');
+        if ($container !== null) {
+            foreach ($container->childNodes as $child) {
+                $imported = self::getDom()->importNode($child, true);
+                $fragment->appendChild($imported);
+            }
+        }
+
         return $fragment;
     }
 }
