@@ -765,11 +765,9 @@ test('option element with selected state', function () {
 });
 
 test('null children are filtered out for ternary expressions', function () {
-    $showOptional = false;
-
     $element = div(class: 'card')(
         h(1, text: 'Title'),
-        $showOptional ? p(text: 'Optional content') : null,
+        false ? p(text: 'Optional content') : null, /** @phpstan-ignore ternary.alwaysFalse */
         p(text: 'Always shown')
     );
 
