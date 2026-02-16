@@ -10,9 +10,127 @@
 [![Packagist](https://img.shields.io/packagist/v/epic-64/elem.svg)](https://packagist.org/packages/epic-64/elem)
 
 > **Finally, you can be an HTML programmer.**  
-> Put it on your resume. We won't tell anyone.
+> Put it on your resume and I will take you for a beer.
 
 A fluent, type-safe PHP library for building HTML documents using the DOM.
+
+```bash
+composer require epic-64/elem
+```
+
+## Showcase
+
+### It reads like HTML, but it's PHP
+
+```php
+div(id: 'hero', class: 'container')(
+    h(1, text: 'Welcome'),
+    p(text: 'Build HTML with pure PHP.'),
+    div(class: 'actions')(
+        a(href: '/start', class: 'btn btn-primary', text: 'Get Started'),
+        a(href: '/docs', class: 'btn', text: 'Learn More')
+    )
+)
+```
+
+Output:
+
+```html
+<div id="hero" class="container">
+    <h1>Welcome</h1>
+    <p>Build HTML with pure PHP.</p>
+    <div class="actions">
+        <a href="/start" class="btn btn-primary">Get Started</a>
+        <a href="/docs" class="btn">Learn More</a>
+    </div>
+</div>
+```
+
+### Components are just functions
+
+```php
+function card(string $title, string $body): Element {
+    return div(class: 'card')(
+        h(3, text: $title),
+        p(text: $body)
+    );
+}
+
+// Use it anywhere
+div(class: 'grid')(
+    card('Fast', 'No template parsing overhead.'),
+    card('Safe', 'XSS protection built-in.'),
+    card('Smart', 'Full IDE support.')
+)
+```
+
+### Full power of PHP - not a crippled template language
+
+```php
+div(class: 'user-list')(
+    list_of($users)
+        ->filter(fn(User $u) => $u->isActive())
+        ->map(fn(User $u) => userCard($u))
+)
+```
+
+### Type-safe - your IDE and PHPStan catch mistakes
+
+```php
+// ❌ Blade: Typo? Runtime surprise!
+<a hfer="{{ $url }}">Click</a>
+
+// ✅ Elem: Caught before you save
+a(hfer: $url)  // Error: Unknown parameter "hfer"
+```
+
+### XSS-safe by default
+
+```php
+$evil = '<script>alert("xss")</script>';
+echo div(text: $evil);
+// Output: <div>&lt;script&gt;alert("xss")&lt;/script&gt;</div>
+```
+
+### Layouts with slots
+
+```php
+function page(string $title, array $head = [], array $body = []): Element {
+    return html(lang: 'en')(
+        head()(
+            title(text: $title),
+            meta(charset: 'UTF-8'),
+            meta(name: 'viewport', content: 'width=device-width, initial-scale=1.0'),
+            ...$head
+        ),
+        body()(...$body)
+    );
+}
+
+page('Home', 
+    head: [stylesheet('/css/app.css')],
+    body: [h(1, text: 'Welcome'), p(text: 'Hello!')]
+);
+```
+Output:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Home</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+    <h1>Welcome</h1>
+    <p>Hello!</p>
+</body>
+</html>
+```
+
+---
 
 ## Table of Contents
 
@@ -20,11 +138,6 @@ A fluent, type-safe PHP library for building HTML documents using the DOM.
 - [Quick Start](#quick-start)
 - [Why Elem?](#why-elem)
 - [Examples](#examples)
-  - [Basic Elements](#basic-elements)
-  - [Composition & Dynamism](#composition--dynamism)
-  - [Templating & Layouts](#templating--layouts)
-  - [HTMX Integration](#htmx-integration)
-  - [Linking External Resources](#linking-external-resources)
 - [Extending Elem](#extending-elem)
 - [How It Works](#how-it-works)
 - [API Reference](#api-reference)
@@ -42,205 +155,48 @@ composer require epic-64/elem
 
 ## Quick Start
 
-### Basic Elements
-
 ```php
-use function Epic64\Elem\div;
-use function Epic64\Elem\p;
-use function Epic64\Elem\a;
-use function Epic64\Elem\span;
+use function Epic64\Elem\{div, p, a, span, html, head, body, title, meta, h};
 
-// Create a simple div with text
-$element = div(id: 'container', class: 'wrapper')(
+// Simple elements
+echo div(id: 'container', class: 'wrapper')(
     p(text: 'Hello, World!'),
     a(href: 'https://example.com', text: 'Click me')->blank(),
     span(class: 'highlight', text: 'Important')
 );
 
-echo $element;
-```
-
-**Output:**
-
-```html
-<div id="container" class="wrapper">
-    <p>Hello, World!</p>
-    <a href="https://example.com" target="_blank" rel="noopener noreferrer">Click me</a>
-    <span class="highlight">Important</span>
-</div>
-```
-
-### Building a Complete HTML Document
-
-```php
-use function Epic64\Elem\html;
-use function Epic64\Elem\head;
-use function Epic64\Elem\body;
-use function Epic64\Elem\title;
-use function Epic64\Elem\meta;
-use function Epic64\Elem\div;
-use function Epic64\Elem\h;
-use function Epic64\Elem\p;
-
-$page = html(lang: 'en')(
+// Complete HTML document
+echo html(lang: 'en')(
     head()(
         meta(charset: 'UTF-8'),
-        meta(name: 'viewport', content: 'width=device-width, initial-scale=1.0'),
         title(text: 'My Page')
     ),
     body()(
-        div(id: 'app', class: 'container')(
+        div(id: 'app')(
             h(1, text: 'Welcome'),
             p(text: 'This is my page.')
         )
     )
 );
-
-echo $page;
-```
-
-**Output:**
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>My Page</title>
-    </head>
-    <body>
-        <div id="app" class="container">
-            <h1>Welcome</h1>
-            <p>This is my page.</p>
-        </div>
-    </body>
-</html>
 ```
 
 ## Why Elem?
 
-### Type-safe
+- **Type-safe** - Your IDE knows what's happening. Autocomplete, refactoring, and PHPStan just work.
+- **Composable** - Build reusable components as plain functions. No magic, no framework lock-in.
+- **Pure PHP** - Full power of the language: loops, conditionals, functions, type hints.
+- **XSS-safe** - Text is automatically escaped through the DOM.
+- **LLM-friendly** - Named parameters and type checking catch AI-generated mistakes.
 
-Your IDE knows what's happening. Autocomplete, refactoring, and static analysis just work.
-
-```php
-// ❌ Blade/Twig: Typo? You'll find out at runtime.
-<a hfer="{{ $url }}">Click</a>
-
-// ✅ Elem: PHPStan catches this before you even save.
-a(hfer: $url, text: 'Click')  // Error: Unknown parameter "hfer"
-```
-
-### Composable
-
-Build reusable components as plain functions. No magic, no framework lock-in.
-
-```php
-use Epic64\Elem\Element;
-use function Epic64\Elem\div;
-use function Epic64\Elem\h;
-
-// Define a component as a simple function
-function card(string $title, Element ...$content): Element {
-    return div(class: 'card')(
-        h(2, text: $title),
-        div(class: 'card-body')(...$content)
-    );
-}
-
-// Use it anywhere
-echo card('Welcome',
-    p(text: 'This is a card component.'),
-    a(href: '/learn-more', text: 'Learn More')
-);
-```
-
-Output:
-```html
-<div class="card">
-    <h2>Welcome</h2>
-    <div class="card-body">
-        <p>This is a card component.</p>
-        <a href="/learn-more">Learn More</a>
-    </div>
-</div>
-```
-
-### Pure PHP
-
-No context switching. Your views are PHP, so you get the full power of the language - loops, conditionals, functions, type hints, and your IDE's full support.
-
-```php
-div(class: 'admin-list')(
-    Epic64\Elem\list_of($users) # you can also use array_map() or Laravel collections
-        ->filter(fn($u) => $u->isAdmin())
-        ->map(fn($u) => span(class: 'badge', text: $u->name))
-)
-```
-
-### XSS-safe by default
-
-Text is automatically escaped through the DOM. Sleep better at night.
-
-```php
-$userInput = '<script>alert("hacked")</script>';
-
-// ❌ Raw PHP: XSS vulnerability
-echo "<div>$userInput</div>";
-
-// ✅ Elem: Automatically escaped. Crisis averted.
-echo div(text: $userInput);
-// Output: <div>&lt;script&gt;alert("hacked")&lt;/script&gt;</div>
-```
-
-### Raw HTML when you need it
-
-Sometimes you have trusted HTML from a Markdown parser, CMS, or other source. Use `raw()` to inject it unescaped:
-
-```php
-use function Epic64\Elem\raw;
-use function Epic64\Elem\div;
-
-// Output from a Markdown parser
-$htmlFromMarkdown = '<p>Hello <strong>world</strong>!</p>';
-
-// Inject it directly into your Elem tree
-echo div(class: 'content')(
-    raw($htmlFromMarkdown)
-);
-// Output: <div class="content"><p>Hello <strong>world</strong>!</p></div>
-```
-
-> ⚠️ **Warning:** Only use `raw()` with trusted content. Never pass user input directly to `raw()` - that defeats the XSS protection!
-
-### LLM-friendly
-
-Using AI to generate HTML? Elem's structure catches mistakes that would slip through with templates:
-
-- **Named parameters** - No silent bugs from wrong argument order
-- **Type checking** - PHPStan catches hallucinated attributes
-- **No string interpolation** - Impossible to forget escaping
-- **No closing tags** - Can't mismatch `<div>` with `</span>`
-
-```php
-// LLMs can't mess this up - structure is enforced, not hoped for
-div(class: 'card')(
-    h(2, text: $title),
-    p(text: $description),
-    a(href: $url, text: 'Learn more')
-)
-```
+📖 **[Full documentation: Why Elem?](docs/why-elem.md)** *(coming soon)*
 
 ## Examples
 
 ### Basic Elements
 
-Forms, lists, tables, and dynamic content generation:
-
 ```php
-// Forms with validation
-form(id: 'login', action: '/login')(
+// Forms
+form(action: '/login')(
     input(type: 'email', name: 'email')->required()->placeholder('Email'),
     input(type: 'password', name: 'password')->required(),
     button(text: 'Login', type: 'submit')
@@ -257,37 +213,15 @@ table()(
     tr()(th(text: 'Name'), th(text: 'Age')),
     tr()(td(text: 'Alice'), td(text: '30'))
 );
-
-// Dynamic content from data
-ul()(
-    ...array_map(fn($item) => li(text: $item), $items)
-);
 ```
 
 📖 **[Full documentation: Basic Examples](docs/basic-examples.md)**
 
 ### Composition & Dynamism
 
-This is where Elem really shines. Unlike templates where you're limited to template syntax, Elem gives you the full power of PHP:
-
-- **Enums** for type-safe variants (no more `'sucess'` typos)
-- **Typed classes** for your data (`User`, `Stat`, `CurrentUser`)
-- **Functions** for reusable components
-- **Native control flow** for conditional rendering
+Use PHP's full power: enums, typed classes, functions, and native control flow.
 
 ```php
-enum BadgeVariant: string
-{
-    case Primary = 'primary';
-    case Success = 'success';
-    case Warning = 'warning';
-}
-
-function badge(string $text, BadgeVariant $variant): Element
-{
-    return span(class: "badge badge-{$variant->value}", text: $text);
-}
-
 function userCard(User $user): Element
 {
     return div(class: 'user-card')(
@@ -309,44 +243,30 @@ div(class: 'user-list')(
 
 ### Templating & Layouts
 
-Build reusable page layouts with multiple "slots" for injecting content into different areas. This eliminates boilerplate while keeping full flexibility.
+Build reusable page layouts with multiple "slots" for content injection:
 
 ```php
-/**
- * @param string $pageTitle
- * @param list<Element> $headerSlot
- * @param list<Element> $sidebarSlot
- * @param list<Element> $mainSlot
- * @param list<Element> $footerSlot
- */
 function dashboardLayout(
     string $pageTitle,
     array $headerSlot = [],
-    array $sidebarSlot = [],
     array $mainSlot = [],
-    array $footerSlot = [],
 ): Element {
     return pageLayout(
         pageTitle: $pageTitle,
         bodySlot: [
             div(class: 'dashboard')(
                 el('header')(...$headerSlot),
-                el('aside')(...$sidebarSlot),
                 el('main')(...$mainSlot),
-                el('footer')(...$footerSlot),
             ),
         ],
     );
 }
 
-// Use it - fill only the slots you need
-return dashboardLayout(
+// Fill only the slots you need
+dashboardLayout(
     pageTitle: 'My Dashboard',
     headerSlot: [h(1, text: '🚀 My App')],
-    mainSlot: [
-        cardLayout(cardTitle: 'Stats', bodySlot: [...]),
-        cardLayout(cardTitle: 'Activity', bodySlot: [...]),
-    ],
+    mainSlot: [card('Stats', $statsContent)],
 );
 ```
 
@@ -354,68 +274,35 @@ return dashboardLayout(
 
 ### HTMX Integration
 
-Elem is perfect for [HTMX](https://htmx.org/) - return HTML fragments directly from your endpoints, no JSON serialization needed.
-
-**Add HTMX attributes with `->attr()`:**
+Return HTML fragments directly from your endpoints - no JSON serialization needed:
 
 ```php
+// Add HTMX attributes
 button(text: 'Load More')
     ->attr('hx-get', '/api/items')
     ->attr('hx-target', '#results')
     ->attr('hx-swap', 'beforeend')
-```
 
-**Return HTML fragments from your API:**
-
-```php
-// GET /api/search?q=alice
+// Return HTML from your API
 function handleSearch(string $query): void {
     $users = searchUsers($query);
-    
     echo ul(class: 'search-results')(
         list_of($users)->map(fn($user) => 
-            li(class: 'user-card')(
-                span(class: 'name', text: $user->name),
-                span(class: 'email', text: $user->email)
-            )
+            li(text: $user->name)
         )
     );
 }
 ```
 
-This is the [Hypermedia](https://htmx.org/essays/hypermedia-apis-vs-data-apis/) approach - your server returns HTML, and HTMX swaps it into the DOM. No client-side templating, no JSON parsing, just HTML.
-
 ### Linking External Resources
 
 ```php
-use function Epic64\Elem\stylesheet;
-use function Epic64\Elem\icon;
-use function Epic64\Elem\font;
-use function Epic64\Elem\link;
-use function Epic64\Elem\head;
-
-// For stylesheets, use the convenient stylesheet() helper
-$head = head()(
+head()(
     stylesheet('/css/style.css'),
-    stylesheet('/css/theme.css')
-);
-
-// For favicons, use the icon() helper
-$head = head()(
     icon('/favicon.ico'),
-    icon('/icon-192.png', 'image/png')->sizes('192x192')
-);
-
-// For preloading fonts, use the font() helper
-$head = head()(
-    font('/fonts/custom.woff2', 'font/woff2')
-);
-
-// For other link types, use link() directly
-$head = head()(
-    link(href: '/manifest.json', rel: 'manifest'),
-    link(href: '/feed.xml', rel: 'alternate')->type('application/rss+xml')
-);
+    font('/fonts/custom.woff2', 'font/woff2'),
+    link(href: '/manifest.json', rel: 'manifest')
+)
 ```
 
 ## How It Works
@@ -438,37 +325,17 @@ div(class: 'card')(
 
 ### Custom Elements with `el()`
 
-Elem doesn't have every HTML element built-in (yet). Use `el()` to create any element by tag name:
+Use `el()` to create any element by tag name:
 
 ```php
 use function Epic64\Elem\el;
 
-// Semantic HTML5 elements
 el('article', class: 'post')(...);
-el('section', id: 'hero')(...);
 el('nav', class: 'main-nav')(...);
-el('aside', class: 'sidebar')(...);
-el('footer')(...);
-
-// Less common elements
-el('details')(
-    el('summary', text: 'Click to expand'),
-    p(text: 'Hidden content here')
-);
-
-el('figure')(
-    img(src: '/photo.jpg', alt: 'A photo'),
-    el('figcaption', text: 'Photo caption')
-);
-
-// Web components
-el('my-custom-component')
-    ->attr('some-prop', 'value');
+el('my-custom-component')->attr('some-prop', 'value');
 ```
 
 ### Custom Attributes with `->attr()`
-
-Need an attribute that isn't covered by a fluent method? Use `->attr()`:
 
 ```php
 // ARIA attributes
@@ -477,17 +344,12 @@ button(text: 'Menu')
     ->attr('aria-controls', 'menu-panel');
 
 // Data attributes (or use ->data())
-div()->attr('data-controller', 'dropdown');
-div()->data('controller', 'dropdown');  // equivalent
+div()->data('controller', 'dropdown');
 
 // HTMX, Alpine.js, or any other library
 div()
     ->attr('hx-get', '/api/data')
-    ->attr('x-data', '{ open: false }')
-    ->attr('@click', 'open = !open');
-
-// Custom boolean attributes
-input(type: 'text')->attr('autofocus', '');
+    ->attr('x-data', '{ open: false }');
 ```
 
 ### Raw HTML with `raw()`
@@ -497,19 +359,8 @@ When you have trusted HTML from an external source (Markdown parser, CMS, saniti
 ```php
 use function Epic64\Elem\raw;
 
-// From a Markdown parser
 $html = $markdownParser->convert($markdown);
 div(class: 'prose')(raw($html));
-
-// SVG icons
-div(class: 'icon')(
-    raw('<svg viewBox="0 0 24 24">...</svg>')
-);
-
-// Trusted third-party embed code
-div(class: 'embed')(
-    raw($trustedEmbedCode)
-);
 ```
 
 > ⚠️ **Never use `raw()` with user input** - it bypasses XSS protection.
@@ -533,38 +384,6 @@ p()(text('Hello, World!'));
 
 All three methods automatically escape content for XSS protection.
 
-### Creating Reusable Helpers
-
-If you use a custom element frequently, wrap it in a function:
-
-```php
-use Epic64\Elem\Element;
-use function Epic64\Elem\el;
-
-function article(?string $id = null, ?string $class = null): Element
-{
-    $element = el('article');
-    if ($id !== null) $element->id($id);
-    if ($class !== null) $element->class($class);
-    return $element;
-}
-
-function section(?string $id = null, ?string $class = null): Element
-{
-    $element = el('section');
-    if ($id !== null) $element->id($id);
-    if ($class !== null) $element->class($class);
-    return $element;
-}
-
-// Now use them like built-in elements
-article(id: 'post-123', class: 'blog-post')(
-    h(1, text: $post->title),
-    section(class: 'content')(
-        raw($post->htmlContent)
-    )
-);
-```
 
 ## API Reference
 
