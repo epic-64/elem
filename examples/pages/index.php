@@ -12,6 +12,11 @@ use function Epic64\Elem\{html, head, title, stylesheet, body, div, h, p, a, to_
 // Define the examples
 $examples = [
     [
+        'path' => '/layout-demo',
+        'title' => 'Layout Demo',
+        'description' => 'Complex templates with multiple slots: page layouts, dashboard layouts, cards, and modals - all with typed slot parameters.',
+    ],
+    [
         'path' => '/dynamic-content-demo',
         'title' => 'Dynamic Content Demo',
         'description' => 'The real power of Elem: reusable components as functions, data transformation with map/filter, conditional rendering, and composable UI patterns.',

@@ -833,6 +833,7 @@ Then open http://localhost:8080 in your browser.
 ### Available Demos
 
 - **Index** (`/`) - Overview and navigation
+- **Layout Demo** (`/layout-demo`) - Complex templates with multiple slots: page layouts, dashboard layouts, cards, and modals
 - **Dynamic Content Demo** (`/dynamic-content-demo`) - Showcases enums, reusable components, data transformation, and conditional rendering
 - **Template Demo** (`/template-demo`) - Building complete HTML pages
 - **HTMX Demo** (`/htmx-demo`) - Interactive components with HTMX integration
