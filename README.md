@@ -20,18 +20,13 @@ A fluent, type-safe PHP library for building HTML documents using the DOM.
 - [Quick Start](#quick-start)
 - [Why Elem?](#why-elem)
 - [Examples](#examples)
-  - [Forms](#forms)
-  - [Lists](#lists)
-  - [Tables](#tables)
-  - [Dynamic Content](#dynamic-content)
+  - [Basic Elements](#basic-elements)
   - [Composition & Dynamism](#composition--dynamism)
   - [Templating & Layouts](#templating--layouts)
   - [HTMX Integration](#htmx-integration)
   - [Linking External Resources](#linking-external-resources)
 - [How It Works](#how-it-works)
 - [API Reference](#api-reference)
-  - [Element Classes](#element-classes)
-  - [Common Methods](#common-methods)
 - [Demo Server](#demo-server)
 - [Development](#development)
 - [License](#license)
@@ -238,153 +233,37 @@ div(class: 'card')(
 
 ## Examples
 
-### Forms
+### Basic Elements
+
+Forms, lists, tables, and dynamic content generation:
 
 ```php
-use function Epic64\Elem\form;
-use function Epic64\Elem\label;
-use function Epic64\Elem\input;
-use function Epic64\Elem\button;
-
-$loginForm = form(id: 'login', action: '/login')(
-    label(text: 'Email', for: 'email'),
-    input(type: 'email', id: 'email', name: 'email')->required()->placeholder('Enter your email'),
-    
-    label(text: 'Password', for: 'password'),
-    input(type: 'password', id: 'password', name: 'password')->required(),
-    
+// Forms with validation
+form(id: 'login', action: '/login')(
+    input(type: 'email', name: 'email')->required()->placeholder('Email'),
+    input(type: 'password', name: 'password')->required(),
     button(text: 'Login', type: 'submit')
 );
 
-echo $loginForm;
-```
-
-#### Form Group Helper
-
-Create reusable form components by defining simple helper functions. Following Elem's pattern,
-the helper returns a callable element that accepts its content via `__invoke`:
-
-```php
-use Epic64\Elem\Element;
-use function Epic64\Elem\div;
-use function Epic64\Elem\label;
-
-function formGroup(string $labelText, string $for): Element {
-    return div(class: 'form-group')(
-        label(text: $labelText, for: $for)
-    );
-}
-```
-
-This works because `div(...)()` returns a `Div` element, which you can invoke again to add more children.
-Your custom helpers inherit the same fluent pattern.
-
-**Full example:**
-
-```php
-use function Epic64\Elem\form;
-use function Epic64\Elem\input;
-use function Epic64\Elem\button;
-
-echo form(id: 'register', action: '/register')(
-    formGroup('Username', 'username')(
-        input(type: 'text', id: 'username', name: 'username')
-            ->required()
-            ->placeholder('Choose a username')
-            ->attr('pattern', '^[a-zA-Z0-9_]{3,20}$')
-            ->attr('title', '3-20 characters, letters, numbers, and underscores only')
-    ),
-    formGroup('Email Address', 'email')(
-        input(type: 'email', id: 'email', name: 'email')
-            ->required()
-            ->placeholder('you@example.com')
-    ),
-    formGroup('Phone Number', 'phone')(
-        input(type: 'tel', id: 'phone', name: 'phone')
-            ->placeholder('+1234567890')
-            ->attr('pattern', '^\+?[0-9]{10,15}$')
-            ->attr('title', '10-15 digits, optionally starting with +')
-    ),
-    button(text: 'Register', type: 'submit')->class('btn', 'btn-primary')
-);
-```
-
-**Output:**
-
-```html
-<form action="/register" method="post" id="register">
-    <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" name="username" id="username" required 
-               placeholder="Choose a username"
-               pattern="^[a-zA-Z0-9_]{3,20}$" 
-               title="3-20 characters, letters, numbers, and underscores only">
-    </div>
-    <div class="form-group">
-        <label for="email">Email Address</label>
-        <input type="email" name="email" id="email" required 
-               placeholder="you@example.com">
-    </div>
-    <div class="form-group">
-        <label for="phone">Phone Number</label>
-        <input type="tel" name="phone" id="phone" 
-               placeholder="+1234567890"
-               pattern="^\+?[0-9]{10,15}$" 
-               title="10-15 digits, optionally starting with +">
-    </div>
-    <button type="submit" class="btn btn-primary">Register</button>
-</form>
-```
-
-### Lists
-
-```php
-use function Epic64\Elem\ul;
-use function Epic64\Elem\li;
-
-$list = ul(class: 'nav')(
+// Lists
+ul(class: 'nav')(
     li(text: 'Home'),
-    li(text: 'About'),
-    li(text: 'Contact')
+    li(text: 'About')
+);
+
+// Tables
+table()(
+    tr()(th(text: 'Name'), th(text: 'Age')),
+    tr()(td(text: 'Alice'), td(text: '30'))
+);
+
+// Dynamic content from data
+ul()(
+    ...array_map(fn($item) => li(text: $item), $items)
 );
 ```
 
-### Tables
-
-```php
-use function Epic64\Elem\table;
-use function Epic64\Elem\tr;
-use function Epic64\Elem\th;
-use function Epic64\Elem\td;
-
-$table = table(class: 'data-table')(
-    tr()(
-        th(text: 'Name'),
-        th(text: 'Age')
-    ),
-    tr()(
-        td(text: 'Alice'),
-        td(text: '30')
-    ),
-    tr()(
-        td(text: 'Bob'),
-        td(text: '25')
-    )
-);
-```
-
-### Dynamic Content
-
-```php
-use function Epic64\Elem\ul;
-use function Epic64\Elem\li;
-
-$items = ['Apple', 'Banana', 'Cherry'];
-
-$list = ul()(
-    array_map(fn($item) => li(text: $item), $items)
-);
-```
+📖 **[Full documentation: Basic Examples](docs/basic-examples.md)**
 
 ### Composition & Dynamism
 
