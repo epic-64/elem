@@ -12,6 +12,11 @@ use function Epic64\Elem\{html, head, title, stylesheet, body, div, h, p, a, to_
 // Define the examples
 $examples = [
     [
+        'path' => '/dynamic-content-demo',
+        'title' => 'Dynamic Content Demo',
+        'description' => 'The real power of Elem: reusable components as functions, data transformation with map/filter, conditional rendering, and composable UI patterns.',
+    ],
+    [
         'path' => '/template-demo',
         'title' => 'Template Demo',
         'description' => 'A comprehensive demo showing components, user lists, navigation, and forms with HTMX & Alpine.js integration.',
