@@ -25,6 +25,7 @@ A fluent, type-safe PHP library for building HTML documents using the DOM.
   - [Templating & Layouts](#templating--layouts)
   - [HTMX Integration](#htmx-integration)
   - [Linking External Resources](#linking-external-resources)
+- [Extending Elem](#extending-elem)
 - [How It Works](#how-it-works)
 - [API Reference](#api-reference)
 - [Demo Server](#demo-server)
@@ -458,6 +459,119 @@ The `__invoke` method accepts variadic arguments, so you can pass any number of 
 
 ```php
 public function __invoke(DOMNode|Element|RawHtml|string|iterable|null ...$children): static
+```
+
+## Extending Elem
+
+### Custom Elements with `el()`
+
+Elem doesn't have every HTML element built-in. Use `el()` to create any element by tag name:
+
+```php
+use function Epic64\Elem\el;
+
+// Semantic HTML5 elements
+el('article', class: 'post')(...);
+el('section', id: 'hero')(...);
+el('nav', class: 'main-nav')(...);
+el('aside', class: 'sidebar')(...);
+el('footer')(...);
+
+// Less common elements
+el('details')(
+    el('summary', text: 'Click to expand'),
+    p(text: 'Hidden content here')
+);
+
+el('figure')(
+    img(src: '/photo.jpg', alt: 'A photo'),
+    el('figcaption', text: 'Photo caption')
+);
+
+// Web components
+el('my-custom-component')
+    ->attr('some-prop', 'value');
+```
+
+### Custom Attributes with `->attr()`
+
+Need an attribute that isn't covered by a fluent method? Use `->attr()`:
+
+```php
+// ARIA attributes
+button(text: 'Menu')
+    ->attr('aria-expanded', 'false')
+    ->attr('aria-controls', 'menu-panel');
+
+// Data attributes (or use ->data())
+div()->attr('data-controller', 'dropdown');
+div()->data('controller', 'dropdown');  // equivalent
+
+// HTMX, Alpine.js, or any other library
+div()
+    ->attr('hx-get', '/api/data')
+    ->attr('x-data', '{ open: false }')
+    ->attr('@click', 'open = !open');
+
+// Custom boolean attributes
+input(type: 'text')->attr('autofocus', '');
+```
+
+### Raw HTML with `raw()`
+
+When you have trusted HTML from an external source (Markdown parser, CMS, sanitizer):
+
+```php
+use function Epic64\Elem\raw;
+
+// From a Markdown parser
+$html = $markdownParser->convert($markdown);
+div(class: 'prose')(raw($html));
+
+// SVG icons
+div(class: 'icon')(
+    raw('<svg viewBox="0 0 24 24">...</svg>')
+);
+
+// Trusted third-party embed code
+div(class: 'embed')(
+    raw($trustedEmbedCode)
+);
+```
+
+> ⚠️ **Never use `raw()` with user input** - it bypasses XSS protection.
+
+### Creating Reusable Helpers
+
+If you use a custom element frequently, wrap it in a function:
+
+```php
+use Epic64\Elem\Element;
+use function Epic64\Elem\el;
+
+function article(?string $id = null, ?string $class = null): Element
+{
+    $element = el('article');
+    if ($id !== null) $element->id($id);
+    if ($class !== null) $element->class($class);
+    return $element;
+}
+
+function section(?string $id = null, ?string $class = null): Element
+{
+    $element = el('section');
+    if ($id !== null) $element->id($id);
+    if ($class !== null) $element->class($class);
+    return $element;
+}
+
+// Now use them like built-in elements
+article(id: 'post-123', class: 'blog-post')(
+    h(1, text: $post->title),
+    section(class: 'content')(
+        raw($post->htmlContent)
+    )
+);
 ```
 
 ## API Reference
