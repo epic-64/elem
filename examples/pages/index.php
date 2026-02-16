@@ -7,7 +7,7 @@ declare(strict_types=1);
  */
 
 use Epic64\Elem\Element;
-use function Epic64\Elem\{html, head, title, stylesheet, body, div, h, p, a, to_el, ul, li, el};
+use function Epic64\Elem\{html, head, list_of, title, stylesheet, body, div, h, p, a, ul, li, el};
 
 // Define the examples
 $examples = [
@@ -56,7 +56,7 @@ return html(lang: 'en')(
                 'type-safe PHP library for building HTML documents.'
             ),
             ul(class: 'examples-list')(
-                ...to_el($examples, fn($example) =>
+                list_of($examples)->map(fn($example) =>
                     example_card($example['title'], $example['description'], $example['path'])
                 ),
             ),

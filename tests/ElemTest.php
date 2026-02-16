@@ -3,33 +3,33 @@
 declare(strict_types=1);
 
 
-use function Epic64\Elem\el;
-use function Epic64\Elem\html;
-use function Epic64\Elem\head;
-use function Epic64\Elem\body;
-use function Epic64\Elem\title;
-use function Epic64\Elem\meta;
-use function Epic64\Elem\style;
-use function Epic64\Elem\script;
-use function Epic64\Elem\div;
-use function Epic64\Elem\h;
-use function Epic64\Elem\p;
 use function Epic64\Elem\a;
-use function Epic64\Elem\span;
-use function Epic64\Elem\img;
-use function Epic64\Elem\form;
-use function Epic64\Elem\label;
-use function Epic64\Elem\input;
+use function Epic64\Elem\body;
 use function Epic64\Elem\button;
-use function Epic64\Elem\textarea;
-use function Epic64\Elem\select;
-use function Epic64\Elem\ul;
-use function Epic64\Elem\ol;
+use function Epic64\Elem\div;
+use function Epic64\Elem\el;
+use function Epic64\Elem\form;
+use function Epic64\Elem\h;
+use function Epic64\Elem\head;
+use function Epic64\Elem\html;
+use function Epic64\Elem\img;
+use function Epic64\Elem\input;
+use function Epic64\Elem\label;
 use function Epic64\Elem\li;
+use function Epic64\Elem\meta;
+use function Epic64\Elem\ol;
+use function Epic64\Elem\p;
+use function Epic64\Elem\script;
+use function Epic64\Elem\select;
+use function Epic64\Elem\span;
+use function Epic64\Elem\style;
 use function Epic64\Elem\table;
-use function Epic64\Elem\tr;
-use function Epic64\Elem\th;
 use function Epic64\Elem\td;
+use function Epic64\Elem\textarea;
+use function Epic64\Elem\th;
+use function Epic64\Elem\title;
+use function Epic64\Elem\tr;
+use function Epic64\Elem\ul;
 
 test('creates a complex HTML document with all major elements', function () {
     $output = html(lang: 'en')(
@@ -525,16 +525,6 @@ test('font helper function', function () {
         ->and($output2)->toContain('as="font"');
 });
 
-test('to_el helper function maps data to elements', function () {
-    $items = ['Apple', 'Banana', 'Cherry'];
-    $elements = \Epic64\Elem\to_el($items, fn($item) => li(text: $item));
-
-    expect($elements)->toHaveCount(3);
-    expect($elements[0]->toHtml())->toContain('Apple');
-    expect($elements[1]->toHtml())->toContain('Banana');
-    expect($elements[2]->toHtml())->toContain('Cherry');
-});
-
 test('anchor element methods', function () {
     $anchor = a('/home')
         ->href('/new-link')
@@ -976,8 +966,38 @@ test('raw() function with empty string produces no output', function () {
 });
 
 test('RawHtml __toString returns the HTML content', function () {
-    $raw = new \Epic64\Elem\RawHtml('<strong>Test</strong>');
+    $raw = new \Epic64\Elem\Elements\RawHtml('<strong>Test</strong>');
     expect((string) $raw)->toBe('<strong>Test</strong>');
+});
+
+test('text() function creates escaped text node', function () {
+    $element = div()(
+        \Epic64\Elem\text('Hello, '),
+        span(text: 'World'),
+        \Epic64\Elem\text('!')
+    );
+    $output = $element->toHtml();
+
+    expect($output)->toBe('<div>Hello, <span>World</span>!</div>');
+});
+
+test('text() function escapes HTML special characters', function () {
+    $element = div()(\Epic64\Elem\text('<script>alert("XSS")</script>'));
+    $output = $element->toHtml();
+
+    expect($output)->toBe('<div>&lt;script&gt;alert("XSS")&lt;/script&gt;</div>');
+});
+
+test('text() function with empty string produces no output', function () {
+    $element = div()(\Epic64\Elem\text(''));
+    $output = $element->toHtml();
+
+    expect($output)->toBe('<div></div>');
+});
+
+test('Text __toString returns escaped HTML content', function () {
+    $text = new \Epic64\Elem\Elements\Text('<strong>Test</strong>');
+    expect((string) $text)->toBe('&lt;strong&gt;Test&lt;/strong&gt;');
 });
 
 test('constructor params, fluent methods, and attr() are all equivalent', function () {

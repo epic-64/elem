@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Epic64\Elem;
+namespace Epic64\Elem\Elements;
 
 /**
  * Represents raw HTML content that should not be escaped.
