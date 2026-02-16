@@ -388,344 +388,56 @@ $list = ul()(
 
 ### Composition & Dynamism
 
-This is where Elem really shines. Unlike templates where you're limited to template syntax, Elem gives you the full power of PHP: enums for type-safe variants, functions for reusable components, and native control flow for conditional rendering.
+This is where Elem really shines. Unlike templates where you're limited to template syntax, Elem gives you the full power of PHP:
 
-#### Type-Safe Variants with Enums
-
-No more typos like `'sucess'` or `'waning'` - the compiler catches them:
+- **Enums** for type-safe variants (no more `'sucess'` typos)
+- **Typed classes** for your data (`User`, `Stat`, `CurrentUser`)
+- **Functions** for reusable components
+- **Native control flow** for conditional rendering
 
 ```php
-use Epic64\Elem\Element;
-use function Epic64\Elem\span;
-use function Epic64\Elem\div;
-
 enum BadgeVariant: string
 {
-    case Default = 'default';
     case Primary = 'primary';
     case Success = 'success';
     case Warning = 'warning';
-    case Error = 'error';
 }
 
-enum AlertType: string
-{
-    case Info = 'info';
-    case Success = 'success';
-    case Warning = 'warning';
-    case Error = 'error';
-
-    public function icon(): string
-    {
-        return match ($this) {
-            self::Info => 'ℹ️',
-            self::Success => '✅',
-            self::Warning => '⚠️',
-            self::Error => '❌',
-        };
-    }
-}
-
-function badge(string $text, BadgeVariant $variant = BadgeVariant::Default): Element
+function badge(string $text, BadgeVariant $variant): Element
 {
     return span(class: "badge badge-{$variant->value}", text: $text);
-}
-
-function alert(string $message, AlertType $type = AlertType::Info): Element
-{
-    return div(class: "alert alert-{$type->value}")(
-        span(class: 'alert-icon', text: $type->icon()),
-        span(class: 'alert-message', text: $message)
-    );
-}
-
-// IDE autocomplete shows you all valid options
-badge('Active', BadgeVariant::Success);
-alert('Something went wrong!', AlertType::Error);
-```
-
-#### Composable Components
-
-Components are just functions. Nest them, parameterize them, compose them:
-
-```php
-use Epic64\Elem\Element;
-use function Epic64\Elem\div;
-use function Epic64\Elem\span;
-use function Epic64\Elem\h;
-
-enum Trend: string
-{
-    case Up = 'up';
-    case Down = 'down';
-    case Neutral = 'neutral';
-
-    public function icon(): string
-    {
-        return match ($this) {
-            self::Up => '📈',
-            self::Down => '📉',
-            self::Neutral => '➡️',
-        };
-    }
-}
-
-readonly class User
-{
-    public function __construct(
-        public string $name,
-        public string $email,
-        public UserRole $role,
-        public bool $active,
-    ) {}
-}
-
-readonly class Stat
-{
-    public function __construct(
-        public string $label,
-        public int $value,
-        public Trend $trend,
-    ) {}
-}
-
-function avatar(string $name): Element
-{
-    $initials = implode('', array_map(
-        fn($word) => mb_substr($word, 0, 1),
-        array_slice(explode(' ', $name), 0, 2)
-    ));
-
-    return div(class: 'avatar', text: strtoupper($initials));
 }
 
 function userCard(User $user): Element
 {
     return div(class: 'user-card')(
         avatar($user->name),
-        div(class: 'user-info')(
-            span(class: 'user-name', text: $user->name),
-            span(class: 'user-email', text: $user->email)
-        ),
         badge($user->role->value, $user->role->badge()),
-        badge($user->active ? 'Active' : 'Inactive', 
-              $user->active ? BadgeVariant::Success : BadgeVariant::Error)
+        $user->active ? badge('Active', BadgeVariant::Success) : null,
     );
 }
 
-function statCard(Stat $stat): Element
-{
-    return div(class: "stat-card stat-{$stat->trend->value}")(
-        span(class: 'stat-value', text: (string) $stat->value),
-        span(class: 'stat-label', text: $stat->label),
-        span(class: 'stat-trend', text: $stat->trend->icon())
-    );
-}
-```
-
-#### Data Transformation
-
-Filter, map, and transform your data with native PHP or the fluent `list_of()` helper:
-
-```php
-use function Epic64\Elem\div;
-use function Epic64\Elem\list_of;
-
-enum UserRole: string
-{
-    case Admin = 'admin';
-    case Editor = 'editor';
-    case Viewer = 'viewer';
-
-    public function badge(): BadgeVariant
-    {
-        return match ($this) {
-            self::Admin => BadgeVariant::Primary,
-            self::Editor => BadgeVariant::Warning,
-            self::Viewer => BadgeVariant::Default,
-        };
-    }
-}
-
-/** @var list<User> $users */
-$users = [
-    new User('Alice', 'alice@example.org', UserRole::Admin, active: true),
-    new User('Bob', 'bob@example.org', UserRole::Editor, active: true),
-    new User('Charlie', 'charlie@example.org', UserRole::Viewer, active: false),
-];
-
-// Show only active users
-div(class: 'active-users')(
+// Filter and map with full type safety
+div(class: 'user-list')(
     list_of($users)
-        ->filter(fn(User $user) => $user->active)
-        ->map(fn(User $user) => userCard($user))
-);
-
-// Filter by role - no typos possible!
-div(class: 'admin-users')(
-    list_of($users)
-        ->filter(fn(User $u) => $u->role === UserRole::Admin)
+        ->filter(fn(User $u) => $u->active)
         ->map(fn(User $u) => userCard($u))
 );
 ```
 
-#### Conditional Rendering
-
-It's just PHP - use ternaries, if statements, or match expressions:
-
-```php
-use function Epic64\Elem\div;
-use function Epic64\Elem\p;
-
-readonly class CurrentUser
-{
-    public function __construct(
-        public string $name,
-        public UserRole $role,
-        public int $notifications,
-    ) {}
-
-    public function isAdmin(): bool
-    {
-        return $this->role === UserRole::Admin;
-    }
-}
-
-$currentUser = new CurrentUser('Jane', UserRole::Admin, notifications: 3);
-$outOfStockCount = count(array_filter($products, fn(Product $p) => !$p->inStock));
-
-div(class: 'dashboard')(
-    // Conditional badge
-    $currentUser->notifications > 0
-        ? badge("{$currentUser->notifications} new", BadgeVariant::Warning) 
-        : null,
-
-    // Admin-only content - method encapsulates the logic
-    $currentUser->isAdmin() ? div(class: 'admin-panel')(
-        alert('You have admin privileges.', AlertType::Warning),
-        p(text: 'Manage users, view logs, configure settings.')
-    ) : null,
-
-    // Dynamic alerts based on data
-    $outOfStockCount > 0
-        ? alert("$outOfStockCount product(s) out of stock", AlertType::Warning)
-        : alert('All products in stock!', AlertType::Success),
-
-    // Match on enum - exhaustive checking by PHPStan
-    match ($currentUser->role) {
-        UserRole::Admin => badge('Administrator', BadgeVariant::Primary),
-        UserRole::Editor => badge('Editor', BadgeVariant::Warning),
-        UserRole::Viewer => badge('Viewer', BadgeVariant::Default),
-    }
-);
-```
-
-#### Putting It All Together
-
-Here's an example combining all these patterns:
-
-```php
-use function Epic64\Elem\{html, head, title, body, div, h, list_of, stylesheet};
-
-$currentUser = new CurrentUser('Jane', UserRole::Admin, notifications: 3);
-
-/** @var list<User> $users */
-$users = $userRepository->findAll();
-
-/** @var list<Stat> $stats */
-$stats = [
-    new Stat('Total Users', count($users), Trend::Up),
-    new Stat('Active', count(array_filter($users, fn(User $u) => $u->active)), Trend::Up),
-];
-
-return html(lang: 'en')(
-    head()(
-        title(text: 'Dashboard'),
-        stylesheet('/css/app.css')
-    ),
-    body()(
-        div(class: 'dashboard')(
-            // Header with conditional notification badge
-            div(class: 'header')(
-                h(1, text: "Welcome back, {$currentUser->name}!"),
-                $currentUser->notifications > 0
-                    ? badge("{$currentUser->notifications} new", BadgeVariant::Warning)
-                    : null
-            ),
-
-            // Admin alert - type-safe method call
-            $currentUser->isAdmin()
-                ? alert('Admin mode enabled', AlertType::Info)
-                : null,
-
-            // Stats grid - fully typed Stat objects
-            div(class: 'stats-grid')(
-                ...array_map(fn(Stat $s) => statCard($s), $stats)
-            ),
-
-            // User list with filtering - typed throughout
-            div(class: 'user-list')(
-                h(2, text: 'Active Team Members'),
-                list_of($users)
-                    ->filter(fn(User $u) => $u->active)
-                    ->map(fn(User $u) => userCard($u))
-            )
-        )
-    )
-);
-```
-
-This is the power of Elem: **your views are PHP**, so you get type safety, IDE support, refactoring, and the full expressiveness of the language. No template DSL to learn, no magic strings, no runtime surprises.
+📖 **[Full documentation: Composition & Dynamism](docs/composition-and-dynamism.md)**
 
 ### Templating & Layouts
 
-Build reusable page layouts with multiple "slots" for injecting content into different areas (head, sidebar, main, footer). This eliminates boilerplate while keeping full flexibility.
-
-#### Base Page Layout
-
-Start with a function that handles the HTML boilerplate:
+Build reusable page layouts with multiple "slots" for injecting content into different areas. This eliminates boilerplate while keeping full flexibility.
 
 ```php
-use Epic64\Elem\Element;
-use function Epic64\Elem\{html, head, title, meta, body};
-
 /**
  * @param string $pageTitle
- * @param list<Element> $headSlot Additional elements for <head>
- * @param list<Element> $bodySlot Main body content
- */
-function pageLayout(
-    string $pageTitle,
-    array $headSlot = [],
-    array $bodySlot = [],
-): Element {
-    return html(lang: 'en')(
-        head()(
-            meta(charset: 'UTF-8'),
-            meta(name: 'viewport', content: 'width=device-width, initial-scale=1.0'),
-            title(text: $pageTitle),
-            ...$headSlot,
-        ),
-        body()(
-            ...$bodySlot,
-        )
-    );
-}
-```
-
-#### Multi-Slot Dashboard Layout
-
-Build on the base layout to create more complex templates:
-
-```php
-use function Epic64\Elem\{div, el, stylesheet};
-
-/**
- * @param string $pageTitle
- * @param list<Element> $headerSlot Header content (logo, nav, user menu)
- * @param list<Element> $sidebarSlot Sidebar navigation
- * @param list<Element> $mainSlot Main content area
- * @param list<Element> $footerSlot Footer content
+ * @param list<Element> $headerSlot
+ * @param list<Element> $sidebarSlot
+ * @param list<Element> $mainSlot
+ * @param list<Element> $footerSlot
  */
 function dashboardLayout(
     string $pageTitle,
@@ -736,99 +448,29 @@ function dashboardLayout(
 ): Element {
     return pageLayout(
         pageTitle: $pageTitle,
-        headSlot: [
-            stylesheet('/css/dashboard.css'),
-        ],
         bodySlot: [
-            div(class: 'dashboard-layout')(
-                el('header', class: 'dashboard-header')(...$headerSlot),
-                el('aside', class: 'dashboard-sidebar')(...$sidebarSlot),
-                el('main', class: 'dashboard-main')(...$mainSlot),
-                el('footer', class: 'dashboard-footer')(...$footerSlot),
+            div(class: 'dashboard')(
+                el('header')(...$headerSlot),
+                el('aside')(...$sidebarSlot),
+                el('main')(...$mainSlot),
+                el('footer')(...$footerSlot),
             ),
         ],
     );
 }
-```
 
-#### Reusable Component Layouts
-
-The same pattern works for smaller components like cards and modals:
-
-```php
-/**
- * @param string $cardTitle
- * @param list<Element> $headerSlot Badges, action buttons
- * @param list<Element> $bodySlot Main card content
- * @param list<Element> $footerSlot Footer actions
- */
-function cardLayout(
-    string $cardTitle,
-    array $headerSlot = [],
-    array $bodySlot = [],
-    array $footerSlot = [],
-): Element {
-    return div(class: 'card')(
-        div(class: 'card-header')(
-            h(3, class: 'card-title', text: $cardTitle),
-            count($headerSlot) > 0 ? div(class: 'card-actions')(...$headerSlot) : null,
-        ),
-        div(class: 'card-body')(...$bodySlot),
-        count($footerSlot) > 0 ? div(class: 'card-footer')(...$footerSlot) : null,
-    );
-}
-```
-
-#### Using Layouts
-
-Fill only the slots you need - empty slots render nothing:
-
-```php
+// Use it - fill only the slots you need
 return dashboardLayout(
     pageTitle: 'My Dashboard',
-
-    headerSlot: [
-        h(1, text: '🚀 My App'),
-        badge('Admin', BadgeVariant::Primary),
-    ],
-
-    sidebarSlot: [
-        navMenu($menuItems),
-    ],
-
+    headerSlot: [h(1, text: '🚀 My App')],
     mainSlot: [
-        // Nest card layouts inside the dashboard
-        cardLayout(
-            cardTitle: 'User Statistics',
-            headerSlot: [badge('Live', BadgeVariant::Success)],
-            bodySlot: [
-                statCard(new Stat('Total Users', 1234, Trend::Up)),
-                statCard(new Stat('Active Today', 892, Trend::Up)),
-            ],
-            footerSlot: [
-                a('/users', text: 'View all users →'),
-            ],
-        ),
-
-        cardLayout(
-            cardTitle: 'Recent Activity',
-            bodySlot: [activityFeed($recentActivity)],
-        ),
-    ],
-
-    footerSlot: [
-        p(text: '© 2024 My App'),
+        cardLayout(cardTitle: 'Stats', bodySlot: [...]),
+        cardLayout(cardTitle: 'Activity', bodySlot: [...]),
     ],
 );
 ```
 
-**Benefits over traditional templating:**
-
-- **Type-safe slots**: PHPDoc `@param list<Element>` ensures you pass valid content
-- **No inheritance complexity**: Just function composition
-- **Flexible nesting**: Layouts can contain other layouts
-- **Conditional slots**: Use `count($slot) > 0` to skip empty wrappers
-- **IDE support**: Full autocomplete and refactoring
+📖 **[Full documentation: Templating & Layouts](docs/templating-and-layouts.md)**
 
 ### HTMX Integration
 
