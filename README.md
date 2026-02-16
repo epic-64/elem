@@ -514,6 +514,25 @@ div(class: 'embed')(
 
 > ⚠️ **Never use `raw()` with user input** - it bypasses XSS protection.
 
+### Adding Text to Elements
+
+There are three ways to add text content:
+
+```php
+use function Epic64\Elem\text;
+
+// 1. Using the text: parameter
+p(text: 'Hello, World!');
+
+// 2. Using plain strings as children
+p()('Hello, World!');
+
+// 3. Using text() for explicit text nodes
+p()(text('Hello, World!'));
+```
+
+All three methods automatically escape content for XSS protection.
+
 ### Creating Reusable Helpers
 
 If you use a custom element frequently, wrap it in a function:
