@@ -20,6 +20,7 @@ use Epic64\Elem\Elements\ListItem;
 use Epic64\Elem\Elements\Meta;
 use Epic64\Elem\Elements\OrderedList;
 use Epic64\Elem\Elements\Paragraph;
+use Epic64\Elem\Elements\RawHtml;
 use Epic64\Elem\Elements\Script;
 use Epic64\Elem\Elements\Select;
 use Epic64\Elem\Elements\Span;
@@ -28,10 +29,10 @@ use Epic64\Elem\Elements\Table;
 use Epic64\Elem\Elements\TableCell;
 use Epic64\Elem\Elements\TableHeader;
 use Epic64\Elem\Elements\TableRow;
+use Epic64\Elem\Elements\Text;
 use Epic64\Elem\Elements\Textarea;
 use Epic64\Elem\Elements\Title;
 use Epic64\Elem\Elements\UnorderedList;
-use Epic64\Elem\RawHtml;
 
 /**
  * Apply common attributes (id and class) to an element.
@@ -242,33 +243,23 @@ function font(string $href, ?string $type = null): Link
 }
 
 /**
- * Map an array of data to an array of elements using a transformation function.
+ * Create a text node that will be safely escaped when rendered.
  *
- * @template T
- * @param array<T> $data The input data to transform.
- * @param callable(T): Element $transform A function that takes an item of data and returns an Element.
- * @return Element[] An array of Elements created from the input data.
+ * This is useful when you want to explicitly create a text node as a sibling
+ * to other elements, rather than using the `text` parameter of an element.
+ *
+ * @example
+ * ```php
+ * div()(
+ *     text('Hello, '),
+ *     span(class: 'name', text: $username),
+ *     text('!')
+ * )
+ * ```
  */
-function to_el(array $data, callable $transform): array
+function text(string $content): Text
 {
-    return array_map($transform, $data);
-}
-
-/**
- * Create a Collection from an iterable for fluent transformations.
- *
- * Example:
- *   list_of($users)
- *       ->filter(fn($u) => $u->isAdmin())
- *       ->map(fn($u) => div(class: 'user', text: $u->name))
- *
- * @template T
- * @param iterable<T> $items
- * @return ElementsList<T>
- */
-function list_of(iterable $items): ElementsList
-{
-    return new ElementsList(is_array($items) ? $items : iterator_to_array($items));
+    return new Text($content);
 }
 
 /**
@@ -290,3 +281,19 @@ function raw(string $html): RawHtml
     return new RawHtml($html);
 }
 
+/**
+ * Create a Collection from an iterable for fluent transformations.
+ *
+ * Example:
+ *   list_of($users)
+ *       ->filter(fn($u) => $u->isAdmin())
+ *       ->map(fn($u) => div(class: 'user', text: $u->name))
+ *
+ * @template T
+ * @param iterable<T> $items
+ * @return ElementsList<T>
+ */
+function list_of(iterable $items): ElementsList
+{
+    return new ElementsList(is_array($items) ? $items : iterator_to_array($items));
+}

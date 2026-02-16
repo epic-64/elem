@@ -6,6 +6,8 @@ namespace Epic64\Elem;
 
 use DOMElement;
 use DOMNode;
+use Epic64\Elem\Elements\RawHtml;
+use Epic64\Elem\Elements\Text;
 use InvalidArgumentException;
 
 /**
@@ -13,7 +15,7 @@ use InvalidArgumentException;
  * Provides a safe, type-checked wrapper around DOMElement.
  * Uses a shared DOMDocument for efficient memory usage.
  *
- * @phpstan-type Child DOMNode|Element|RawHtml|string|null
+ * @phpstan-type Child DOMNode|Element|RawHtml|Text|string|null
  */
 class Element
 {
@@ -61,6 +63,11 @@ class Element
                 if ($child->html !== '') {
                     $fragment = ElementFactory::createRawFragment($child->html);
                     $this->element->appendChild($fragment);
+                }
+            } elseif ($child instanceof Text) {
+                // Text is escaped and inserted as a text node
+                if ($child->content !== '') {
+                    $this->element->appendChild(ElementFactory::createTextNode($child->content));
                 }
             } elseif ($child instanceof DOMNode) {
                 // External node might need import
