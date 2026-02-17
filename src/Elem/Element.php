@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Epic64\Elem;
 
+use Closure;
 use DOMElement;
 use DOMNode;
 use Epic64\Elem\Elements\RawHtml;
@@ -31,17 +32,35 @@ class Element
     /**
      * Add children to the element.
      *
-     * Null values are filtered out, enabling ternary expressions like: $condition ? element() : null
-     *
-     * @param Child|iterable<Child> ...$children
+     * @param Child|iterable<Child>|Closure(static): (Child|iterable<Child>) ...$children
      * @return $this
      */
     public function __invoke(mixed ...$children): static
+    {
+        $this->append(...$children);
+        return $this;
+    }
+
+    /**
+     * Add children to the element.
+     *
+     * @param Child|iterable<Child>|Closure(static): (Child|iterable<Child>) ...$children
+     * @return $this
+     */
+    public function append(mixed ...$children): static
     {
         $dom = ElementFactory::dom();
         foreach ($children as $child) {
             // Skip null values (allows ternary expressions like: $condition ? element() : null)
             if ($child === null) {
+                continue;
+            }
+            // Handle Closure - invoke it and process the result
+            if ($child instanceof Closure) {
+                $result = $child($this);
+                if ($result !== null) {
+                    $this($result);
+                }
                 continue;
             }
             // Handle Element instances first
