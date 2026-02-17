@@ -1050,20 +1050,24 @@ test('tap() method with conditionals and loops', function () {
     $isAdmin = true;
     $permissions = ['read', 'write', 'delete'];
 
-    $element = div(class: 'user-card')->tap(function (Div $el) use ($isAdmin, $permissions) {
+    $element =
+    div(class: 'user-card')->tap(function (Div $el) use ($isAdmin) {
         if ($isAdmin) { /** @phpstan-ignore if.alwaysTrue */
             $el->class('admin');
             $el->data('role', 'administrator');
         }
-
+    })->tap(function(Div $el) use ($permissions) {
         foreach ($permissions as $permission) {
-            $el->data("can-$permission", 'true');
+            $el(div(class: 'permission', text: $permission));
         }
     });
 
     $output = $element->toHtml();
-    $expected = '<div class="user-card admin" data-role="administrator" data-can-read="true" ' .
-                'data-can-write="true" data-can-delete="true"></div>';
+    $expected = '<div class="user-card admin" data-role="administrator">'
+        . '<div class="permission">read</div>'
+        . '<div class="permission">write</div>'
+        . '<div class="permission">delete</div>'
+        . '</div>';
 
     expect($output)->toBe($expected);
 });
