@@ -1051,12 +1051,21 @@ test('tap() method returns the element for chaining', function () {
 
 test('tap() method with conditionals and loops', function () {
     $isAdmin = true;
+    $displayNotifications = false;
+    $notifications = ['Notification 1', 'Notification 2'];
 
-    $element = div(class: 'user-card')->tap(function (Div $el) use ($isAdmin) {
+    $element = div(class: 'user-card')->tap(function (Div $el) use ($isAdmin, $displayNotifications, $notifications) {
         if ($isAdmin) { /** @phpstan-ignore if.alwaysTrue */
             $el->class('admin');
             $el->data('role', 'administrator');
-        }});
+        }
+
+        if ($displayNotifications) { /** @phpstan-ignore if.alwaysFalse */
+            foreach ($notifications as $note) {
+                $el->append(div(class: 'notification', text: $note));
+            }
+        }
+    });
 
     $output = $element->toHtml();
 
