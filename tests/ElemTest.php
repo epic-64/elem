@@ -1,4 +1,5 @@
-<?php /** @noinspection MultipleExpectChainableInspection */
+<?php /** @noinspection PhpVariableIsUsedOnlyInClosureInspection */
+/** @noinspection MultipleExpectChainableInspection */
 
 declare(strict_types=1);
 
@@ -17,6 +18,7 @@ use function Epic64\Elem\img;
 use function Epic64\Elem\input;
 use function Epic64\Elem\label;
 use function Epic64\Elem\li;
+use function Epic64\Elem\list_of;
 use function Epic64\Elem\meta;
 use function Epic64\Elem\ol;
 use function Epic64\Elem\p;
@@ -791,7 +793,7 @@ test('list_of with filter and map chain renders correctly', function () {
     ];
 
     $output = ul(class: 'admin-list')(
-        \Epic64\Elem\list_of($users)
+        list_of($users)
             ->filter(fn($user) => $user['role'] === 'admin')
             ->filter(fn($user) => $user['active'])
             ->map(fn($user) => li(class: 'admin-item', text: $user['name']))
@@ -807,7 +809,7 @@ test('list_of with filter and map chain renders correctly', function () {
 
 test('ElementsList all() and toArray() methods return underlying array', function () {
     $items = ['Apple', 'Banana', 'Cherry'];
-    $list = \Epic64\Elem\list_of($items);
+    $list = list_of($items);
 
     expect($list->all())->toBe($items)
         ->and($list->toArray())->toBe($items);
@@ -820,7 +822,7 @@ test('ElementsList works with iterators', function () {
         yield 'Third';
     };
 
-    $list = \Epic64\Elem\list_of($generator());
+    $list = list_of($generator());
     $result = $list->map(fn($item) => li(text: $item))->all();
 
     expect($result)->toHaveCount(3);
@@ -1051,16 +1053,17 @@ test('tap() method with conditionals and loops', function () {
     $permissions = ['read', 'write', 'delete'];
 
     $element =
-    div(class: 'user-card')->tap(function (Div $el) use ($isAdmin) {
-        if ($isAdmin) { /** @phpstan-ignore if.alwaysTrue */
-            $el->class('admin');
-            $el->data('role', 'administrator');
-        }
-    })->tap(function(Div $el) use ($permissions) {
-        foreach ($permissions as $permission) {
-            $el(div(class: 'permission', text: $permission));
-        }
-    });
+    div(class: 'user-card')
+        ->tap(function (Div $el) use ($isAdmin) {
+            if ($isAdmin) { /** @phpstan-ignore if.alwaysTrue */
+                $el->class('admin');
+                $el->data('role', 'administrator');
+            }
+        })->tap(function (Div $el) use ($permissions) {
+            foreach ($permissions as $perm) {
+                $el->append(div(class: 'permission', text: $perm));
+            }
+        });
 
     $output = $element->toHtml();
     $expected = '<div class="user-card admin" data-role="administrator">'
