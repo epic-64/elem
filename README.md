@@ -274,36 +274,26 @@ dashboardLayout(
 
 ### Imperative Style
 
-While Elem encourages functional style, sometimes imperative code is clearer. The `tap()` method lets you drop into imperative mode:
+While Elem encourages functional style, sometimes imperative code is clearer. Use `when()` for simple conditionals:
+
+```php
+div(class: 'card')
+    ->when($isAdmin, fn($el) => $el->class('admin'))
+    ->when($isActive, fn($el) => $el->class('active'))
+```
+
+Use `tap()` for more complex logic:
 
 ```php
 div(class: 'user-card')
-    ->tap(function (Div $el) use ($isAdmin, $permissions) {
+    ->tap(function ($el) use ($isAdmin, $permissions) {
         if ($isAdmin) {
             $el->class('admin');
-            $el->data('role', 'administrator');
         }
-        
         foreach ($permissions as $perm) {
             $el->data("can-$perm", 'true');
         }
     })
-```
-
-Compare the imperative loop with the functional equivalent:
-
-```php
-// Imperative with tap()
-ul()->tap(function ($el) use ($items) {
-    foreach ($items as $item) {
-        $el->append(li(text: $item));
-    }
-})
-
-// Functional with array_map
-ul()(
-    array_map(fn($item) => li(text: $item), $items)
-)
 ```
 
 📖 **[Full documentation: Imperative Style](docs/imperative-style.md)**
@@ -445,6 +435,7 @@ All elements support:
 - `->style(string $style)` - Set inline styles
 - `->data(string $name, string $value)` - Set data-* attributes
 - `->tap(callable $callback)` - Tap into the element for imperative modifications
+- `->when(bool $condition, callable $callback)` - Conditionally apply modifications
 - `->toHtml(bool $pretty = false)` - Output HTML
 - `->toPrettyHtml()` - Output formatted HTML (called automatically in __toString)
 
