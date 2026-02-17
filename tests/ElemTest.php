@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 
 use Epic64\Elem\Elements\Div;
+use Epic64\Elem\Elements\UnorderedList;
 use function Epic64\Elem\a;
 use function Epic64\Elem\body;
 use function Epic64\Elem\button;
@@ -1059,17 +1060,21 @@ test('tap() method with conditionals and loops', function () {
                 $el->class('admin');
                 $el->data('role', 'administrator');
             }
-        })->tap(function (Div $el) use ($permissions) {
-            foreach ($permissions as $perm) {
-                $el->append(div(class: 'permission', text: $perm));
-            }
-        });
+        })(
+            ul()->tap(function (UnorderedList $el) use ($permissions) {
+                foreach ($permissions as $perm) {
+                    $el->append(li(class: 'permission', text: $perm));
+                }
+            })
+        );
 
     $output = $element->toHtml();
     $expected = '<div class="user-card admin" data-role="administrator">'
-        . '<div class="permission">read</div>'
-        . '<div class="permission">write</div>'
-        . '<div class="permission">delete</div>'
+        . '<ul>'
+        . '<li class="permission">read</li>'
+        . '<li class="permission">write</li>'
+        . '<li class="permission">delete</li>'
+        . '</ul>'
         . '</div>';
 
     expect($output)->toBe($expected);
