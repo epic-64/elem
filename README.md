@@ -278,7 +278,7 @@ While Elem encourages functional style, sometimes imperative code is clearer. Th
 
 ```php
 div(class: 'user-card')
-    ->tap(function ($el) use ($isAdmin, $permissions) {
+    ->tap(function (Div $el) use ($isAdmin, $permissions) {
         if ($isAdmin) {
             $el->class('admin');
             $el->data('role', 'administrator');
