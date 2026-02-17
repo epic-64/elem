@@ -272,6 +272,42 @@ dashboardLayout(
 
 📖 **[Full documentation: Templating & Layouts](docs/templating-and-layouts.md)**
 
+### Imperative Style
+
+While Elem encourages functional style, sometimes imperative code is clearer. The `tap()` method lets you drop into imperative mode:
+
+```php
+div(class: 'user-card')
+    ->tap(function ($el) use ($isAdmin, $permissions) {
+        if ($isAdmin) {
+            $el->class('admin');
+            $el->data('role', 'administrator');
+        }
+        
+        foreach ($permissions as $perm) {
+            $el->data("can-$perm", 'true');
+        }
+    })
+```
+
+Compare the imperative loop with the functional equivalent:
+
+```php
+// Imperative with tap()
+ul()->tap(function ($el) use ($items) {
+    foreach ($items as $item) {
+        $el->append(li(text: $item));
+    }
+})
+
+// Functional with array_map
+ul()(
+    array_map(fn($item) => li(text: $item), $items)
+)
+```
+
+📖 **[Full documentation: Imperative Style](docs/imperative-style.md)**
+
 ### HTMX Integration
 
 Return HTML fragments directly from your endpoints - no JSON serialization needed:
