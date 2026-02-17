@@ -1096,3 +1096,49 @@ test('tap() with foreach produces same result as functional map', function () {
     expect($imperative->toHtml())->toBe($expected)
         ->and($functional->toHtml())->toBe($expected);
 });
+
+test('when() method executes callback only when condition is true', function () {
+    $elementTrue = div(class: 'card')
+        ->when(true, fn($el) => $el->class('admin'));
+
+    $elementFalse = div(class: 'card')
+        ->when(false, fn($el) => $el->class('admin'));
+
+    expect($elementTrue->toHtml())->toBe('<div class="card admin"></div>')
+        ->and($elementFalse->toHtml())->toBe('<div class="card"></div>');
+});
+
+test('when() method can be chained multiple times', function () {
+    $isAdmin = true;
+    $isActive = false;
+    $isPremium = true;
+
+    $element = div(class: 'user')
+        ->when($isAdmin, fn($el) => $el->class('admin'))
+        ->when($isActive, fn($el) => $el->class('active'))
+        ->when($isPremium, fn($el) => $el->class('premium'));
+
+    expect($element->toHtml())->toBe('<div class="user admin premium"></div>');
+});
+
+test('when() replaces tap() with conditional', function () {
+    $isAdmin = true;
+
+    // Using tap() with if
+    $withTap = div(class: 'card')->tap(function ($el) use ($isAdmin) {
+        if ($isAdmin) { /** @phpstan-ignore if.alwaysTrue */
+            $el->class('admin');
+            $el->data('role', 'administrator');
+        }
+    });
+
+    // Using when() - cleaner for simple conditions
+    $withWhen = div(class: 'card')
+        ->when($isAdmin, fn($el) => $el->class('admin')->data('role', 'administrator'));
+
+    $expected = '<div class="card admin" data-role="administrator"></div>';
+
+    expect($withTap->toHtml())->toBe($expected)
+        ->and($withWhen->toHtml())->toBe($expected);
+});
+

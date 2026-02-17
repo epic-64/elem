@@ -332,4 +332,26 @@ class Element
         $callback($this);
         return $this;
     }
+
+    /**
+     * Conditionally tap into the element.
+     *
+     * Only executes the callback if the condition is true.
+     * Returns the element for continued chaining regardless.
+     *
+     * Usage:
+     *   div(class: 'card')
+     *       ->when($isAdmin, fn($el) => $el->class('admin'))
+     *       ->when($isActive, fn($el) => $el->class('active'))
+     *
+     * @param callable(static): mixed $callback
+     * @return $this
+     */
+    public function when(bool $condition, callable $callback): static
+    {
+        if ($condition) {
+            $callback($this);
+        }
+        return $this;
+    }
 }

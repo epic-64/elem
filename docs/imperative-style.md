@@ -21,6 +21,21 @@ div(class: 'user-card')
 
 ## Conditionals
 
+### The `when()` Method
+
+For simple conditionals, `when()` is cleaner than `tap()` with an if statement:
+
+```php
+use function Epic64\Elem\div;
+
+div(class: 'card')
+    ->when($isAdmin, fn($el) => $el->class('admin')->data('role', 'administrator'))
+    ->when($isActive, fn($el) => $el->class('active'))
+    ->when($isPremium, fn($el) => $el->class('premium'))
+```
+
+The callback only runs if the condition is `true`. The element is always returned for chaining.
+
 ### Functional vs Imperative
 
 **Functional approach** - works well for simple conditions:
@@ -152,11 +167,12 @@ div(class: 'user-card')
 | Scenario | Recommended Style |
 |----------|-------------------|
 | Simple transformations | Functional (`array_map`, `list_of`) |
+| Simple conditionals | `when()` |
 | Complex conditionals | Imperative (`tap()`) |
 | Multiple attribute modifications | Imperative (`tap()`) |
 | Building lists from arrays | Functional (`array_map`) |
-| Conditional attribute groups | Imperative (`tap()`) |
-| Mixing both | Start functional, `tap()` when needed |
+| Conditional attribute groups | `when()` or `tap()` |
+| Mixing both | Start functional, `when()`/`tap()` when needed |
 
 ## The `append()` Method
 
