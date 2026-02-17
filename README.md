@@ -92,6 +92,17 @@ echo div(text: $evil);
 // Output: <div>&lt;script&gt;alert("xss")&lt;/script&gt;</div>
 ```
 
+### Easy conditional modifications with `when()`
+
+```php
+$isAdmin = false;
+$isActive = true;
+div(class: 'card')
+    ->when($isAdmin, fn($el) => $el->class('admin'))
+    ->when($isActive, fn($el) => $el->class('active'))
+// Output: <div class="card active"></div>
+```
+
 ### Layouts with slots
 
 ```php
