@@ -408,6 +408,7 @@ All elements support:
 - `->attr(string $name, string $value)` - Set any attribute
 - `->style(string $style)` - Set inline styles
 - `->data(string $name, string $value)` - Set data-* attributes
+- `->tap(callable $callback)` - Tap into the element for imperative modifications
 - `->toHtml(bool $pretty = false)` - Output HTML
 - `->toPrettyHtml()` - Output formatted HTML (called automatically in __toString)
 
