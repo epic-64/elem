@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 
+use Epic64\Elem\Elements\Div;
 use function Epic64\Elem\a;
 use function Epic64\Elem\body;
 use function Epic64\Elem\button;
@@ -1043,5 +1044,27 @@ test('tap() method returns the element for chaining', function () {
     $output = $element->toHtml();
 
     expect($output)->toBe('<div id="test" class="first second" title="My Element"></div>');
+});
+
+test('tap() method with conditionals and loops', function () {
+    $isAdmin = true;
+    $permissions = ['read', 'write', 'delete'];
+
+    $element = div(class: 'user-card')->tap(function (Div $el) use ($isAdmin, $permissions) {
+        if ($isAdmin) { /** @phpstan-ignore if.alwaysTrue */
+            $el->class('admin');
+            $el->data('role', 'administrator');
+        }
+
+        foreach ($permissions as $permission) {
+            $el->data("can-$permission", 'true');
+        }
+    });
+
+    $output = $element->toHtml();
+    $expected = '<div class="user-card admin" data-role="administrator" data-can-read="true" ' .
+                'data-can-write="true" data-can-delete="true"></div>';
+
+    expect($output)->toBe($expected);
 });
 
