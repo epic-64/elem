@@ -1023,3 +1023,25 @@ test('constructor params, fluent methods, and attr() are all equivalent', functi
         ->and($ex3->toHtml())->toBe($expected);
 });
 
+test('tap() method allows imperative modifications', function () {
+    $element = div(class: 'card')->tap(function ($el) {
+        $el->class('highlighted');
+        $el->data('loaded', 'true');
+    });
+
+    $output = $element->toHtml();
+
+    expect($output)->toBe('<div class="card highlighted" data-loaded="true"></div>');
+});
+
+test('tap() method returns the element for chaining', function () {
+    $element = div(id: 'test')
+        ->tap(fn($el) => $el->class('first'))
+        ->tap(fn($el) => $el->class('second'))
+        ->attr('title', 'My Element');
+
+    $output = $element->toHtml();
+
+    expect($output)->toBe('<div id="test" class="first second" title="My Element"></div>');
+});
+

@@ -290,4 +290,27 @@ class Element
     {
         return $this->toHtml(true);
     }
+
+    /**
+     * Tap into the element for imperative modifications.
+     *
+     * The callback receives the element and can perform any operations on it.
+     * Returns the element for continued chaining.
+     *
+     * Usage:
+     *   div(class: 'card')->tap(function($el) {
+     *       if ($someCondition) {
+     *           $el->class('highlighted');
+     *       }
+     *       $el->data('loaded', 'true');
+     *   })
+     *
+     * @param callable(static): mixed $callback
+     * @return $this
+     */
+    public function tap(callable $callback): static
+    {
+        $callback($this);
+        return $this;
+    }
 }
