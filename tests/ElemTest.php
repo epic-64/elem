@@ -1060,7 +1060,7 @@ test('tap() method with conditionals and loops', function () {
                 $el->class('admin');
                 $el->data('role', 'administrator');
             }
-        })(
+        })->append(
             ul()->tap(function (UnorderedList $el) use ($permissions) {
                 foreach ($permissions as $perm) {
                     $el->append(li(class: 'permission', text: $perm));
