@@ -1051,32 +1051,39 @@ test('tap() method returns the element for chaining', function () {
 
 test('tap() method with conditionals and loops', function () {
     $isAdmin = true;
-    $permissions = ['read', 'write', 'delete'];
 
-    $element =
-    div(class: 'user-card')
-        ->tap(function (Div $el) use ($isAdmin) {
-            if ($isAdmin) { /** @phpstan-ignore if.alwaysTrue */
-                $el->class('admin');
-                $el->data('role', 'administrator');
-            }
-        })->append(
-            ul()->tap(function (UnorderedList $el) use ($permissions) {
-                foreach ($permissions as $perm) {
-                    $el->append(li(class: 'permission', text: $perm));
-                }
-            })
-        );
+    $element = div(class: 'user-card')->tap(function (Div $el) use ($isAdmin) {
+        if ($isAdmin) { /** @phpstan-ignore if.alwaysTrue */
+            $el->class('admin');
+            $el->data('role', 'administrator');
+        }});
 
     $output = $element->toHtml();
-    $expected = '<div class="user-card admin" data-role="administrator">'
-        . '<ul>'
+
+    expect($output)->toBe('<div class="user-card admin" data-role="administrator"></div>');
+});
+
+test('tap() with foreach produces same result as functional map', function () {
+    $permissions = ['read', 'write', 'delete'];
+
+    // Imperative approach using tap() and foreach
+    $imperative = ul()->tap(function (UnorderedList $el) use ($permissions) {
+        foreach ($permissions as $perm) {
+            $el->append(li(class: 'permission', text: $perm));
+        }
+    });
+
+    // Functional approach using map
+    $functional = ul()(
+        array_map(fn($perm) => li(class: 'permission', text: $perm), $permissions)
+    );
+
+    $expected = '<ul>'
         . '<li class="permission">read</li>'
         . '<li class="permission">write</li>'
         . '<li class="permission">delete</li>'
-        . '</ul>'
-        . '</div>';
+        . '</ul>';
 
-    expect($output)->toBe($expected);
+    expect($imperative->toHtml())->toBe($expected)
+        ->and($functional->toHtml())->toBe($expected);
 });
-
