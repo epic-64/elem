@@ -81,4 +81,11 @@ $result = require $pagePath;
 $output = ob_get_clean();
 
 header('Content-Type: text/html; charset=UTF-8');
-echo $result;
+
+// If the page returned content (Element or string), use that
+// Otherwise, use the captured output (for raw HTML files)
+if ($result !== 1 && $result !== true) {
+    echo $result;
+} else {
+    echo $output;
+}
