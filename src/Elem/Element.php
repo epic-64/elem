@@ -139,7 +139,8 @@ class Element
      */
     public function id(string $id): static
     {
-        return $this->attr('id', $id);
+        $this->element->id = $id;
+        return $this;
     }
 
     /**
@@ -147,12 +148,11 @@ class Element
      */
     public function class(string ...$classes): static
     {
-        $existing = $this->element->getAttribute('class');
-        $all = array_filter(array_merge(
-            $existing ? explode(' ', $existing) : [],
-            $classes
-        ));
-        $this->element->setAttribute('class', implode(' ', array_unique($all)));
+        if ($classes !== []) {
+            $this->element->classList->add(...$classes);
+        }
+
+
         return $this;
     }
 
