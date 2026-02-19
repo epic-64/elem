@@ -4,29 +4,29 @@ declare(strict_types=1);
 
 namespace Epic64\Elem;
 
-use DOMDocument;
-use DOMDocumentFragment;
-use DOMElement;
-use DOMNode;
-use DOMText;
+use Dom\DocumentFragment;
+use Dom\Element;
+use Dom\HTMLDocument;
+use Dom\Node;
+use Dom\Text;
 
 /**
  * Factory for creating DOM elements.
- * Uses a shared DOMDocument for efficient element creation.
+ * Uses a shared HTMLDocument for efficient element creation.
  */
 class ElementFactory
 {
-    private static ?DOMDocument $dom = null;
+    private static ?HTMLDocument $dom = null;
 
-    private static function getDom(): DOMDocument
+    private static function getDom(): HTMLDocument
     {
         if (self::$dom === null) {
-            self::$dom = new DOMDocument('1.0', 'UTF-8');
+            self::$dom = HTMLDocument::createEmpty();
         }
         return self::$dom;
     }
 
-    public static function createElement(string $tagName, ?string $text = null): DOMElement
+    public static function createElement(string $tagName, ?string $text = null): Element
     {
         $element = self::getDom()->createElement($tagName);
         if ($text !== null && $text !== '') {
@@ -35,22 +35,22 @@ class ElementFactory
         return $element;
     }
 
-    public static function createTextNode(string $text): DOMText
+    public static function createTextNode(string $text): Text
     {
         return self::getDom()->createTextNode($text);
     }
 
-    public static function importNode(DOMNode $node, bool $deep = true): DOMNode
+    public static function importNode(Node $node, bool $deep = true): Node
     {
         return self::getDom()->importNode($node, $deep);
     }
 
-    public static function saveHTML(DOMNode $node): string
+    public static function saveHTML(Node $node): string
     {
-        return self::getDom()->saveHTML($node) ?: '';
+        return self::getDom()->saveHtml($node);
     }
 
-    public static function dom(): DOMDocument
+    public static function dom(): HTMLDocument
     {
         return self::getDom();
     }
@@ -59,20 +59,17 @@ class ElementFactory
      * Create a document fragment from raw HTML string.
      * The HTML is parsed and inserted without escaping.
      */
-    public static function createRawFragment(string $html): DOMDocumentFragment
+    public static function createRawFragment(string $html): DocumentFragment
     {
         $fragment = self::getDom()->createDocumentFragment();
         if ($html === '') {
             return $fragment;
         }
 
-        // Parse HTML using a temporary DOMDocument (handles real HTML, not just XML)
-        $tempDoc = new DOMDocument('1.0', 'UTF-8');
-        // Wrap in a container to handle multiple root elements and text nodes
-        // Use LIBXML options to suppress warnings for HTML5 elements
-        @$tempDoc->loadHTML(
-            '<?xml encoding="UTF-8"><div id="__raw_container__">' . $html . '</div>',
-            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+        // Parse HTML using a temporary HTMLDocument (handles real HTML5)
+        $tempDoc = HTMLDocument::createFromString(
+            '<div id="__raw_container__">' . $html . '</div>',
+            LIBXML_NOERROR
         );
 
         // Find our container and import its children
