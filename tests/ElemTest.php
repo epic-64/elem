@@ -453,9 +453,9 @@ test('pre and code elements preserve whitespace in pretty-printed output', funct
     $expected = <<<HTML
         <div class="container">
             <pre class="code-block">
-                <code class="language-php">button(class: 'btn')
-                    -&gt;attr('hx-post', '/api')
-                    -&gt;attr('hx-swap', 'innerHTML')</code></pre>
+        <code class="language-php">button(class: 'btn')
+            -&gt;attr('hx-post', '/api')
+            -&gt;attr('hx-swap', 'innerHTML')</code></pre>
         </div>
         HTML;
 
