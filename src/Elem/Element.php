@@ -245,6 +245,7 @@ class Element
                 && preg_match('/^<\/(\w+)>$/', $tokens[$i + 2], $closeMatch)
                 && strtolower($openMatch[1]) === strtolower($closeMatch[1])
                 && !in_array(strtolower($openMatch[1]), $selfClosing)
+                && !in_array(strtolower($openMatch[1]), $preserveWhitespace)
             ) {
                 // Merge into a single token: <tag>text</tag>
                 $collapsed[] = $tokens[$i] . trim($tokens[$i + 1]) . $tokens[$i + 2];
