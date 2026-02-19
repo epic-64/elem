@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Epic64\Elem;
 
+use Dom\Comment;
 use Dom\DocumentFragment;
 use Dom\Element;
 use Dom\HTMLDocument;
@@ -17,6 +18,12 @@ use Dom\Text;
 class ElementFactory
 {
     private static ?HTMLDocument $dom = null;
+
+    /** @var array<string, string> Raw HTML storage keyed by marker ID */
+    private static array $rawHtmlStore = [];
+
+    /** @var int Counter for unique marker IDs */
+    private static int $rawHtmlCounter = 0;
 
     private static function getDom(): HTMLDocument
     {
@@ -47,7 +54,18 @@ class ElementFactory
 
     public static function saveHTML(Node $node): string
     {
-        return self::getDom()->saveHtml($node);
+        $html = self::getDom()->saveHtml($node);
+
+        // Replace raw HTML markers with actual content
+        if (self::$rawHtmlStore !== []) {
+            $html = preg_replace_callback(
+                '/<!--RAW:(\d+)-->/',
+                static fn(array $m) => self::$rawHtmlStore[$m[1]] ?? '',
+                $html
+            );
+        }
+
+        return $html;
     }
 
     public static function dom(): HTMLDocument
@@ -55,12 +73,21 @@ class ElementFactory
         return self::getDom();
     }
 
-    /** @var Element|null Reusable temp element for parsing raw HTML */
-    private static ?Element $tempElement = null;
+    /**
+     * Create a comment marker for raw HTML that will be replaced during serialization.
+     * This avoids expensive DOM parsing for raw HTML content.
+     */
+    public static function createRawMarker(string $html): Comment
+    {
+        $id = (string) self::$rawHtmlCounter++;
+        self::$rawHtmlStore[$id] = $html;
+        return self::getDom()->createComment("RAW:$id");
+    }
 
     /**
      * Create a document fragment from raw HTML string.
      * The HTML is parsed and inserted without escaping.
+     * @deprecated Use createRawMarker() for better performance
      */
     public static function createRawFragment(string $html): DocumentFragment
     {
@@ -77,16 +104,17 @@ class ElementFactory
         }
 
         // Use innerHTML on a reusable div element - much faster than creating new documents
-        if (self::$tempElement === null) {
-            self::$tempElement = $dom->createElement('div');
+        static $tempElement = null;
+        if ($tempElement === null) {
+            $tempElement = $dom->createElement('div');
         }
 
         // Set innerHTML parses the HTML directly
-        self::$tempElement->innerHTML = $html;
+        $tempElement->innerHTML = $html;
 
         // Move all children to fragment (moves, not copies - more efficient)
-        while (self::$tempElement->firstChild !== null) {
-            $fragment->appendChild(self::$tempElement->firstChild);
+        while ($tempElement->firstChild !== null) {
+            $fragment->appendChild($tempElement->firstChild);
         }
 
         return $fragment;

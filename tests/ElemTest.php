@@ -938,7 +938,7 @@ test('raw() function works with complex HTML', function () {
 
     expect($output)->toContain('<div class="inner">')
         ->and($output)->toContain('<span id="test">Hello</span>')
-        ->and($output)->toContain('<br>');
+        ->and($output)->toContain('<br/>');
 });
 
 test('raw() function can be mixed with regular elements', function () {
