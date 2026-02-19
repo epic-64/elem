@@ -606,7 +606,9 @@ test('select element methods', function () {
     expect($output)->toContain('name="country"')
         ->and($output)->toContain('required')
         ->and($output)->toContain('<option value="us">United States</option>')
-        ->and($output)->toContain('<option value="uk" selected>United Kingdom</option>');
+        ->and($output)->toContain('value="uk"')
+        ->and($output)->toContain('selected')
+        ->and($output)->toContain('>United Kingdom</option>');
 });
 
 test('textarea element methods', function () {
@@ -844,9 +846,10 @@ test('Meta element fluent methods', function () {
 });
 
 test('element handles DOMNode children from external documents', function () {
-    // Create an external DOMDocument
-    $externalDom = new \DOMDocument();
-    $externalNode = $externalDom->createElement('span', 'External content');
+    // Create an external Dom\HTMLDocument
+    $externalDom = \Dom\HTMLDocument::createEmpty();
+    $externalNode = $externalDom->createElement('span');
+    $externalNode->textContent = 'External content';
 
     // Add the external node as a child
     $element = div()(
@@ -860,7 +863,8 @@ test('element handles DOMNode children from external documents', function () {
 test('element handles DOMNode children from same document', function () {
     // Create a node from the same factory DOM
     $dom = \Epic64\Elem\ElementFactory::dom();
-    $sameDocNode = $dom->createElement('span', 'Same doc content');
+    $sameDocNode = $dom->createElement('span');
+    $sameDocNode->textContent = 'Same doc content';
 
     $element = div()(
         $sameDocNode

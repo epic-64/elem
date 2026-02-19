@@ -5,24 +5,24 @@ declare(strict_types=1);
 namespace Epic64\Elem;
 
 use Closure;
-use DOMElement;
-use DOMNode;
+use Dom\Element as DomElement;
+use Dom\Node;
 use Epic64\Elem\Elements\RawHtml;
 use Epic64\Elem\Elements\Text;
 use InvalidArgumentException;
 
 /**
  * Base class for all HTML elements.
- * Provides a safe, type-checked wrapper around DOMElement.
- * Uses a shared DOMDocument for efficient memory usage.
+ * Provides a safe, type-checked wrapper around Dom\Element.
+ * Uses a shared HTMLDocument for efficient memory usage.
  *
- * @phpstan-type Child DOMNode|Element|RawHtml|Text|string|null
+ * @phpstan-type Child Node|Element|RawHtml|Text|string|null
  */
 class Element
 {
-    protected DOMElement $element;
+    protected DomElement $element;
 
-    protected ?DOMElement $pendingScript = null;
+    protected ?DomElement $pendingScript = null;
 
     public function __construct(string $tagName, ?string $text = null)
     {
@@ -88,7 +88,7 @@ class Element
                 if ($child->content !== '') {
                     $this->element->appendChild(ElementFactory::createTextNode($child->content));
                 }
-            } elseif ($child instanceof DOMNode) {
+            } elseif ($child instanceof Node) {
                 // External node might need import
                 if ($child->ownerDocument !== $dom) {
                     $child = ElementFactory::importNode($child, true);
@@ -118,7 +118,7 @@ class Element
      */
     public function getAttr(string $name): string
     {
-        return $this->element->getAttribute($name);
+        return $this->element->getAttribute($name) ?? '';
     }
 
     /**
