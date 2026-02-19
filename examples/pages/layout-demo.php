@@ -207,7 +207,7 @@ function navItem(string $label, string $href, bool $active = false, ?string $bad
 // =============================================================================
 
 // Build the page using the dashboardLayout function
-return dashboardLayout(
+$page = dashboardLayout(
     pageTitle: 'Layout Demo - Elem Examples',
 
     headerSlot: [
@@ -404,3 +404,4 @@ return dashboardLayout(
     ],
 );
 
+return $page->toHtml(pretty: false);

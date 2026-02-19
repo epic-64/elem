@@ -55,30 +55,38 @@ class ElementFactory
         return self::getDom();
     }
 
+    /** @var Element|null Reusable temp element for parsing raw HTML */
+    private static ?Element $tempElement = null;
+
     /**
      * Create a document fragment from raw HTML string.
      * The HTML is parsed and inserted without escaping.
      */
     public static function createRawFragment(string $html): DocumentFragment
     {
-        $fragment = self::getDom()->createDocumentFragment();
+        $dom = self::getDom();
+        $fragment = $dom->createDocumentFragment();
         if ($html === '') {
             return $fragment;
         }
 
-        // Parse HTML using a temporary HTMLDocument (handles real HTML5)
-        $tempDoc = HTMLDocument::createFromString(
-            '<div id="__raw_container__">' . $html . '</div>',
-            LIBXML_NOERROR
-        );
+        // Fast path: if it looks like a simple text node (no < or &), just create text
+        if (strpos($html, '<') === false && strpos($html, '&') === false) {
+            $fragment->appendChild($dom->createTextNode($html));
+            return $fragment;
+        }
 
-        // Find our container and import its children
-        $container = $tempDoc->getElementById('__raw_container__');
-        if ($container !== null) {
-            foreach ($container->childNodes as $child) {
-                $imported = self::getDom()->importNode($child, true);
-                $fragment->appendChild($imported);
-            }
+        // Use innerHTML on a reusable div element - much faster than creating new documents
+        if (self::$tempElement === null) {
+            self::$tempElement = $dom->createElement('div');
+        }
+
+        // Set innerHTML parses the HTML directly
+        self::$tempElement->innerHTML = $html;
+
+        // Move all children to fragment (moves, not copies - more efficient)
+        while (self::$tempElement->firstChild !== null) {
+            $fragment->appendChild(self::$tempElement->firstChild);
         }
 
         return $fragment;
