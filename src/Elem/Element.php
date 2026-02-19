@@ -91,10 +91,9 @@ class Element
                     $child->pendingScript = null;
                 }
             } elseif ($child instanceof RawHtml) {
-                // Raw HTML is inserted without escaping
+                // Raw HTML: insert marker that gets replaced during serialization (no parsing!)
                 if ($child->html !== '') {
-                    $fragment = ElementFactory::createRawFragment($child->html);
-                    $this->element->appendChild($fragment);
+                    $this->element->appendChild(ElementFactory::createRawMarker($child->html));
                 }
             } elseif ($child instanceof Text) {
                 // Text is escaped and inserted as a text node
