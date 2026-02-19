@@ -20,6 +20,19 @@ use InvalidArgumentException;
  */
 class Element
 {
+    /** @var array<string, true> Void elements that cannot have children */
+    private const VOID_ELEMENTS = [
+        'area' => true, 'base' => true, 'br' => true, 'col' => true,
+        'embed' => true, 'hr' => true, 'img' => true, 'input' => true,
+        'link' => true, 'meta' => true, 'param' => true, 'source' => true,
+        'track' => true, 'wbr' => true,
+    ];
+
+    /** @var array<string, true> Tags that preserve whitespace */
+    private const PRESERVE_WHITESPACE = [
+        'pre' => true, 'code' => true, 'textarea' => true, 'script' => true,
+    ];
+
     protected DomElement $element;
 
     protected ?DomElement $pendingScript = null;
@@ -180,8 +193,7 @@ class Element
         $script = ElementFactory::createElement('script', $wrappedCode);
 
         // Void elements can't have children, so we store the script to be rendered after
-        $voidElements = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
-        if (in_array(strtolower($this->element->tagName), $voidElements)) {
+        if (isset(self::VOID_ELEMENTS[strtolower($this->element->tagName)])) {
             // Insert after this element
             if ($this->element->parentNode) {
                 $this->element->parentNode->insertBefore($script, $this->element->nextSibling);
@@ -211,20 +223,20 @@ class Element
     private function indentHtml(string $html): string
     {
         $html = trim($html);
-        if (empty($html)) {
+        if ($html === '') {
             return '';
         }
 
-        // Self-closing tags
-        $selfClosing = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+        // Pre-computed indent strings for common depths (0-20)
+        static $indentCache = [
+            '', '    ', '        ', '            ', '                ',
+            '                    ', '                        ', '                            ',
+            '                                ', '                                    ',
+        ];
 
-        // Tags whose content should preserve whitespace (no indentation)
-        $preserveWhitespace = ['pre', 'code', 'textarea', 'script'];
-
-        $result = '';
+        $output = [];
         $indent = 0;
-        $indentStr = '    ';
-        $insidePreformatted = 0; // Track nesting level of preformatted tags
+        $insidePreformatted = 0;
 
         // Split by tags while keeping tags
         $tokens = preg_split('/(<[^>]+>)/s', $html, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
@@ -237,96 +249,112 @@ class Element
         $collapsed = [];
         $count = count($tokens);
         for ($i = 0; $i < $count; $i++) {
+            $token = $tokens[$i];
             // Check for pattern: opening tag, text content, closing tag (with no nested tags)
             if (
                 $i + 2 < $count
-                && preg_match('/^<(\w+)/', $tokens[$i], $openMatch)
-                && !preg_match('/^</', $tokens[$i + 1])
-                && preg_match('/^<\/(\w+)>$/', $tokens[$i + 2], $closeMatch)
-                && strtolower($openMatch[1]) === strtolower($closeMatch[1])
-                && !in_array(strtolower($openMatch[1]), $selfClosing)
-                && !in_array(strtolower($openMatch[1]), $preserveWhitespace)
+                && $token[0] === '<'
+                && $token[1] !== '/'
+                && ($tokens[$i + 1][0] ?? '<') !== '<'
+                && ($tokens[$i + 2][0] ?? '') === '<'
+                && ($tokens[$i + 2][1] ?? '') === '/'
             ) {
-                // Merge into a single token: <tag>text</tag>
-                $collapsed[] = $tokens[$i] . trim($tokens[$i + 1]) . $tokens[$i + 2];
-                $i += 2; // skip text and closing tag
-            } else {
-                $collapsed[] = $tokens[$i];
-            }
-        }
-        $tokens = $collapsed;
+                // Extract tag name from opening tag
+                $spacePos = strpos($token, ' ');
+                $tagEnd = $spacePos !== false ? $spacePos : strlen($token) - 1;
+                $tagName = strtolower(substr($token, 1, $tagEnd - 1));
 
-        foreach ($tokens as $token) {
+                // Only collapse if not void/preformatted and closing tag matches
+                if (!isset(self::VOID_ELEMENTS[$tagName]) && !isset(self::PRESERVE_WHITESPACE[$tagName])) {
+                    $closeTag = $tokens[$i + 2];
+                    $closeTagName = strtolower(substr($closeTag, 2, -1));
+                    if ($tagName === $closeTagName) {
+                        $collapsed[] = $token . trim($tokens[$i + 1]) . $closeTag;
+                        $i += 2;
+                        continue;
+                    }
+                }
+            }
+            $collapsed[] = $token;
+        }
+
+        foreach ($collapsed as $token) {
             // Only trim if not inside preformatted content
             if ($insidePreformatted === 0) {
                 $token = trim($token);
-                if (empty($token)) {
+                if ($token === '') {
                     continue;
                 }
-            } elseif (!preg_match('/^</', $token)) {
+            } elseif ($token[0] !== '<') {
                 // Inside preformatted: skip empty text tokens but preserve non-empty ones as-is
                 if (trim($token) === '') {
                     continue;
                 }
             }
 
-            // Check if this is a collapsed inline element (e.g. <tag>text</tag>)
-            if (
-                $insidePreformatted === 0
-                && preg_match('/^<(\w+)\b[^>]*>.*<\/\1>$/s', $token)
-            ) {
-                $result .= str_repeat($indentStr, $indent) . $token . "\n";
-                continue;
-            }
+            $indentStr = $indentCache[$indent] ?? str_repeat('    ', $indent);
 
-            // Check if it's a tag
-            if (preg_match('/^<\/(\w+)/', $token, $matches)) {
-                // Closing tag
-                $tagName = strtolower($matches[1]);
-                $wasInsidePreformatted = $insidePreformatted > 0;
+            // Check if token starts with <
+            if ($token[0] === '<') {
+                // Check if it's a closing tag
+                if ($token[1] === '/') {
+                    // Extract tag name
+                    $tagName = strtolower(substr($token, 2, strpos($token, '>') - 2));
+                    $wasInsidePreformatted = $insidePreformatted > 0;
 
-                if (in_array($tagName, $preserveWhitespace)) {
-                    $insidePreformatted = max(0, $insidePreformatted - 1);
-                }
+                    if (isset(self::PRESERVE_WHITESPACE[$tagName])) {
+                        $insidePreformatted = max(0, $insidePreformatted - 1);
+                    }
 
-                $indent = max(0, $indent - 1);
+                    $indent = max(0, $indent - 1);
+                    $indentStr = $indentCache[$indent] ?? str_repeat('    ', $indent);
 
-                if ($wasInsidePreformatted) {
-                    // Don't add indentation for closing tags when exiting preformatted content
-                    $result .= $token;
-                    if ($insidePreformatted === 0) {
-                        $result .= "\n";
+                    if ($wasInsidePreformatted) {
+                        $output[] = $token;
+                        if ($insidePreformatted === 0) {
+                            $output[] = "\n";
+                        }
+                    } else {
+                        $output[] = $indentStr . $token . "\n";
                     }
                 } else {
-                    $result .= str_repeat($indentStr, $indent) . $token . "\n";
-                }
-            } elseif (preg_match('/^<(\w+)/', $token, $matches)) {
-                $tagName = strtolower($matches[1]);
-                $isSelfClosing = in_array($tagName, $selfClosing) || str_ends_with($token, '/>');
+                    // Opening tag or self-closing - check if it's a collapsed element
+                    if (str_contains($token, '</')) {
+                        // Collapsed element like <tag>text</tag>
+                        $output[] = $indentStr . $token . "\n";
+                        continue;
+                    }
 
-                if ($insidePreformatted > 0) {
-                    $result .= $token;
-                } else {
-                    $result .= str_repeat($indentStr, $indent) . $token . "\n";
-                }
+                    // Extract tag name
+                    $spacePos = strpos($token, ' ');
+                    $tagEnd = $spacePos !== false ? $spacePos : strlen($token) - 1;
+                    $tagName = strtolower(substr($token, 1, $tagEnd - 1));
+                    $isSelfClosing = isset(self::VOID_ELEMENTS[$tagName]) || $token[-2] === '/';
 
-                if (!$isSelfClosing) {
-                    $indent++;
-                    if (in_array($tagName, $preserveWhitespace)) {
-                        $insidePreformatted++;
+                    if ($insidePreformatted > 0) {
+                        $output[] = $token;
+                    } else {
+                        $output[] = $indentStr . $token . "\n";
+                    }
+
+                    if (!$isSelfClosing) {
+                        $indent++;
+                        if (isset(self::PRESERVE_WHITESPACE[$tagName])) {
+                            $insidePreformatted++;
+                        }
                     }
                 }
             } else {
                 // Text content
                 if ($insidePreformatted > 0) {
-                    $result .= $token;
+                    $output[] = $token;
                 } else {
-                    $result .= str_repeat($indentStr, $indent) . $token . "\n";
+                    $output[] = $indentStr . $token . "\n";
                 }
             }
         }
 
-        return rtrim($result);
+        return rtrim(implode('', $output));
     }
 
     public function __toString(): string
