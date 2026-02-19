@@ -358,22 +358,16 @@ test('creates a simple document and matches the entire expected HTML string', fu
     $expected = <<<HTML
         <!DOCTYPE html>
         <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <title>
-              Test Page
-            </title>
-          </head>
-          <body>
-            <div id="app" class="container">
-              <h1>
-                Hello World
-              </h1>
-              <p>
-                Welcome to Elem.
-              </p>
-            </div>
-          </body>
+            <head>
+                <meta charset="UTF-8">
+                <title>Test Page</title>
+            </head>
+            <body>
+                <div id="app" class="container">
+                    <h1>Hello World</h1>
+                    <p>Welcome to Elem.</p>
+                </div>
+            </body>
         </html>
         HTML;
 
@@ -432,12 +426,6 @@ test('special characters in text content are properly escaped', function () {
 });
 
 test('pre and code elements preserve whitespace in pretty-printed output', function () {
-    $codeSnippet = <<<PHP
-        button(class: 'btn')
-            ->attr('hx-post', '/api')
-            ->attr('hx-swap', 'innerHTML')
-        PHP;
-
     $html = div(class: 'container')(
         el('pre', class: 'code-block')(
             el('code', class: 'language-php', text: <<<PHP
@@ -464,10 +452,10 @@ test('pre and code elements preserve whitespace in pretty-printed output', funct
     // Test against the exact expected output
     $expected = <<<HTML
         <div class="container">
-          <pre class="code-block">
-        <code class="language-php">button(class: 'btn')
-            -&gt;attr('hx-post', '/api')
-            -&gt;attr('hx-swap', 'innerHTML')</code></pre>
+            <pre class="code-block">
+                <code class="language-php">button(class: 'btn')
+                    -&gt;attr('hx-post', '/api')
+                    -&gt;attr('hx-swap', 'innerHTML')</code></pre>
         </div>
         HTML;
 

@@ -223,7 +223,7 @@ class Element
 
         $result = '';
         $indent = 0;
-        $indentStr = '  ';
+        $indentStr = '    ';
         $insidePreformatted = 0; // Track nesting level of preformatted tags
 
         // Split by tags while keeping tags
@@ -232,6 +232,28 @@ class Element
         if ($tokens === false) {
             return $html;
         }
+
+        // Collapse simple elements (open tag + text + close tag) into single tokens
+        $collapsed = [];
+        $count = count($tokens);
+        for ($i = 0; $i < $count; $i++) {
+            // Check for pattern: opening tag, text content, closing tag (with no nested tags)
+            if (
+                $i + 2 < $count
+                && preg_match('/^<(\w+)/', $tokens[$i], $openMatch)
+                && !preg_match('/^</', $tokens[$i + 1])
+                && preg_match('/^<\/(\w+)>$/', $tokens[$i + 2], $closeMatch)
+                && strtolower($openMatch[1]) === strtolower($closeMatch[1])
+                && !in_array(strtolower($openMatch[1]), $selfClosing)
+            ) {
+                // Merge into a single token: <tag>text</tag>
+                $collapsed[] = $tokens[$i] . trim($tokens[$i + 1]) . $tokens[$i + 2];
+                $i += 2; // skip text and closing tag
+            } else {
+                $collapsed[] = $tokens[$i];
+            }
+        }
+        $tokens = $collapsed;
 
         foreach ($tokens as $token) {
             // Only trim if not inside preformatted content
@@ -245,6 +267,15 @@ class Element
                 if (trim($token) === '') {
                     continue;
                 }
+            }
+
+            // Check if this is a collapsed inline element (e.g. <tag>text</tag>)
+            if (
+                $insidePreformatted === 0
+                && preg_match('/^<(\w+)\b[^>]*>.*<\/\1>$/s', $token)
+            ) {
+                $result .= str_repeat($indentStr, $indent) . $token . "\n";
+                continue;
             }
 
             // Check if it's a tag
