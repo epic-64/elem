@@ -147,6 +147,7 @@ class Element
      */
     public function class(string ...$classes): static
     {
+        $classes = array_filter($classes, fn($c) => $c !== '');
         if ($classes !== []) {
             $this->element->classList->add(...$classes);
         }
