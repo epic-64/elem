@@ -359,7 +359,7 @@ class Element
 
     public function __toString(): string
     {
-        return $this->toPrettyHtml();
+        return $this->toHtml(pretty: false); // pretty is 30-40% slower.
     }
 
     /**
