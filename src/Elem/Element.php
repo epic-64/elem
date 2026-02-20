@@ -21,7 +21,7 @@ use InvalidArgumentException;
 class Element
 {
     /** @var array<string, true> Void elements that cannot have children */
-    private const VOID_ELEMENTS = [
+    private const array VOID_ELEMENTS = [
         'area' => true, 'base' => true, 'br' => true, 'col' => true,
         'embed' => true, 'hr' => true, 'img' => true, 'input' => true,
         'link' => true, 'meta' => true, 'param' => true, 'source' => true,
@@ -29,7 +29,7 @@ class Element
     ];
 
     /** @var array<string, true> Tags that preserve whitespace */
-    private const PRESERVE_WHITESPACE = [
+    private const array PRESERVE_WHITESPACE = [
         'pre' => true, 'code' => true, 'textarea' => true, 'script' => true,
     ];
 
@@ -239,7 +239,7 @@ class Element
         $insidePreformatted = 0;
 
         // Split by tags while keeping tags
-        $tokens = preg_split('/(<[^>]+>)/s', $html, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+        $tokens = preg_split('/(<[^>]+>)/', $html, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
         if ($tokens === false) {
             return $html;
