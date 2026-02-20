@@ -45,7 +45,7 @@ function _applyCommon(Element $element, ?string $id, ?string $class): Element
     if ($id !== null) {
         $element->id($id);
     }
-    if ($class !== null) {
+    if ($class !== null && $class !== '') {
         $element->class(...explode(' ', $class));
     }
     return $element;
