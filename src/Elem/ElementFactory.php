@@ -83,40 +83,4 @@ class ElementFactory
         self::$rawHtmlStore[$id] = $html;
         return self::getDom()->createComment("RAW:$id");
     }
-
-    /**
-     * Create a document fragment from raw HTML string.
-     * The HTML is parsed and inserted without escaping.
-     * @deprecated Use createRawMarker() for better performance
-     */
-    public static function createRawFragment(string $html): DocumentFragment
-    {
-        $dom = self::getDom();
-        $fragment = $dom->createDocumentFragment();
-        if ($html === '') {
-            return $fragment;
-        }
-
-        // Fast path: if it looks like a simple text node (no < or &), just create text
-        if (strpos($html, '<') === false && strpos($html, '&') === false) {
-            $fragment->appendChild($dom->createTextNode($html));
-            return $fragment;
-        }
-
-        // Use innerHTML on a reusable div element - much faster than creating new documents
-        static $tempElement = null;
-        if ($tempElement === null) {
-            $tempElement = $dom->createElement('div');
-        }
-
-        // Set innerHTML parses the HTML directly
-        $tempElement->innerHTML = $html;
-
-        // Move all children to fragment (moves, not copies - more efficient)
-        while ($tempElement->firstChild !== null) {
-            $fragment->appendChild($tempElement->firstChild);
-        }
-
-        return $fragment;
-    }
 }
