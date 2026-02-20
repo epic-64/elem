@@ -19,7 +19,7 @@ class ElementFactory
 {
     private static ?HTMLDocument $dom = null;
 
-    /** @var array<string, string> Raw HTML storage keyed by marker ID */
+    /** @var array<int|string, string> Raw HTML storage keyed by marker ID */
     private static array $rawHtmlStore = [];
 
     /** @var int Counter for unique marker IDs */
@@ -60,9 +60,9 @@ class ElementFactory
         if (self::$rawHtmlStore !== []) {
             $html = preg_replace_callback(
                 '/<!--RAW:(\d+)-->/',
-                static fn(array $m) => self::$rawHtmlStore[$m[1]] ?? '',
+                static fn(array $m) => self::$rawHtmlStore[(string) $m[1]] ?? '',
                 $html
-            );
+            ) ?? '';
         }
 
         return $html;

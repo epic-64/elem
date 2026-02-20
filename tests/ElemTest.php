@@ -353,7 +353,7 @@ test('creates a simple document and matches the entire expected HTML string', fu
                 p(text: 'Welcome to Elem.')
             )
         )
-    )->__toString();
+    )->toPrettyHtml();
 
     $expected = <<<HTML
         <!DOCTYPE html>
@@ -437,7 +437,7 @@ test('pre and code elements preserve whitespace in pretty-printed output', funct
         )
     );
 
-    $output = $html->__toString();
+    $output = $html->toPrettyHtml();
 
     // The code content should preserve its indentation (4 spaces before ->attr)
     expect($output)->toContain("    -&gt;attr('hx-post', '/api')");
